@@ -70,13 +70,27 @@
 
 .tasks-container{
     flex-grow: 1;
+
+
+    :not(#ideas-tasks){ //all except ideas tables
+        color:#fff;
+    }
+    #research-tasks{
+        background-color: rgb(162, 178, 226);
+    }
+    #todo-tasks{
+        background-color: rgb(252, 172, 0);
+    }
+    #done-tasks{
+        background-color: rgb(97, 192, 19);
+    }
+   
 }
 
 .tasks{
     display: flex;
     padding: 15px 12px;
     background-color: #fff;
-    border-bottom: solid 1px #ddd;
     border-radius: 4px;
     margin-bottom: 10px;
   
