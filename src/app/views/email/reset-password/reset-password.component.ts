@@ -6,10 +6,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./reset-password.component.scss']
 })
 export class ResetPasswordComponent implements OnInit {
-
+  hide = true;
   constructor() { }
 
   ngOnInit(): void {
   }
-
+  
 }

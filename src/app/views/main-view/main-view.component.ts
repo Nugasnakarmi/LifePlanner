@@ -2,6 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 import { LoginService } from 'src/app/services/login/login.service';
+import { MatDialog } from '@angular/material/dialog';
+import { LoginComponent } from '../email/login/login.component';
+import { Observable } from 'rxjs';
+
+
+
+
 @Component({
   selector: 'app-main-view',
   templateUrl: './main-view.component.html',
@@ -19,9 +26,9 @@ export class MainViewComponent implements OnInit {
   research = [];
   done = [];
   todo = [];
+  userName = "Login";
 
-
-  constructor( private loginService: LoginService) { }
+  constructor( public loginDialog: MatDialog) { }
 
   ngOnInit(): void {
   }
@@ -39,7 +46,20 @@ export class MainViewComponent implements OnInit {
     }
   }
  
-  login(){
-    this.loginService.login();
+
+  openLoginDialog(){
+    let loginRef = this.loginDialog.open(LoginComponent);
+    loginRef.afterClosed().subscribe((userData)=>{
+      if(userData){
+        console.log(userData);
+        this.userName = userData.userDetails._profile.data.email;
+
+      }
+
+    });
+  }
+
+  updateUserDetails(userDetails:any){
+
   }
 }
