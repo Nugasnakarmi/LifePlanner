@@ -8,6 +8,9 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
 import { EmailConfirmComponent } from './views/email/email-confirm/email-confirm.component';
 import { ResetPasswordComponent } from './views/email/reset-password/reset-password.component';
 import {MatFormFieldModule} from '@angular/material/form-field'; 
+import {MatSelectModule} from '@angular/material/select';
+import {MatInputModule} from '@angular/material/input';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; 
 @NgModule({
   declarations: [
@@ -21,6 +24,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     AppRoutingModule,
     DragDropModule,
     MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
     BrowserAnimationsModule
   ],
   providers: [],
