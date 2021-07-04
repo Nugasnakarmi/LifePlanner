@@ -49,10 +49,14 @@ export class MainViewComponent implements OnInit {
 
   openLoginDialog(){
     let loginRef = this.loginDialog.open(LoginComponent);
-    loginRef.afterClosed().subscribe((userData)=>{
-      if(userData){
-        console.log(userData);
-        this.userName = userData.userDetails._profile.data.email;
+    loginRef.afterClosed().subscribe((data)=>{
+      if(data){
+        console.log(data);
+        if(data.userDetails.hasOwnProperty('_profile')){
+            var userName = data.userDetails._profile.data.email;
+            this.userName = userName;
+         console.log(userName);
+        }
 
       }
 

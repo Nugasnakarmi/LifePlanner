@@ -33,10 +33,14 @@ export class LoginComponent implements OnInit {
       "password": this.password.value
     }
     try {
-    this.userDetails = this.loginService.loginEmailPassword(loginCredentials);
-    if(this.userDetails){
-      this.closeLoginDialog();
+     this.loginService.loginEmailPassword(loginCredentials).then( (res)=>{
+      if(res){
+        this.userDetails = res;
+        this.closeLoginDialog();
       }
+
+    });
+    
       
      
     } catch (error) {
