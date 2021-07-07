@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   'realm-app-id': "lifeplanner-givvz" 
+  
 };
 
 /*

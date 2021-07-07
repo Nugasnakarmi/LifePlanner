@@ -18,13 +18,15 @@ import {MatDialogModule} from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoginComponent } from './views/email/login/login.component'; 
 import { ReactiveFormsModule } from '@angular/forms';
+import { RegisterComponent } from './views/email/register/register.component';
 @NgModule({
   declarations: [
     AppComponent,
     MainViewComponent,
     EmailConfirmComponent,
     ResetPasswordComponent,
-    LoginComponent
+    LoginComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { LoginService } from 'src/app/services/login/login.service';
+import { RegisterComponent } from '../register/register.component';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,7 @@ export class LoginComponent implements OnInit {
   hide=true;
   userDetails = null;
 
-  constructor(private loginService: LoginService, public loginDialogRef : MatDialogRef<LoginComponent>) { }
+  constructor(private loginService: LoginService,  public registerDialog: MatDialog, public loginDialogRef : MatDialogRef<LoginComponent>) { }
 
   ngOnInit(): void {
   }
@@ -48,6 +49,19 @@ export class LoginComponent implements OnInit {
     }
     
   }
+  register(){
+    this.loginDialogRef.close();
+    let registerRef = this.registerDialog.open(RegisterComponent);
+    registerRef.afterClosed().subscribe((result)=>{
+      if(result){
+        console.log(result);
+     
+
+      }
+
+    });
+  }
+
   closeLoginDialog(){
     this.loginDialogRef.close({userDetails: this.userDetails });
 

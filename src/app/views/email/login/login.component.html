@@ -1,6 +1,6 @@
 <div class="login-container">
-  LifePlanner
-  <p>Login to start saving your life events</p>
+  <h1 class="app-name has-gradient-text">LifePlanner </h1>
+  <p >Login to start saving your life events</p>
       <mat-form-field appearance="fill">
         <mat-label>Enter your email</mat-label>
         <input matInput placeholder="pat@example.com" [formControl]="email" required>
@@ -15,8 +15,9 @@
         </button>
       </mat-form-field>
       
+
    
       <button class="standard-button-height" mat-raised-button color="primary" (click)="login()">Login</button>
-  
+      <p id="register-text">or...do you need to <a href="javascript:void()" (click)="register()">register?</a></p>
     </div>
  
