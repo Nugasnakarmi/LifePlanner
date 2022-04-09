@@ -12,7 +12,7 @@ export class RegisterComponent implements OnInit {
 
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required]);
-  confirmPassword = new FormControl('', [Validators.required, RegisterComponent.matchValues('password')]);
+  confirmPassword = new FormControl('', [Validators.required]);
   userDetails = null;
   hide = true;
 
@@ -20,6 +20,9 @@ export class RegisterComponent implements OnInit {
   constructor(private registerService: RegisterService, public registerDialogRef: MatDialogRef<RegisterComponent>) { }
 
   ngOnInit(): void {
+    this.password.valueChanges.subscribe(() => {
+      this.confirmPassword.updateValueAndValidity();
+    });
   }
 
   public static matchValues(
@@ -45,7 +48,7 @@ export class RegisterComponent implements OnInit {
       if (this.password.hasError('required')) {
         return 'Password must be entered';
       }
-
+    }
       else if (type == "confirmPassword") {
         if (this.confirmPassword.hasError('required')) {
           return 'Please type your password again to confirm';
@@ -56,7 +59,7 @@ export class RegisterComponent implements OnInit {
 
       }
       return 'You must enter a value';
-    }
+    
 
   }
 
