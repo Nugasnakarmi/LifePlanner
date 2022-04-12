@@ -17,7 +17,10 @@ export class RegisterComponent implements OnInit {
   hide = true;
 
 
-  constructor(private registerService: RegisterService, public registerDialogRef: MatDialogRef<RegisterComponent>) { }
+  constructor( private registerService: RegisterService,
+     private registerDialogRef: MatDialogRef<RegisterComponent>
+  
+     ) { }
 
   ngOnInit(): void {
     this.password.valueChanges.subscribe(() => {
@@ -64,13 +67,9 @@ export class RegisterComponent implements OnInit {
   }
 
   register() {
-    console.log("valid registration");
+    console.log("valid registration for", this.email.value, "-", this.password.value );
     try {
-      this.registerService.registerUser(this.email,this.confirmPassword).then((res)=>{
-        if(res){
-          console.log(res);
-        }
-      });
+      this.registerService.registerUser(this.email.value,this.confirmPassword.value).then(res=>console.log(res));
    
      } catch (error) {
        

@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit {
   hide=true;
   userDetails = null;
 
-  constructor(private loginService: LoginService,  public registerDialog: MatDialog, public loginDialogRef : MatDialogRef<LoginComponent>) { }
+  constructor(private loginService: LoginService,  private registerDialog: MatDialog, private loginDialogRef : MatDialogRef<LoginComponent>) { }
 
   ngOnInit(): void {
   }

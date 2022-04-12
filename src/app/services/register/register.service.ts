@@ -12,6 +12,13 @@ export class RegisterService {
   
   async registerUser( email, password): Promise<any>{
 
- return await this.app.emailPasswordAuth.registerUser(email, password);
+  var res = await this.app.emailPasswordAuth.registerUser(email, password);
+  console.log(res);
+ }
+
+ async confirmUser( token: string, tokenId:string){
+  await this.app.emailPasswordAuth.confirmUser({ token, tokenId });
+
+
  }
 }
