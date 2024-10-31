@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {
   CdkDragDrop,
+  DragDropModule,
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
@@ -12,7 +13,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   standalone: true,
-  imports: [],
+  imports: [DragDropModule],
   selector: 'app-main-view',
   templateUrl: './main-view.component.html',
   styleUrls: ['./main-view.component.scss'],
