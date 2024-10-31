@@ -1,26 +1,29 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormControl, ValidationErrors, Validators } from '@angular/forms';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import {
+  AbstractControl,
+  FormControl,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { RegisterService } from 'src/app/services/register/register.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
-
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required]);
   confirmPassword = new FormControl('', [Validators.required]);
   userDetails = null;
   hide = true;
 
-
-  constructor( private registerService: RegisterService,
-     private registerDialogRef: MatDialogRef<RegisterComponent>
-  
-     ) { }
+  constructor(
+    private registerService: RegisterService,
+    private registerDialogRef: MatDialogRef<RegisterComponent>
+  ) {}
 
   ngOnInit(): void {
     this.password.valueChanges.subscribe(() => {
@@ -40,48 +43,40 @@ export class RegisterComponent implements OnInit {
     };
   }
   getErrorMessage(type) {
-    if (type == "email") {
+    if (type == 'email') {
       if (this.email.hasError('required')) {
         return 'You must enter a value';
       }
 
       return this.email.hasError('email') ? 'Not a valid email' : '';
-    }
-    else if (type == "password") {
+    } else if (type == 'password') {
       if (this.password.hasError('required')) {
         return 'Password must be entered';
       }
-    }
-      else if (type == "confirmPassword") {
-        if (this.confirmPassword.hasError('required')) {
-          return 'Please type your password again to confirm';
-        }
-        else {
-          return 'Passwords do not match'
-        }
-
+    } else if (type == 'confirmPassword') {
+      if (this.confirmPassword.hasError('required')) {
+        return 'Please type your password again to confirm';
+      } else {
+        return 'Passwords do not match';
       }
-      return 'You must enter a value';
-    
-
+    }
+    return 'You must enter a value';
   }
 
   register() {
-    console.log("valid registration for", this.email.value, "-", this.password.value );
+    console.log(
+      'valid registration for',
+      this.email.value,
+      '-',
+      this.password.value
+    );
     try {
-      this.registerService.registerUser(this.email.value,this.confirmPassword.value).then(res=>console.log(res));
-   
-     } catch (error) {
-       
-     }
-    
-
+      this.registerService
+        .registerUser(this.email.value, this.confirmPassword.value)
+        .then((res) => console.log(res));
+    } catch (error) {}
   }
   closeLoginDialog() {
     this.registerDialogRef.close();
-
   }
-
-
-
 }

@@ -1,69 +1,63 @@
 import { Component, OnInit } from '@angular/core';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  moveItemInArray,
+  transferArrayItem,
+} from '@angular/cdk/drag-drop';
 
 import { LoginService } from 'src/app/services/login/login.service';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { LoginComponent } from '../email/login/login.component';
 import { Observable } from 'rxjs';
-
-
-
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
+  standalone: true,
+  imports: [],
   selector: 'app-main-view',
   templateUrl: './main-view.component.html',
-  styleUrls: ['./main-view.component.scss']
+  styleUrls: ['./main-view.component.scss'],
 })
-
-
 export class MainViewComponent implements OnInit {
-  ideas = [
-    'Get to work',
-    'Pick up groceries',
-    'Go home',
-    'Fall asleep'
-  ];
+  ideas = ['Get to work', 'Pick up groceries', 'Go home', 'Fall asleep'];
   research = [];
   done = [];
   todo = [];
-  userName = "Login";
+  userName = 'Login';
 
-  constructor( public loginDialog: MatDialog) { }
+  constructor(public loginDialog: MatDialog) {}
 
-  ngOnInit(): void {
-  }
-
-
+  ngOnInit(): void {}
 
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(event.previousContainer.data,
+      moveItemInArray(
         event.container.data,
         event.previousIndex,
-        event.currentIndex);
+        event.currentIndex
+      );
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
     }
   }
- 
 
-  openLoginDialog(){
+  openLoginDialog() {
     let loginRef = this.loginDialog.open(LoginComponent);
-    loginRef.afterClosed().subscribe((data)=>{
-      if(data){
+    loginRef.afterClosed().subscribe((data) => {
+      if (data) {
         console.log(data);
-        if(data.userDetails.hasOwnProperty('_profile')){
-            var userName = data.userDetails._profile.data.email;
-            this.userName = userName;
-         console.log(userName);
+        if (data.userDetails.hasOwnProperty('_profile')) {
+          var userName = data.userDetails._profile.data.email;
+          this.userName = userName;
+          console.log(userName);
         }
-
       }
-
     });
   }
 
-  updateUserDetails(userDetails:any){
-
-  }
+  updateUserDetails(userDetails: any) {}
 }
