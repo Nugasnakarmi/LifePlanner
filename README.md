@@ -1,6 +1,6 @@
 # LifePlanner
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 11.0.2.
+LifePlanner is a passion project for Sagun Nakarmi, which delivers a life-event management platform for users.
 
 ## Development server
 
