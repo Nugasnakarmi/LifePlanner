@@ -22,8 +22,10 @@
     "@angular/platform-browser-dynamic": "^18.2.10",
     "@angular/router": "^18.2.10",
     "@ng-bootstrap/ng-bootstrap": "^11.0.1",
+    "@supabase/supabase-js": "^2.46.1",
     "assert": "^2.0.0",
     "bulma": "^0.9.3",
+    "ngx-toastr": "^19.0.0",
     "realm": "^12.1.0",
     "realm-web": "^1.7.0",
     "rxjs": "~6.6.0",
@@ -43,7 +45,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.5.2",
-    "tslint": "~6.1.0"
-  } 
+    "tslint": "~6.1.0",
+    "typescript": "~5.5.2"
+  }
 }

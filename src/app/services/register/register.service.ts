@@ -1,24 +1,26 @@
 import { Injectable } from '@angular/core';
-import * as Realm from "realm-web";
+import * as Realm from 'realm-web';
 import { environment } from 'src/environments/environment';
-
+import { createClient } from '@supabase/supabase-js';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RegisterService {
+  constructor() {}
+  supabaseUrl = environment['supabase-url'];
+  supabaseKey = process.env.SUPABASE_KEY;
+  supabase = createClient(this.supabaseUrl, this.supabaseKey);
 
-  constructor() { }
-  app: Realm.App = new Realm.App({ id: environment['realm-app-id']});
-  
-  async registerUser( email, password): Promise<any>{
+  async registerUser(email, password): Promise<any> {
+    let { data, error } = await this.supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
 
-  var res = await this.app.emailPasswordAuth.registerUser(email, password);
-  console.log(res);
- }
+    console.log(data);
+  }
 
- async confirmUser( token: string, tokenId:string){
-  await this.app.emailPasswordAuth.confirmUser({ token, tokenId });
-
-
- }
+  // async confirmUser(token: string, tokenId: string) {
+  //   await this.app.emailPasswordAuth.confirmUser({ token, tokenId });
+  // }
 }

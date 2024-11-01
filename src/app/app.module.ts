@@ -21,7 +21,6 @@ import { MatSelectModule } from '@angular/material/select';
     AppComponent,
     EmailConfirmComponent,
     ResetPasswordComponent,
-    LoginComponent,
     RegisterComponent,
   ],
   imports: [
