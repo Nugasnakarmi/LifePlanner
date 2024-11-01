@@ -2,14 +2,19 @@ import { Component, inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
+  ReactiveFormsModule,
   ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
 import { RegisterService } from 'src/app/services/register/register.service';
 
 @Component({
+  standalone: true,
+  imports: [MatIconModule, MatFormFieldModule, ReactiveFormsModule],
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],

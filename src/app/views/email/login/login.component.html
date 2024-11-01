@@ -1,23 +1,47 @@
 <div class="login-container">
-  <h1 class="app-name has-gradient-text">LifePlanner </h1>
-  <p >Login to start saving your life events</p>
-      <mat-form-field appearance="fill">
-        <mat-label>Enter your email</mat-label>
-        <input matInput placeholder="pat@example.com" [formControl]="email" required>
-        <mat-error *ngIf="email.invalid">{{getErrorMessage()}}</mat-error>
+  <h1 class="app-name has-gradient-text">LifePlanner</h1>
+  <p>Login to start saving your life events</p>
+  <mat-form-field appearance="fill">
+    <mat-label>Enter your email</mat-label>
+    <input
+      matInput
+      placeholder="pat@example.com"
+      [formControl]="email"
+      required
+    />
+    @if(email.invalid){
+    <mat-error>{{ getErrorMessage() }}</mat-error>
+    }
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Enter your password</mat-label>
+    <input
+      [formControl]="password"
+      matInput
+      [type]="hide ? 'password' : 'text'"
+      required
+    />
+    <button
+      mat-icon-button
+      matSuffix
+      (click)="hide = !hide"
+      [attr.aria-label]="'Hide password'"
+      [attr.aria-pressed]="hide"
+    >
+      <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+    </button>
+  </mat-form-field>
 
-      </mat-form-field>
-      <mat-form-field appearance="fill">
-        <mat-label>Enter your password</mat-label>
-        <input [formControl]="password" matInput [type]="hide ? 'password' : 'text'" required>
-        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-          <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-        </button>
-      </mat-form-field>
-      
-
-   
-      <button class="standard-button-height" mat-raised-button color="primary" (click)="login()">Login</button>
-      <p id="register-text">or...do you need to <a href="javascript:void()" (click)="register()">register?</a></p>
-    </div>
- 
+  <button
+    class="standard-button-height"
+    mat-raised-button
+    color="primary"
+    (click)="login()"
+  >
+    Login
+  </button>
+  <p id="register-text">
+    or...do you need to
+    <a href="javascript:void()" (click)="register()">register?</a>
+  </p>
+</div>
