@@ -1,80 +1,85 @@
 <div class="root">
-
-    <div class="navbar has-background-dark">
-        <div class="navbar-brand">
-            <div class="navbar-item">
-                <h1 class="app-name has-gradient-text">LifePlanner
-
-                </h1>
-           
-            </div>
-
-           
-
-        </div>
-        <div class="login-container" (click)="openLoginDialog()"><p id="user-name">{{userName}}</p> </div>
+  <div class="navbar has-background-dark">
+    <div class="navbar-brand">
+      <div class="navbar-item">
+        <h1 class="app-name has-gradient-text">LifePlanner</h1>
+      </div>
     </div>
-    <div class="board">
-        <div class="board-bar">
-            <p class="board-name">Board Name</p>
-        </div>
-        <div class="board-wrapper">
-            <div class="board-columns" cdkDropListGroup>
-                <div class="board-column" cdkDrag>
-                    <div class="column-title">
-                        Ideas
-                    </div>
-                    <div class="tasks-container example-list" cdkDropList #todoList="cdkDropList" [cdkDropListData]="ideas"
-                        (cdkDropListDropped)="drop($event)">
-                        <div class="tasks"  id="ideas-tasks" *ngFor="let item of ideas" cdkDrag>
-                            {{item}}
-
-                        </div>
-
-                    </div>
-                </div>
-                <div class="board-column" cdkDrag> 
-                    <div class="column-title">
-                        Goals
-                    </div>
-                    <div class="tasks-container" cdkDropList #todoList="cdkDropList" [cdkDropListData]="research"
-                        (cdkDropListDropped)="drop($event)">
-                        <div class="tasks" id="research-tasks" *ngFor="let item of research" cdkDrag>
-                            {{item}}
-
-                        </div>
-
-                    </div>
-                </div>
-                <div class="board-column" cdkDrag>
-                    <div class="column-title">
-                        Objectives
-                    </div>
-                    <div class="tasks-container" cdkDropList #todoList="cdkDropList" [cdkDropListData]="todo"
-                        (cdkDropListDropped)="drop($event)">
-                        <div class="tasks"  id="todo-tasks" *ngFor="let item of todo" cdkDrag>
-                            {{item}}
-
-                        </div>
-
-                    </div>
-                </div>
-                <div class="board-column" cdkDrag>
-                    <div class="column-title">
-                        Achievement
-                    </div>
-                    <div class="tasks-container" cdkDropList #todoList="cdkDropList" [cdkDropListData]="done"
-                        (cdkDropListDropped)="drop($event)">
-                        <div class="tasks"  id="done-tasks" *ngFor="let item of done" cdkDrag>
-                            {{item}}
-
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
+    <div class="login-container" (click)="openLoginDialog()">
+      <p id="user-name">{{ userName }}</p>
     </div>
+  </div>
+  <div class="board">
+    <div class="board-bar">
+      <p class="board-name">Board Name</p>
+    </div>
+    <div class="board-wrapper">
+      <div class="board-columns" cdkDropListGroup>
+        <div class="board-column" cdkDrag>
+          <div class="column-title">Ideas</div>
+          <div
+            class="tasks-container example-list"
+            cdkDropList
+            #todoList="cdkDropList"
+            [cdkDropListData]="ideas"
+            (cdkDropListDropped)="drop($event)"
+          >
+            @for(item of ideas; track item){
+            <div class="tasks" id="ideas-tasks" cdkDrag>
+              {{ item }}
+            </div>
+            }
+          </div>
+        </div>
+        <div class="board-column" cdkDrag>
+          <div class="column-title">Goals</div>
+          <div
+            class="tasks-container"
+            cdkDropList
+            #todoList="cdkDropList"
+            [cdkDropListData]="research"
+            (cdkDropListDropped)="drop($event)"
+          >
+            @for(item of research; track item){
+            <div class="tasks" id="research-tasks" cdkDrag>
+              {{ item }}
+            </div>
+            }
+          </div>
+        </div>
+        <div class="board-column" cdkDrag>
+          <div class="column-title">Objectives</div>
+          <div
+            class="tasks-container"
+            cdkDropList
+            #todoList="cdkDropList"
+            [cdkDropListData]="todo"
+            (cdkDropListDropped)="drop($event)"
+          >
+            @for(item of todo; track item){
+            <div class="tasks" id="todo-tasks" cdkDrag>
+              {{ item }}
+            </div>
+            }
+          </div>
+        </div>
+        <div class="board-column" cdkDrag>
+          <div class="column-title">Achievement</div>
+          <div
+            class="tasks-container"
+            cdkDropList
+            #todoList="cdkDropList"
+            [cdkDropListData]="done"
+            (cdkDropListDropped)="drop($event)"
+          >
+            @for(item of done; track item){
+            <div class="tasks" id="done-tasks" cdkDrag>
+              {{ item }}
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
