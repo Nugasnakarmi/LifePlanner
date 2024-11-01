@@ -10,11 +10,17 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
+import { MatInputModule } from '@angular/material/input';
 import { RegisterService } from 'src/app/services/register/register.service';
 
 @Component({
   standalone: true,
-  imports: [MatIconModule, MatFormFieldModule, ReactiveFormsModule],
+  imports: [
+    MatIconModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
+  ],
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
@@ -92,7 +98,13 @@ export class RegisterComponent implements OnInit {
     try {
       this.registerService
         .registerUser(this.email.value, this.confirmPassword.value)
-        .then((res) => console.log(res));
+        .then((res) => {
+          console.log(res);
+          this.toastRService.success(
+            `Registration for ${this.email.value} was successful`,
+            'Success'
+          );
+        });
     } catch (error) {
       if (error) {
         this.toastRService.error(error.message);

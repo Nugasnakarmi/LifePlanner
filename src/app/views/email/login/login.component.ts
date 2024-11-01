@@ -5,10 +5,16 @@ import { RegisterComponent } from '../register/register.component';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   standalone: true,
-  imports: [MatFormFieldModule, ReactiveFormsModule, MatIconModule],
+  imports: [
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    MatInputModule,
+  ],
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -42,9 +48,9 @@ export class LoginComponent implements OnInit {
       this.loginService.loginEmailPassword(loginCredentials).then((res) => {
         if (res) {
           this.userDetails = res;
-          this.closeLoginDialog();
         }
       });
+      this.closeLoginDialog();
     } catch (error) {}
   }
   register() {

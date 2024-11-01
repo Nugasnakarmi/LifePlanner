@@ -31,9 +31,9 @@
     >
       <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
     </button>
-    <mat-error *ngIf="password.invalid">{{
-      getErrorMessage("password")
-    }}</mat-error>
+    @if(password.invalid){
+    <mat-error>{{ getErrorMessage("password") }}</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field appearance="fill">
@@ -53,9 +53,9 @@
     >
       <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
     </button>
-    <mat-error *ngIf="confirmPassword.invalid">{{
-      getErrorMessage("confirmPassword")
-    }}</mat-error>
+    @if(confirmPassword.invalid){
+    <mat-error>{{ getErrorMessage("confirmPassword") }}</mat-error>
+    }
   </mat-form-field>
 
   <button

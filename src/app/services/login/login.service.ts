@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -8,6 +9,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 export class LoginService {
   supabaseUrl = environment.SUPABASE_URL;
   supabase: SupabaseClient;
+  toastRService = inject(ToastrService);
+
   constructor() {
     const supabaseKey = environment.SUPABASE_KEY;
     this.supabase = createClient(this.supabaseUrl, supabaseKey);
@@ -21,6 +24,9 @@ export class LoginService {
         email: loginCredentials.email,
         password: loginCredentials.password,
       });
+
+      console.log(data);
+      this.toastRService.success('Login successful', 'Success');
     } catch (err) {
       console.error('Failed to log in', err);
     }
