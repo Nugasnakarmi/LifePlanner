@@ -24,7 +24,6 @@ export class MainViewComponent implements OnInit {
   research = [];
   done = [];
   todo = [];
-  userName = 'Login';
   router = inject(Router);
   loginDialog = inject(MatDialog);
 
@@ -45,24 +44,6 @@ export class MainViewComponent implements OnInit {
         event.currentIndex
       );
     }
-  }
-
-  openLoginDialog() {
-    let loginRef = this.loginDialog.open(LoginComponent);
-    loginRef.afterClosed().subscribe((data) => {
-      if (data) {
-        console.log(data);
-        if (data.userDetails.hasOwnProperty('_profile')) {
-          var userName = data.userDetails._profile.data.email;
-          this.userName = userName;
-          console.log(userName);
-        }
-      }
-    });
-  }
-
-  navigateToHome(): void {
-    this.router.navigate(['/']);
   }
 
   updateUserDetails(userDetails: any) {}

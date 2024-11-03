@@ -57,12 +57,13 @@ export class LoginComponent implements OnInit {
   }
   register() {
     // this.loginDialogRef.close();
-    let registerRef = this.registerDialog.open(RegisterComponent);
-    registerRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log(result);
-      }
-    });
+    this.router.navigate(['/register']);
+    // let registerRef = this.registerDialog.open(RegisterComponent);
+    // registerRef.afterClosed().subscribe((result) => {
+    //   if (result) {
+    //     console.log(result);
+    //   }
+    // });
   }
 
   // closeLoginDialog() {

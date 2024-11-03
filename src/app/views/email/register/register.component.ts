@@ -32,24 +32,9 @@ export class RegisterComponent implements OnInit {
   userDetails = null;
   hide = true;
   toastRService = inject(ToastrService);
+  registerService = inject(RegisterService);
+  private registerDialogRef: MatDialogRef<RegisterComponent>;
 
-  /**
-   * Creates a new instance of the RegisterComponent class.
-   * @param registerService - The service that handles the registration of a user.
-   * @param registerDialogRef - The reference to the dialog that this component is part of.
-   */
-  /******  4eb6bfff-75fd-4594-a325-972928d7bb89  *******/
-  constructor(
-    private registerService: RegisterService,
-    private registerDialogRef: MatDialogRef<RegisterComponent>
-  ) {}
-
-  /**
-   * Listen for changes in the password input and run the validation of the
-   * confirmPassword input. This is done to allow the user to see the correct
-   * error message when the password and confirm password do not match, even if
-   * the user hasn't left the confirmPassword input.
-/******  cf60718e-340b-4c36-a1f7-db56461eafe8  *******/
   ngOnInit(): void {
     this.password.valueChanges.subscribe(() => {
       this.confirmPassword.updateValueAndValidity();
