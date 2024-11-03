@@ -6,6 +6,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -27,7 +28,8 @@ export class LoginComponent implements OnInit {
   userDetails = null;
   loginService = inject(LoginService);
   registerDialog = inject(MatDialog);
-  loginDialogRef = inject(MatDialogRef<LoginComponent>);
+  router = inject(Router);
+  // loginDialogRef = inject(MatDialogRef<LoginComponent>);
   constructor() {}
 
   ngOnInit(): void {}
@@ -50,11 +52,12 @@ export class LoginComponent implements OnInit {
           this.userDetails = res;
         }
       });
-      this.closeLoginDialog();
+      this.router.navigate(['/main']);
+      // this.closeLoginDialog();
     } catch (error) {}
   }
   register() {
-    this.loginDialogRef.close();
+    // this.loginDialogRef.close();
     let registerRef = this.registerDialog.open(RegisterComponent);
     registerRef.afterClosed().subscribe((result) => {
       if (result) {
@@ -63,7 +66,7 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  closeLoginDialog() {
-    this.loginDialogRef.close({ userDetails: this.userDetails });
-  }
+  // closeLoginDialog() {
+  //   this.loginDialogRef.close({ userDetails: this.userDetails });
+  // }
 }

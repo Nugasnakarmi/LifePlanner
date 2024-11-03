@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   CdkDragDrop,
   DragDropModule,
@@ -10,6 +10,7 @@ import { LoginService } from 'src/app/services/login/login.service';
 import { LoginComponent } from '../email/login/login.component';
 import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -24,8 +25,8 @@ export class MainViewComponent implements OnInit {
   done = [];
   todo = [];
   userName = 'Login';
-
-  constructor(public loginDialog: MatDialog) {}
+  router = inject(Router);
+  loginDialog = inject(MatDialog);
 
   ngOnInit(): void {}
 
@@ -58,6 +59,10 @@ export class MainViewComponent implements OnInit {
         }
       }
     });
+  }
+
+  navigateToHome(): void {
+    this.router.navigate(['/']);
   }
 
   updateUserDetails(userDetails: any) {}
