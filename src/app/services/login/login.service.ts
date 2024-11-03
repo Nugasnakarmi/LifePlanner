@@ -1,6 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import {
+  AuthTokenResponsePassword,
+  createClient,
+  Session,
+  SupabaseClient,
+  User,
+  WeakPassword,
+} from '@supabase/supabase-js';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
@@ -16,19 +23,31 @@ export class LoginService {
     this.supabase = createClient(this.supabaseUrl, supabaseKey);
   }
 
-  async loginEmailPassword(loginCredentials): Promise<any> {
-    // Create an anonymous credential
-
+  async loginEmailPassword(loginCredentials): Promise<
+    | {
+        user: User;
+        session: Session;
+        weakPassword?: WeakPassword;
+      }
+    | {
+        user: null;
+        session: null;
+        weakPassword?: null;
+      }
+  > {
     try {
-      let { data, error } = await this.supabase.auth.signInWithPassword({
+      const { data, error } = await this.supabase.auth.signInWithPassword({
         email: loginCredentials.email,
         password: loginCredentials.password,
       });
-
       console.log(data);
-      this.toastRService.success('Login successful', 'Success');
-    } catch (err) {
-      console.error('Failed to log in', err);
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      this.toastRService.error(`Login error : ${error.message}`, 'Failure');
     }
   }
 }

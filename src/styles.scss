@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/bulma/bulma.sass";
 @import "main-styles.scss";
+@import "../node_modules/ngx-toastr/toastr.css";
 html,
 body {
   height: 100%;
@@ -20,9 +21,9 @@ body {
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
-#toast-container > div {
-  opacity: 1;
-}
+// #toast-container > div {
+//   opacity: 1;
+// }
 
 .flex-column-center {
   display: flex;

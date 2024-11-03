@@ -41,17 +41,16 @@ export class LoginComponent implements OnInit {
     return this.email.hasError('email') ? 'Not a valid email' : '';
   }
 
-  login() {
+  async login() {
     let loginCredentials = {
       email: this.email.value,
       password: this.password.value,
     };
     try {
-      this.loginService.loginEmailPassword(loginCredentials).then((res) => {
-        if (res) {
-          this.userDetails = res;
-        }
-      });
+      const userSessionDetails = await this.loginService.loginEmailPassword(
+        loginCredentials
+      );
+      this.userDetails = userSessionDetails.user;
       this.router.navigate(['/main']);
       // this.closeLoginDialog();
     } catch (error) {}
