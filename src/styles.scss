@@ -24,10 +24,13 @@ body {
 // #toast-container > div {
 //   opacity: 1;
 // }
-
-.flex-column-center {
+.flex-column {
   display: flex;
   flex-direction: column;
+}
+
+.flex-column-center {
+  @extend .flex-column;
   align-items: center;
 }
 
