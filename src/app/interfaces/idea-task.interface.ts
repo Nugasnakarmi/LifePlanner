@@ -5,4 +5,5 @@ export interface IdeaTask {
   description: string;
   type: IdeaType;
   completion_status: number;
+  user_id: string;
 }

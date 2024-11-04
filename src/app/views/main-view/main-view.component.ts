@@ -15,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskService } from 'src/app/services/task/task.service';
+import { UtilityService } from 'src/app/utility/utility.service';
 
 @Component({
   standalone: true,
@@ -43,7 +44,13 @@ export class MainViewComponent implements OnInit {
   ngOnInit(): void {
     this.taskService.getTasks().then((data) => {
       data.forEach((element) => {
-        this.goals.push(element.name);
+        if (element) {
+          const containerName = UtilityService.getEnumKeyByValue(
+            IdeaType,
+            element.type
+          );
+          this.containerRefs[containerName].push(element.name);
+        }
       });
     });
   }
@@ -68,6 +75,7 @@ export class MainViewComponent implements OnInit {
   updateUserDetails(userDetails: any) {}
 
   openAddTask(type: string): void {
+    console.log(IdeaType[type]);
     const dialogRef = this.addTaskDialog.open(AddTaskComponent, {
       data: { taskType: IdeaType[type] },
     });

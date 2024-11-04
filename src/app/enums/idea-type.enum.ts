@@ -1,6 +1,6 @@
 export enum IdeaType {
-  Ideas = 0,
-  Goals,
-  Objectives,
-  Achievements,
+  ideas = 0,
+  goals,
+  objectives,
+  achievements,
 }

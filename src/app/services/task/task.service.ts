@@ -14,24 +14,25 @@ export class TaskService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
 
-  async addTask(taskData: IdeaTask): Promise<void> {
+  async addTask(taskData: IdeaTask): Promise<boolean> {
     try {
+      let user: User = await this.supabaseService.getUser();
       let { data, error } = await this.supabaseService.supabase
         .from('tasks')
         .insert({
           name: taskData.name,
           description: taskData.description,
           type: taskData.type,
-          completion_status: 0,
+          completion_status: taskData.completion_status,
+          user_id: user.id,
         });
 
       if (error) {
         throw error;
       }
 
-      if (data) {
-        this.toastRService.success(`Task ${taskData.name} added successfully}`);
-      }
+      this.toastRService.success(`Task ${taskData.name} added successfully}`);
+      return true;
     } catch (error) {
       this.toastRService.error(`Failed to add task : ${error.message}`);
     }

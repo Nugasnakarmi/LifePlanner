@@ -49,6 +49,8 @@ export class AddTaskComponent implements OnInit {
       name: this.addTaskForm.controls.name.value,
       description: this.addTaskForm.controls.description.value,
       type: this.data.taskType,
+      completion_status: 0,
+      user_id: null,
     };
     await this.taskService.addTask(task);
   }
