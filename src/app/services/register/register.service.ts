@@ -1,5 +1,4 @@
 import { inject, Injectable } from '@angular/core';
-import * as Realm from 'realm-web';
 import { environment } from 'src/environments/environment';
 import {
   createClient,
