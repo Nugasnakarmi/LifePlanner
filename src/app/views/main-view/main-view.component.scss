@@ -34,7 +34,7 @@
         flex-direction: column;
         flex-grow: 1;
         flex-basis: 0; //force columns to be same size
-
+        row-gap: 10px;
         max-height: 300px;
         overflow-y: hidden;
         min-width: 300px;
@@ -64,13 +64,13 @@
     //all except ideas tables
     color: #fff;
   }
-  #research-tasks {
+  #goals-tasks {
     background-color: rgb(162, 178, 226);
   }
-  #todo-tasks {
+  #objectives-tasks {
     background-color: rgb(252, 172, 0);
   }
-  #done-tasks {
+  #achievements-tasks {
     background-color: rgb(97, 192, 19);
   }
 }

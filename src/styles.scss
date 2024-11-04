@@ -30,3 +30,8 @@ body {
   flex-direction: column;
   align-items: center;
 }
+
+.flex-row-space-between {
+  display: flex;
+  justify-content: space-between;
+}

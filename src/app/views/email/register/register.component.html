@@ -1,5 +1,6 @@
 <div class="register-container">
   <h1 class="app-name has-gradient-text">LifePlanner</h1>
+  @if(!registrationSuccess){
   <p>Register</p>
   <mat-form-field appearance="fill">
     <mat-label>Enter your email</mat-label>
@@ -66,4 +67,10 @@
   >
     Register
   </button>
+  } @else {
+  <p>
+    Registration was successful for {{ userDetails.user.email }}. Please check
+    your email for verification.
+  </p>
+  }
 </div>

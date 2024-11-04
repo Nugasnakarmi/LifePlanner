@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
 import { MatInputModule } from '@angular/material/input';
 import { RegisterService } from 'src/app/services/register/register.service';
+import { Session, User } from '@supabase/supabase-js';
 
 @Component({
   standalone: true,
@@ -29,11 +30,20 @@ export class RegisterComponent implements OnInit {
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required]);
   confirmPassword = new FormControl('', [Validators.required]);
-  userDetails = null;
+  userDetails:
+    | {
+        user: User | null;
+        session: Session | null;
+      }
+    | {
+        user: null;
+        session: null;
+      } = null;
   hide = true;
   toastRService = inject(ToastrService);
   registerService = inject(RegisterService);
   private registerDialogRef: MatDialogRef<RegisterComponent>;
+  registrationSuccess = false;
 
   ngOnInit(): void {
     this.password.valueChanges.subscribe(() => {
@@ -73,27 +83,20 @@ export class RegisterComponent implements OnInit {
     return 'You must enter a value';
   }
 
-  register(): void {
+  async register(): Promise<void> {
     console.log(
       'valid registration for',
       this.email.value,
       '-',
       this.password.value
     );
-    try {
-      this.registerService
-        .registerUser(this.email.value, this.confirmPassword.value)
-        .then((res) => {
-          console.log(res);
-          this.toastRService.success(
-            `Registration for ${this.email.value} was successful`,
-            'Success'
-          );
-        });
-    } catch (error) {
-      if (error) {
-        this.toastRService.error(error.message);
-      }
+
+    this.userDetails = await this.registerService.registerUser(
+      this.email.value,
+      this.confirmPassword.value
+    );
+    if (this.userDetails.user) {
+      this.registrationSuccess = true;
     }
   }
   closeLoginDialog() {
