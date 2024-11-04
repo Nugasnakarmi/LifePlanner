@@ -7,16 +7,14 @@ import {
   User,
 } from '@supabase/supabase-js';
 import { ToastrService } from 'ngx-toastr';
+import { SupabaseService } from '../supabase/supabase.service';
 @Injectable({
   providedIn: 'root',
 })
 export class RegisterService {
   toastrService = inject(ToastrService);
-  supabase: SupabaseClient;
-  constructor() {
-    const supabaseKey = environment.SUPABASE_KEY;
-    this.supabase = createClient(environment.SUPABASE_URL, supabaseKey);
-  }
+  supabaseService = inject(SupabaseService);
+  constructor() {}
 
   async registerUser(
     email,
@@ -31,7 +29,7 @@ export class RegisterService {
         session: null;
       }
   > {
-    let { data, error } = await this.supabase.auth.signUp({
+    let { data, error } = await this.supabaseService.supabase.auth.signUp({
       email: email,
       password: password,
     });
@@ -43,7 +41,7 @@ export class RegisterService {
 
     if (data) {
       this.toastrService.success(
-        `$Registration successful for {data.user.email}`
+        `Registration successful for ${data.user.email}`
       );
       return data;
     }

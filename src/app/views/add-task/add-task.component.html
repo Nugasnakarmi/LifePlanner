@@ -1,0 +1,22 @@
+<form
+  [formGroup]="addTaskForm"
+  class="add-task-container flex-column"
+  (submit)="addTask()"
+>
+  <mat-form-field>
+    <mat-label>Enter task name</mat-label>
+    <input matInput placeholder="Task name" formControlName="name" />
+  </mat-form-field>
+  @if(addTaskForm.controls.name.invalid && addTaskForm.controls.name.touched){
+  <mat-error>{{ getValidationMessage() }}</mat-error>
+  }
+  <mat-form-field>
+    <mat-label>Please explain the task</mat-label>
+    <textarea
+      matInput
+      placeholder="Task description"
+      formControlName="description"
+    ></textarea>
+  </mat-form-field>
+  <button mat-raised-button color="primary" type="submit">Add Task</button>
+</form>

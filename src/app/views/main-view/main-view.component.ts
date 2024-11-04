@@ -12,6 +12,9 @@ import { Observable } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { AddTaskComponent } from '../add-task/add-task.component';
+import { IdeaType } from 'src/app/enums/idea-type.enum';
+import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
   standalone: true,
@@ -22,7 +25,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class MainViewComponent implements OnInit {
   containers = ['ideas', 'goals', 'objectives', 'achievements'];
-  ideas = ['Get to work', 'Pick up groceries', 'Go home', 'Fall asleep'];
+  ideas = [];
   goals = [];
   objectives = [];
   achievements = [];
@@ -34,9 +37,16 @@ export class MainViewComponent implements OnInit {
   };
 
   router = inject(Router);
-  loginDialog = inject(MatDialog);
+  taskService = inject(TaskService);
 
-  ngOnInit(): void {}
+  readonly addTaskDialog = inject(MatDialog);
+  ngOnInit(): void {
+    this.taskService.getTasks().then((data) => {
+      data.forEach((element) => {
+        this.goals.push(element.name);
+      });
+    });
+  }
 
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
@@ -56,4 +66,13 @@ export class MainViewComponent implements OnInit {
   }
 
   updateUserDetails(userDetails: any) {}
+
+  openAddTask(type: string): void {
+    const dialogRef = this.addTaskDialog.open(AddTaskComponent, {
+      data: { taskType: IdeaType[type] },
+    });
+    dialogRef.afterClosed().subscribe((data) => {
+      console.log(`Dialog result: ${data}`);
+    });
+  }
 }

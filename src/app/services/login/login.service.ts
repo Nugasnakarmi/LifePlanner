@@ -9,19 +9,15 @@ import {
   WeakPassword,
 } from '@supabase/supabase-js';
 import { ToastrService } from 'ngx-toastr';
+import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginService {
-  supabaseUrl = environment.SUPABASE_URL;
-  supabase: SupabaseClient;
   toastRService = inject(ToastrService);
-
-  constructor() {
-    const supabaseKey = environment.SUPABASE_KEY;
-    this.supabase = createClient(this.supabaseUrl, supabaseKey);
-  }
+  supabaseService = inject(SupabaseService);
+  constructor() {}
 
   async loginEmailPassword(loginCredentials): Promise<
     | {
@@ -36,10 +32,11 @@ export class LoginService {
       }
   > {
     try {
-      const { data, error } = await this.supabase.auth.signInWithPassword({
-        email: loginCredentials.email,
-        password: loginCredentials.password,
-      });
+      const { data, error } =
+        await this.supabaseService.supabase.auth.signInWithPassword({
+          email: loginCredentials.email,
+          password: loginCredentials.password,
+        });
       console.log(data);
       if (error) {
         throw error;

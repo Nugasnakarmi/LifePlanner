@@ -9,7 +9,9 @@
         <div class="board-column" cdkDrag>
           <div class="title-container flex-row-space-between">
             <div class="column-title">{{ container }}</div>
-            <button class="add-task-button"><mat-icon>add</mat-icon></button>
+            <button class="add-task-button" (click)="openAddTask(container)">
+              <mat-icon>add</mat-icon>
+            </button>
           </div>
           <div
             class="tasks-container example-list"
