@@ -64,17 +64,19 @@
 .tasks-container {
   flex-grow: 1;
 
-  :not(#ideas-tasks) {
+  :not(.ideas-tasks) {
     //all except ideas tables
     color: #fff;
   }
-  #goals-tasks {
+  .goals-tasks {
     background-color: rgb(162, 178, 226);
   }
-  #objectives-tasks {
+
+  .objectives-tasks {
     background-color: rgb(252, 172, 0);
   }
-  #achievements-tasks {
+
+  .achievements-tasks {
     background-color: rgb(97, 192, 19);
   }
 }

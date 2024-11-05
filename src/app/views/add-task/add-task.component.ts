@@ -5,7 +5,7 @@ import {
   UntypedFormGroup,
   Validators,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
@@ -22,6 +22,7 @@ import { TaskService } from 'src/app/services/task/task.service';
 export class AddTaskComponent implements OnInit {
   taskService = inject(TaskService);
   addTaskForm: UntypedFormGroup;
+  addTaskDialogRef = inject(MatDialogRef<AddTaskComponent>);
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { taskType: IdeaType }) {}
   ngOnInit(): void {
@@ -52,6 +53,11 @@ export class AddTaskComponent implements OnInit {
       completion_status: 0,
       user_id: null,
     };
-    await this.taskService.addTask(task);
+    const didAdd = await this.taskService.addTask(task);
+
+    if (didAdd) {
+      //close dialog
+      this.addTaskDialogRef.close();
+    }
   }
 }
