@@ -20,9 +20,14 @@
             [cdkDropListData]="containerRefs[container]"
             (cdkDropListDropped)="drop($event)"
           >
-            @for(item of containerRefs[container]; track item){
-            <div class="tasks" id="{{ container }}-tasks" cdkDrag>
-              {{ item }}
+            @for(item of containerRefs[container]; track item; let ind =
+            $index){
+            <div
+              class="tasks {{ container }}-tasks"
+              id="{{ container }}-tasks-{{ ind }}"
+              cdkDrag
+            >
+              {{ item.name }}
             </div>
             }
           </div>

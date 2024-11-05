@@ -16,6 +16,7 @@ import { AddTaskComponent } from '../add-task/add-task.component';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskService } from 'src/app/services/task/task.service';
 import { UtilityService } from 'src/app/utility/utility.service';
+import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 
 @Component({
   standalone: true,
@@ -26,10 +27,10 @@ import { UtilityService } from 'src/app/utility/utility.service';
 })
 export class MainViewComponent implements OnInit {
   containers = ['ideas', 'goals', 'objectives', 'achievements'];
-  ideas = [];
-  goals = [];
-  objectives = [];
-  achievements = [];
+  ideas: IdeaTask[] = [];
+  goals: IdeaTask[] = [];
+  objectives: IdeaTask[] = [];
+  achievements: IdeaTask[] = [];
   containerRefs = {
     ideas: this.ideas,
     goals: this.goals,
@@ -42,17 +43,31 @@ export class MainViewComponent implements OnInit {
 
   readonly addTaskDialog = inject(MatDialog);
   ngOnInit(): void {
-    this.taskService.getTasks().then((data) => {
+    this.getTasks();
+  }
+
+  getTasks(): void {
+    this.resetContainerData();
+    this.taskService.getTasks().then((data: IdeaTask[]) => {
       data.forEach((element) => {
         if (element) {
           const containerName = UtilityService.getEnumKeyByValue(
             IdeaType,
             element.type
           );
-          this.containerRefs[containerName].push(element.name);
+
+          this.containerRefs[containerName].push(element);
         }
       });
     });
+  }
+  resetContainerData(): void {
+    this.containerRefs = {
+      ideas: [],
+      goals: [],
+      objectives: [],
+      achievements: [],
+    };
   }
 
   drop(event: CdkDragDrop<string[]>) {
@@ -69,6 +84,20 @@ export class MainViewComponent implements OnInit {
         event.previousIndex,
         event.currentIndex
       );
+      const data: IdeaTask = event.container.data[
+        event.currentIndex
+      ] as unknown as IdeaTask;
+      this.taskService
+        .updateTaskContainer({
+          id: data.id,
+          type: parseInt(event.container.id.substring(14)),
+        } as IdeaTask)
+        .then((updated) => {
+          //Don't need to do this
+          // if (updated) {
+          //   this.getTasks();
+          // }
+        });
     }
   }
 
@@ -79,8 +108,8 @@ export class MainViewComponent implements OnInit {
     const dialogRef = this.addTaskDialog.open(AddTaskComponent, {
       data: { taskType: IdeaType[type] },
     });
-    dialogRef.afterClosed().subscribe((data) => {
-      console.log(`Dialog result: ${data}`);
+    dialogRef.afterClosed().subscribe(() => {
+      this.getTasks();
     });
   }
 }
