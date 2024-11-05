@@ -6,6 +6,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { ToastrService } from 'ngx-toastr';
+import { type } from 'os';
 
 @Injectable({
   providedIn: 'root',
@@ -38,7 +39,7 @@ export class TaskService {
     }
   }
 
-  async getTasks(): Promise<any> {
+  async getTasks(): Promise<IdeaTask[]> {
     try {
       let user: User = await this.supabaseService.getUser();
       let { data: tasks, error } = await this.supabaseService.supabase
@@ -54,6 +55,26 @@ export class TaskService {
       }
     } catch (error) {
       this.toastRService.error(`Failed to add task : ${error.message}`);
+    }
+  }
+
+  async updateTaskContainer(taskData: IdeaTask): Promise<boolean> {
+    try {
+      let user: User = await this.supabaseService.getUser();
+      let { data, error } = await this.supabaseService.supabase
+        .from('tasks')
+        .update({
+          type: taskData.type,
+        })
+        .eq('id', taskData.id);
+
+      if (error) {
+        throw error;
+      }
+
+      return true;
+    } catch (error) {
+      this.toastRService.error(`Failed to update task : ${error.message}`);
     }
   }
 }
