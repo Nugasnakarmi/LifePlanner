@@ -77,4 +77,21 @@ export class TaskService {
       this.toastRService.error(`Failed to update task : ${error.message}`);
     }
   }
+
+  async deleteTask(id: number): Promise<boolean> {
+    try {
+      let { data, error } = await this.supabaseService.supabase
+        .from('tasks')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      return true;
+    } catch (error) {
+      this.toastRService.error(`Failed to delete task : ${error.message}`);
+    }
+  }
 }
