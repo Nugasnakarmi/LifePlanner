@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from 'src/environments/environment';
-
+import 'dotenv/config';
 @Injectable({
   providedIn: 'root',
 })
 export class SupabaseService {
   supabaseUrl = environment.SUPABASE_URL;
   supabase: SupabaseClient;
+
   constructor() {
-    const supabaseKey = environment.SUPABASE_KEY;
+    const supabaseKey = process.env.API_KEY;
     this.supabase = createClient(this.supabaseUrl, supabaseKey);
   }
 

@@ -47,9 +47,7 @@ testem.log
 Thumbs.db
 playground-1.mongodb.js
 
-#environment files
-src/environments/
 
-src/environments/environment.ts
 
 build lines.txt
+.env
