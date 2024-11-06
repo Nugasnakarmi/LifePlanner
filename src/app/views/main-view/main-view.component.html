@@ -22,13 +22,11 @@
           >
             @for(item of containerRefs[container]; track item; let ind =
             $index){
-            <div
-              class="tasks {{ container }}-tasks"
-              id="{{ container }}-tasks-{{ ind }}"
-              cdkDrag
-            >
-              {{ item.name }}
-            </div>
+            <app-task
+              [task]="item"
+              [container]="container"
+              [index]="ind"
+            ></app-task>
             }
           </div>
         </div>

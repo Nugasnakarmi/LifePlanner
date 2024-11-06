@@ -17,10 +17,11 @@ import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskService } from 'src/app/services/task/task.service';
 import { UtilityService } from 'src/app/utility/utility.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
+import { TaskComponent } from '../task/task.component';
 
 @Component({
   standalone: true,
-  imports: [DragDropModule, MatIconModule],
+  imports: [DragDropModule, MatIconModule, TaskComponent],
   selector: 'app-main-view',
   templateUrl: './main-view.component.html',
   styleUrls: ['./main-view.component.scss'],
