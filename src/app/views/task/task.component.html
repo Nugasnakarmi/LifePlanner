@@ -1,9 +1,14 @@
 <div
   cdkDrag
-  class="tasks {{ container }}-tasks"
+  class="tasks {{ container }}-tasks flex-row-space-between"
   id="{{ container }}-tasks-{{ index }}"
 >
-  {{ task.name }}
-  <br />
-  <p class="description">{{ task.description }}</p>
+  <div class="name-description-container">
+    {{ task.name }}
+    <p class="description">{{ task.description }}</p>
+  </div>
+
+  <button class="delete-button" (click)="deleteTask(task.id)">
+    <mat-icon class="delete-icon">delete</mat-icon>
+  </button>
 </div>

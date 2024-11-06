@@ -88,6 +88,7 @@ export class TaskService {
       if (error) {
         throw error;
       }
+      this.toastRService.success(`Task deleted successfully`);
 
       return true;
     } catch (error) {

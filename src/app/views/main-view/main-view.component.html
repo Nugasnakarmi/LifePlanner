@@ -26,6 +26,7 @@
               [task]="item"
               [container]="container"
               [index]="ind"
+              (taskDeleted)="onTaskDeleted($event)"
             ></app-task>
             }
           </div>

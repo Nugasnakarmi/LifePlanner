@@ -113,4 +113,8 @@ export class MainViewComponent implements OnInit {
       this.getTasks();
     });
   }
+
+  onTaskDeleted(taskId: number): void {
+    this.getTasks();
+  }
 }
