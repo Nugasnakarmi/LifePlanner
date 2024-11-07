@@ -45,9 +45,7 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-playground-1.mongodb.js
 
 
 
 build lines.txt
-.env
