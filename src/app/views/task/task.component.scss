@@ -12,7 +12,13 @@
   }
 }
 :host {
-  :not(.ideas-tasks, .name-description-container, .description, .delete-icon) {
+  :not(
+      .ideas-tasks,
+      .name-description-container,
+      .description,
+      .delete-icon,
+      .edit-icon
+    ) {
     //all except ideas tables
     color: #fff;
   }
@@ -60,5 +66,16 @@
   cursor: pointer;
   .delete-icon {
     color: #990000;
+  }
+}
+
+.edit-button {
+  border: none;
+  background-color: transparent;
+  border-radius: 2px;
+  padding: 0px;
+  cursor: pointer;
+  .edit-icon {
+    color: #004d99;
   }
 }
