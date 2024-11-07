@@ -10,7 +10,7 @@ export class SupabaseService {
   supabase: SupabaseClient;
 
   constructor() {
-    const supabaseKey = process.env.API_KEY;
+    const supabaseKey = environment.SUPABASE_KEY;
     this.supabase = createClient(this.supabaseUrl, supabaseKey);
   }
 

@@ -3,7 +3,7 @@ name: Build on Push
 on:
   push:
     branches:
-      - live # Triggers the workflow on push to the 'main' branch
+      - live # Triggers the workflow on push to the 'live' branch
 
 jobs:
   build:
@@ -22,4 +22,10 @@ jobs:
         run: npm install
 
       - name: Build the project
-        run: npm run build
+        run: npm run build --output-path=./docs
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-output
+          path: ./docs
