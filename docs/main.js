@@ -752,19 +752,16 @@ class LoginComponent {
         const userSessionDetails = yield _this.loginService.loginEmailPassword(loginCredentials);
         _this.userDetails = userSessionDetails.user;
         _this.router.navigate(['/main']);
-        // this.closeLoginDialog();
       } catch (error) {}
     })();
   }
   register() {
-    // this.loginDialogRef.close();
     this.router.navigate(['/register']);
-    // let registerRef = this.registerDialog.open(RegisterComponent);
-    // registerRef.afterClosed().subscribe((result) => {
-    //   if (result) {
-    //     console.log(result);
-    //   }
-    // });
+  }
+  keyDown($event) {
+    if ($event.key === 'Enter') {
+      this.login();
+    }
   }
   static {
     this.ɵfac = function LoginComponent_Factory(__ngFactoryType__) {
@@ -779,10 +776,14 @@ class LoginComponent {
       features: [_angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵStandaloneFeature"]],
       decls: 23,
       vars: 7,
-      consts: [[1, "login-container"], [1, "app-name", "has-gradient-text"], ["appearance", "fill"], ["matInput", "", "placeholder", "pat@example.com", "required", "", 3, "formControl"], ["matInput", "", "required", "", 3, "formControl", "type"], ["mat-icon-button", "", "matSuffix", "", 3, "click"], ["mat-raised-button", "", "color", "primary", 1, "standard-button-height", 3, "click"], ["id", "register-text"], ["href", "javascript:void()", 3, "click"]],
+      consts: [[1, "login-container", 3, "keydown"], [1, "app-name", "has-gradient-text"], ["appearance", "fill"], ["matInput", "", "placeholder", "pat@example.com", "required", "", 3, "formControl"], ["matInput", "", "required", "", 3, "formControl", "type"], ["mat-icon-button", "", "matSuffix", "", 3, "click"], ["mat-raised-button", "", "color", "primary", 1, "standard-button-height", 3, "click"], ["id", "register-text"], ["href", "javascript:void()", 3, "click"]],
       template: function LoginComponent_Template(rf, ctx) {
         if (rf & 1) {
-          _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 0)(1, "h1", 1);
+          _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](0, "div", 0);
+          _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵlistener"]("keydown", function LoginComponent_Template_div_keydown_0_listener($event) {
+            return ctx.keyDown($event);
+          });
+          _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](1, "h1", 1);
           _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵtext"](2, "LifePlanner");
           _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementEnd"]();
           _angular_core__WEBPACK_IMPORTED_MODULE_2__["ɵɵelementStart"](3, "p");
@@ -1473,9 +1474,9 @@ __webpack_require__.r(__webpack_exports__);
 // The list of file replacements can be found in `angular.json`.
 const environment = {
   production: false,
+  //anon-public key
   SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjbnZkZ29xcGFkdnh5Z2xianN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA0MTU5OTQsImV4cCI6MjA0NTk5MTk5NH0.Ok5SbeonhQpPggxeHd_CM0dn0GbS2YQr8eb-rQOa9nM',
   SUPABASE_URL: 'https://vcnvdgoqpadvxyglbjsx.supabase.co'
-  //anon-public key
 };
 
 /***/ }),

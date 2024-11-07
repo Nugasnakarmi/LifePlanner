@@ -32,7 +32,7 @@ export class TaskService {
         throw error;
       }
 
-      this.toastRService.success(`Task ${taskData.name} added successfully}`);
+      this.toastRService.success(`Task ${taskData.name} added successfully`);
       return true;
     } catch (error) {
       this.toastRService.error(`Failed to add task : ${error.message}`);

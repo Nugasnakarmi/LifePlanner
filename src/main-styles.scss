@@ -1,6 +1,6 @@
 //global styles and change variables
-@import url('https://fonts.googleapis.com/css2?family=Yatra+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Yatra+One&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 /*Update bulma's component variables*/
 $family-sans-serif: "Yatra One", sans-serif;
 $control-border-width: 2px;
@@ -8,16 +8,18 @@ $input-border-color: transparent;
 $input-shadow: none;
 
 //global styles
-html, body{
-    height: 100%;
+html,
+body {
+  height: 100%;
 }
 
-body{
-    font-family: 'Montserrat', sans-serif;
-    font-size: 16px;
+body {
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  font-weight: 800;
 }
-html{
-    background-image: url('./assets/cool-background.png');
-    background-size: cover;
-    overflow-y: auto !important;
+html {
+  background-image: url("./assets/cool-background.png");
+  background-size: cover;
+  overflow-y: auto !important;
 }

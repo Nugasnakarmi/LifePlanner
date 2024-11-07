@@ -52,18 +52,10 @@ export class LoginComponent implements OnInit {
       );
       this.userDetails = userSessionDetails.user;
       this.router.navigate(['/main']);
-      // this.closeLoginDialog();
     } catch (error) {}
   }
   register() {
-    // this.loginDialogRef.close();
     this.router.navigate(['/register']);
-    // let registerRef = this.registerDialog.open(RegisterComponent);
-    // registerRef.afterClosed().subscribe((result) => {
-    //   if (result) {
-    //     console.log(result);
-    //   }
-    // });
   }
 
   keyDown($event): void {

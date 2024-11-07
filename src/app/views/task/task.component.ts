@@ -1,6 +1,7 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
@@ -23,5 +24,13 @@ export class TaskComponent {
         this.taskDeleted.emit(taskId);
       }
     });
+  }
+
+  editTask(task: IdeaTask): void {
+    // this.taskService.updateTaskContainer(task).then((result) => {
+    //   if (result) {
+    //     this.taskDeleted.emit(task.id);
+    //   }
+    // });
   }
 }
