@@ -66,7 +66,9 @@ export class LoginComponent implements OnInit {
     // });
   }
 
-  // closeLoginDialog() {
-  //   this.loginDialogRef.close({ userDetails: this.userDetails });
-  // }
+  keyDown($event): void {
+    if ($event.key === 'Enter') {
+      this.login();
+    }
+  }
 }
