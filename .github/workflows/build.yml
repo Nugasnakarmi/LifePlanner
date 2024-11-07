@@ -22,7 +22,7 @@ jobs:
         run: npm install
 
       - name: Build the project
-        run: ng build --output-path=./docs
+        run: npm run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
