@@ -10486,13 +10486,15 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
 }
 
 /*Update bulma's component variables*/
-html, body {
+html,
+body {
   height: 100%;
 }
 
 body {
   font-family: "Montserrat", sans-serif;
   font-size: 16px;
+  font-weight: 800;
 }
 
 html {
@@ -10504,11 +10506,6 @@ html {
 html,
 body {
   height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 .card {

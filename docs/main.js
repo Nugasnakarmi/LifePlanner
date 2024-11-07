@@ -379,7 +379,7 @@ class TaskService {
         if (error) {
           throw error;
         }
-        _this.toastRService.success(`Task ${taskData.name} added successfully}`);
+        _this.toastRService.success(`Task ${taskData.name} added successfully`);
         return true;
       } catch (error) {
         _this.toastRService.error(`Failed to add task : ${error.message}`);
@@ -1405,6 +1405,13 @@ class TaskComponent {
       }
     });
   }
+  editTask(task) {
+    // this.taskService.updateTaskContainer(task).then((result) => {
+    //   if (result) {
+    //     this.taskDeleted.emit(task.id);
+    //   }
+    // });
+  }
   static {
     this.ɵfac = function TaskComponent_Factory(__ngFactoryType__) {
       return new (__ngFactoryType__ || TaskComponent)();
@@ -1424,9 +1431,9 @@ class TaskComponent {
       },
       standalone: true,
       features: [_angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵStandaloneFeature"]],
-      decls: 8,
+      decls: 12,
       vars: 8,
-      consts: [["cdkDrag", "", 3, "id"], [1, "name-description-container"], [1, "description"], [1, "delete-button", 3, "click"], [1, "delete-icon"]],
+      consts: [["cdkDrag", "", 3, "id"], [1, "name-description-container"], [1, "description"], [1, "action-buttons", "flex-column-center"], [1, "edit-button", 3, "click"], [1, "edit-icon"], [1, "delete-button", 3, "click"], [1, "delete-icon"]],
       template: function TaskComponent_Template(rf, ctx) {
         if (rf & 1) {
           _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](0, "div", 0)(1, "div", 1);
@@ -1434,13 +1441,20 @@ class TaskComponent {
           _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](3, "p", 2);
           _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](4);
           _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]()();
-          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](5, "button", 3);
-          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("click", function TaskComponent_Template_button_click_5_listener() {
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](5, "div", 3)(6, "button", 4);
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("click", function TaskComponent_Template_button_click_6_listener() {
+            return ctx.editTask(ctx.task);
+          });
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](7, "mat-icon", 5);
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](8, "edit");
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]()();
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](9, "button", 6);
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵlistener"]("click", function TaskComponent_Template_button_click_9_listener() {
             return ctx.deleteTask(ctx.task.id);
           });
-          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](6, "mat-icon", 4);
-          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](7, "delete");
-          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]()()();
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementStart"](10, "mat-icon", 7);
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵtext"](11, "delete");
+          _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵelementEnd"]()()()();
         }
         if (rf & 2) {
           _angular_core__WEBPACK_IMPORTED_MODULE_1__["ɵɵclassMapInterpolate1"]("tasks ", ctx.container, "-tasks flex-row-space-between");
@@ -1452,7 +1466,7 @@ class TaskComponent {
         }
       },
       dependencies: [_angular_cdk_drag_drop__WEBPACK_IMPORTED_MODULE_2__.DragDropModule, _angular_cdk_drag_drop__WEBPACK_IMPORTED_MODULE_2__.CdkDrag, _angular_material_icon__WEBPACK_IMPORTED_MODULE_3__.MatIconModule, _angular_material_icon__WEBPACK_IMPORTED_MODULE_3__.MatIcon],
-      styles: [".tasks[_ngcontent-%COMP%] {\n  padding: 15px 12px;\n  background-color: #fff;\n  border-radius: 4px;\n  margin-bottom: 10px;\n  cursor: grab;\n  box-shadow: 0 8px 6px -6px rgb(54, 52, 52); \n\n}\n.tasks[_ngcontent-%COMP%]   .description[_ngcontent-%COMP%] {\n  font-size: small;\n  font-style: italic;\n}\n\n[_nghost-%COMP%]   [_ngcontent-%COMP%]:not(.ideas-tasks, .name-description-container[_ngcontent-%COMP%], .description[_ngcontent-%COMP%], .delete-icon)[_ngcontent-%COMP%] {\n  color: #fff;\n}\n[_nghost-%COMP%]   .goals-tasks[_ngcontent-%COMP%] {\n  background-color: rgb(162, 178, 226);\n}\n[_nghost-%COMP%]   .objectives-tasks[_ngcontent-%COMP%] {\n  background-color: rgb(252, 172, 0);\n}\n[_nghost-%COMP%]   .achievements-tasks[_ngcontent-%COMP%] {\n  background-color: rgb(97, 192, 19);\n}\n[_nghost-%COMP%]   .tasks[_ngcontent-%COMP%]:not(.cdk-drag-placeholder) {\n  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.cdk-drag-preview[_ngcontent-%COMP%] {\n  box-sizing: border-box;\n  border-radius: 4px;\n  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);\n  background-color: bisque;\n  color: black;\n}\n\n.cdk-drag-placeholder[_ngcontent-%COMP%] {\n  opacity: 0;\n}\n\n.cdk-drag-animating[_ngcontent-%COMP%] {\n  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.delete-button[_ngcontent-%COMP%] {\n  border: none;\n  background-color: transparent;\n  border-radius: 2px;\n  padding: 0px;\n  cursor: pointer;\n}\n.delete-button[_ngcontent-%COMP%]   .delete-icon[_ngcontent-%COMP%] {\n  color: #990000;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL3NyYy9hcHAvdmlld3MvdGFzay90YXNrLmNvbXBvbmVudC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0Usa0JBQUE7RUFDQSxzQkFBQTtFQUNBLGtCQUFBO0VBQ0EsbUJBQUE7RUFDQSxZQUFBO0VBQ0EsMENBQUEsRUFBQSxtREFBQTtBQUNGO0FBQ0U7RUFDRSxnQkFBQTtFQUNBLGtCQUFBO0FBQ0o7O0FBR0U7RUFFRSxXQUFBO0FBREo7QUFHRTtFQUNFLG9DQUFBO0FBREo7QUFJRTtFQUNFLGtDQUFBO0FBRko7QUFLRTtFQUNFLGtDQUFBO0FBSEo7QUFNRTtFQUNFLHNEQUFBO0FBSko7O0FBUUE7RUFDRSxzQkFBQTtFQUNBLGtCQUFBO0VBQ0EscUhBQUE7RUFFQSx3QkFBQTtFQUNBLFlBQUE7QUFORjs7QUFTQTtFQUNFLFVBQUE7QUFORjs7QUFTQTtFQUNFLHNEQUFBO0FBTkY7O0FBU0E7RUFDRSxZQUFBO0VBRUEsNkJBQUE7RUFDQSxrQkFBQTtFQUNBLFlBQUE7RUFFQSxlQUFBO0FBUkY7QUFTRTtFQUNFLGNBQUE7QUFQSiIsInNvdXJjZXNDb250ZW50IjpbIi50YXNrcyB7XHJcbiAgcGFkZGluZzogMTVweCAxMnB4O1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNmZmY7XHJcbiAgYm9yZGVyLXJhZGl1czogNHB4O1xyXG4gIG1hcmdpbi1ib3R0b206IDEwcHg7XHJcbiAgY3Vyc29yOiBncmFiO1xyXG4gIGJveC1zaGFkb3c6IDAgOHB4IDZweCAtNnB4IHJnYig1NCwgNTIsIDUyKTsgLyogT3BlcmEgMTAuNSwgSUUgOSwgRmlyZWZveCA0KywgQ2hyb21lIDYrLCBpT1MgNSAqL1xyXG5cclxuICAuZGVzY3JpcHRpb24ge1xyXG4gICAgZm9udC1zaXplOiBzbWFsbDtcclxuICAgIGZvbnQtc3R5bGU6IGl0YWxpYztcclxuICB9XHJcbn1cclxuOmhvc3Qge1xyXG4gIDpub3QoLmlkZWFzLXRhc2tzLCAubmFtZS1kZXNjcmlwdGlvbi1jb250YWluZXIsIC5kZXNjcmlwdGlvbiwgLmRlbGV0ZS1pY29uKSB7XHJcbiAgICAvL2FsbCBleGNlcHQgaWRlYXMgdGFibGVzXHJcbiAgICBjb2xvcjogI2ZmZjtcclxuICB9XHJcbiAgLmdvYWxzLXRhc2tzIHtcclxuICAgIGJhY2tncm91bmQtY29sb3I6IHJnYigxNjIsIDE3OCwgMjI2KTtcclxuICB9XHJcblxyXG4gIC5vYmplY3RpdmVzLXRhc2tzIHtcclxuICAgIGJhY2tncm91bmQtY29sb3I6IHJnYigyNTIsIDE3MiwgMCk7XHJcbiAgfVxyXG5cclxuICAuYWNoaWV2ZW1lbnRzLXRhc2tzIHtcclxuICAgIGJhY2tncm91bmQtY29sb3I6IHJnYig5NywgMTkyLCAxOSk7XHJcbiAgfVxyXG5cclxuICAudGFza3M6bm90KC5jZGstZHJhZy1wbGFjZWhvbGRlcikge1xyXG4gICAgdHJhbnNpdGlvbjogdHJhbnNmb3JtIDI1MG1zIGN1YmljLWJlemllcigwLCAwLCAwLjIsIDEpO1xyXG4gIH1cclxufVxyXG5cclxuLmNkay1kcmFnLXByZXZpZXcge1xyXG4gIGJveC1zaXppbmc6IGJvcmRlci1ib3g7XHJcbiAgYm9yZGVyLXJhZGl1czogNHB4O1xyXG4gIGJveC1zaGFkb3c6IDAgNXB4IDVweCAtM3B4IHJnYmEoMCwgMCwgMCwgMC4yKSxcclxuICAgIDAgOHB4IDEwcHggMXB4IHJnYmEoMCwgMCwgMCwgMC4xNCksIDAgM3B4IDE0cHggMnB4IHJnYmEoMCwgMCwgMCwgMC4xMik7XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogYmlzcXVlO1xyXG4gIGNvbG9yOiBibGFjaztcclxufVxyXG5cclxuLmNkay1kcmFnLXBsYWNlaG9sZGVyIHtcclxuICBvcGFjaXR5OiAwO1xyXG59XHJcblxyXG4uY2RrLWRyYWctYW5pbWF0aW5nIHtcclxuICB0cmFuc2l0aW9uOiB0cmFuc2Zvcm0gMjUwbXMgY3ViaWMtYmV6aWVyKDAsIDAsIDAuMiwgMSk7XHJcbn1cclxuXHJcbi5kZWxldGUtYnV0dG9uIHtcclxuICBib3JkZXI6IG5vbmU7XHJcbiAgLy8gICBib3JkZXI6IDFweCBzb2xpZCByZ2JhKDI1NSwgMCwgMCwgMC42MDcpO1xyXG4gIGJhY2tncm91bmQtY29sb3I6IHRyYW5zcGFyZW50O1xyXG4gIGJvcmRlci1yYWRpdXM6IDJweDtcclxuICBwYWRkaW5nOiAwcHg7XHJcblxyXG4gIGN1cnNvcjogcG9pbnRlcjtcclxuICAuZGVsZXRlLWljb24ge1xyXG4gICAgY29sb3I6ICM5OTAwMDA7XHJcbiAgfVxyXG59XHJcbiJdLCJzb3VyY2VSb290IjoiIn0= */"]
+      styles: [".tasks[_ngcontent-%COMP%] {\n  padding: 15px 12px;\n  background-color: #fff;\n  border-radius: 4px;\n  margin-bottom: 10px;\n  cursor: grab;\n  box-shadow: 0 8px 6px -6px rgb(54, 52, 52); \n\n}\n.tasks[_ngcontent-%COMP%]   .description[_ngcontent-%COMP%] {\n  font-size: small;\n  font-style: italic;\n}\n\n[_nghost-%COMP%]   [_ngcontent-%COMP%]:not(.ideas-tasks, \n.name-description-container[_ngcontent-%COMP%], \n.description[_ngcontent-%COMP%], \n.delete-icon[_ngcontent-%COMP%], \n.edit-icon)[_ngcontent-%COMP%] {\n  color: #fff;\n}\n[_nghost-%COMP%]   .goals-tasks[_ngcontent-%COMP%] {\n  background-color: rgb(162, 178, 226);\n}\n[_nghost-%COMP%]   .objectives-tasks[_ngcontent-%COMP%] {\n  background-color: rgb(252, 172, 0);\n}\n[_nghost-%COMP%]   .achievements-tasks[_ngcontent-%COMP%] {\n  background-color: rgb(97, 192, 19);\n}\n[_nghost-%COMP%]   .tasks[_ngcontent-%COMP%]:not(.cdk-drag-placeholder) {\n  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.cdk-drag-preview[_ngcontent-%COMP%] {\n  box-sizing: border-box;\n  border-radius: 4px;\n  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);\n  background-color: bisque;\n  color: black;\n}\n\n.cdk-drag-placeholder[_ngcontent-%COMP%] {\n  opacity: 0;\n}\n\n.cdk-drag-animating[_ngcontent-%COMP%] {\n  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.delete-button[_ngcontent-%COMP%] {\n  border: none;\n  background-color: transparent;\n  border-radius: 2px;\n  padding: 0px;\n  cursor: pointer;\n}\n.delete-button[_ngcontent-%COMP%]   .delete-icon[_ngcontent-%COMP%] {\n  color: #990000;\n}\n\n.edit-button[_ngcontent-%COMP%] {\n  border: none;\n  background-color: transparent;\n  border-radius: 2px;\n  padding: 0px;\n  cursor: pointer;\n}\n.edit-button[_ngcontent-%COMP%]   .edit-icon[_ngcontent-%COMP%] {\n  color: #004d99;\n}\n/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8uL3NyYy9hcHAvdmlld3MvdGFzay90YXNrLmNvbXBvbmVudC5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0Usa0JBQUE7RUFDQSxzQkFBQTtFQUNBLGtCQUFBO0VBQ0EsbUJBQUE7RUFDQSxZQUFBO0VBQ0EsMENBQUEsRUFBQSxtREFBQTtBQUNGO0FBQ0U7RUFDRSxnQkFBQTtFQUNBLGtCQUFBO0FBQ0o7O0FBR0U7Ozs7O0VBUUUsV0FBQTtBQUhKO0FBS0U7RUFDRSxvQ0FBQTtBQUhKO0FBTUU7RUFDRSxrQ0FBQTtBQUpKO0FBT0U7RUFDRSxrQ0FBQTtBQUxKO0FBUUU7RUFDRSxzREFBQTtBQU5KOztBQVVBO0VBQ0Usc0JBQUE7RUFDQSxrQkFBQTtFQUNBLHFIQUFBO0VBRUEsd0JBQUE7RUFDQSxZQUFBO0FBUkY7O0FBV0E7RUFDRSxVQUFBO0FBUkY7O0FBV0E7RUFDRSxzREFBQTtBQVJGOztBQVdBO0VBQ0UsWUFBQTtFQUVBLDZCQUFBO0VBQ0Esa0JBQUE7RUFDQSxZQUFBO0VBRUEsZUFBQTtBQVZGO0FBV0U7RUFDRSxjQUFBO0FBVEo7O0FBYUE7RUFDRSxZQUFBO0VBQ0EsNkJBQUE7RUFDQSxrQkFBQTtFQUNBLFlBQUE7RUFDQSxlQUFBO0FBVkY7QUFXRTtFQUNFLGNBQUE7QUFUSiIsInNvdXJjZXNDb250ZW50IjpbIi50YXNrcyB7XHJcbiAgcGFkZGluZzogMTVweCAxMnB4O1xyXG4gIGJhY2tncm91bmQtY29sb3I6ICNmZmY7XHJcbiAgYm9yZGVyLXJhZGl1czogNHB4O1xyXG4gIG1hcmdpbi1ib3R0b206IDEwcHg7XHJcbiAgY3Vyc29yOiBncmFiO1xyXG4gIGJveC1zaGFkb3c6IDAgOHB4IDZweCAtNnB4IHJnYig1NCwgNTIsIDUyKTsgLyogT3BlcmEgMTAuNSwgSUUgOSwgRmlyZWZveCA0KywgQ2hyb21lIDYrLCBpT1MgNSAqL1xyXG5cclxuICAuZGVzY3JpcHRpb24ge1xyXG4gICAgZm9udC1zaXplOiBzbWFsbDtcclxuICAgIGZvbnQtc3R5bGU6IGl0YWxpYztcclxuICB9XHJcbn1cclxuOmhvc3Qge1xyXG4gIDpub3QoXHJcbiAgICAgIC5pZGVhcy10YXNrcyxcclxuICAgICAgLm5hbWUtZGVzY3JpcHRpb24tY29udGFpbmVyLFxyXG4gICAgICAuZGVzY3JpcHRpb24sXHJcbiAgICAgIC5kZWxldGUtaWNvbixcclxuICAgICAgLmVkaXQtaWNvblxyXG4gICAgKSB7XHJcbiAgICAvL2FsbCBleGNlcHQgaWRlYXMgdGFibGVzXHJcbiAgICBjb2xvcjogI2ZmZjtcclxuICB9XHJcbiAgLmdvYWxzLXRhc2tzIHtcclxuICAgIGJhY2tncm91bmQtY29sb3I6IHJnYigxNjIsIDE3OCwgMjI2KTtcclxuICB9XHJcblxyXG4gIC5vYmplY3RpdmVzLXRhc2tzIHtcclxuICAgIGJhY2tncm91bmQtY29sb3I6IHJnYigyNTIsIDE3MiwgMCk7XHJcbiAgfVxyXG5cclxuICAuYWNoaWV2ZW1lbnRzLXRhc2tzIHtcclxuICAgIGJhY2tncm91bmQtY29sb3I6IHJnYig5NywgMTkyLCAxOSk7XHJcbiAgfVxyXG5cclxuICAudGFza3M6bm90KC5jZGstZHJhZy1wbGFjZWhvbGRlcikge1xyXG4gICAgdHJhbnNpdGlvbjogdHJhbnNmb3JtIDI1MG1zIGN1YmljLWJlemllcigwLCAwLCAwLjIsIDEpO1xyXG4gIH1cclxufVxyXG5cclxuLmNkay1kcmFnLXByZXZpZXcge1xyXG4gIGJveC1zaXppbmc6IGJvcmRlci1ib3g7XHJcbiAgYm9yZGVyLXJhZGl1czogNHB4O1xyXG4gIGJveC1zaGFkb3c6IDAgNXB4IDVweCAtM3B4IHJnYmEoMCwgMCwgMCwgMC4yKSxcclxuICAgIDAgOHB4IDEwcHggMXB4IHJnYmEoMCwgMCwgMCwgMC4xNCksIDAgM3B4IDE0cHggMnB4IHJnYmEoMCwgMCwgMCwgMC4xMik7XHJcbiAgYmFja2dyb3VuZC1jb2xvcjogYmlzcXVlO1xyXG4gIGNvbG9yOiBibGFjaztcclxufVxyXG5cclxuLmNkay1kcmFnLXBsYWNlaG9sZGVyIHtcclxuICBvcGFjaXR5OiAwO1xyXG59XHJcblxyXG4uY2RrLWRyYWctYW5pbWF0aW5nIHtcclxuICB0cmFuc2l0aW9uOiB0cmFuc2Zvcm0gMjUwbXMgY3ViaWMtYmV6aWVyKDAsIDAsIDAuMiwgMSk7XHJcbn1cclxuXHJcbi5kZWxldGUtYnV0dG9uIHtcclxuICBib3JkZXI6IG5vbmU7XHJcbiAgLy8gICBib3JkZXI6IDFweCBzb2xpZCByZ2JhKDI1NSwgMCwgMCwgMC42MDcpO1xyXG4gIGJhY2tncm91bmQtY29sb3I6IHRyYW5zcGFyZW50O1xyXG4gIGJvcmRlci1yYWRpdXM6IDJweDtcclxuICBwYWRkaW5nOiAwcHg7XHJcblxyXG4gIGN1cnNvcjogcG9pbnRlcjtcclxuICAuZGVsZXRlLWljb24ge1xyXG4gICAgY29sb3I6ICM5OTAwMDA7XHJcbiAgfVxyXG59XHJcblxyXG4uZWRpdC1idXR0b24ge1xyXG4gIGJvcmRlcjogbm9uZTtcclxuICBiYWNrZ3JvdW5kLWNvbG9yOiB0cmFuc3BhcmVudDtcclxuICBib3JkZXItcmFkaXVzOiAycHg7XHJcbiAgcGFkZGluZzogMHB4O1xyXG4gIGN1cnNvcjogcG9pbnRlcjtcclxuICAuZWRpdC1pY29uIHtcclxuICAgIGNvbG9yOiAjMDA0ZDk5O1xyXG4gIH1cclxufVxyXG4iXSwic291cmNlUm9vdCI6IiJ9 */"]
     });
   }
 }
