@@ -20,6 +20,7 @@ export class TaskComponent {
   @Input() container: any;
   @Input() index: number;
   @Output() taskDeleted = new EventEmitter<number>();
+  @Output() taskUpdated = new EventEmitter<void>();
   readonly addTaskDialog = inject(MatDialog);
 
   deleteTask(taskId: number): void {
@@ -35,7 +36,7 @@ export class TaskComponent {
       data: { taskType: null, mode: TaskMode.Edit, task: task },
     });
     dialogRef.afterClosed().subscribe(() => {
-      // this.getTasks();
+      this.taskUpdated.emit();
     });
   }
 }

@@ -95,4 +95,29 @@ export class TaskService {
       this.toastRService.error(`Failed to delete task : ${error.message}`);
     }
   }
+
+  async editTask(taskData: IdeaTask): Promise<boolean> {
+    try {
+      let { data, error } = await this.supabaseService.supabase
+        .from('tasks')
+        .update({
+          name: taskData.name,
+          description: taskData.description,
+          type: taskData.type,
+          //TODO: Add more fields to upsert
+        })
+        .eq('id', taskData.id);
+
+      if (error) {
+        throw error;
+      }
+
+      this.toastRService.success(
+        `Task ${taskData.name} was updated successfully`
+      );
+      return true;
+    } catch (error) {
+      this.toastRService.error(`Failed to update task : ${error.message}`);
+    }
+  }
 }

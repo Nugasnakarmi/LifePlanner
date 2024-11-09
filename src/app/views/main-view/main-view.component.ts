@@ -56,8 +56,7 @@ export class MainViewComponent implements OnInit {
             IdeaType,
             element.type
           );
-
-          this.containerRefs[containerName].push(element);
+          if (containerName) this.containerRefs[containerName].push(element);
         }
       });
     });
@@ -115,6 +114,10 @@ export class MainViewComponent implements OnInit {
   }
 
   onTaskDeleted(taskId: number): void {
+    this.getTasks();
+  }
+
+  onTaskUpdated(): void {
     this.getTasks();
   }
 }

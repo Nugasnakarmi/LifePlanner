@@ -1,7 +1,7 @@
 <form
   [formGroup]="addTaskForm"
   class="add-task-container flex-column"
-  (submit)="addTask()"
+  (submit)="data.mode === TaskMode.Edit ? editTask() : addTask()"
 >
   <mat-form-field>
     <mat-label>Enter task name</mat-label>

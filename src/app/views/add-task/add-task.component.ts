@@ -25,6 +25,7 @@ export class AddTaskComponent implements OnInit {
   addTaskForm: UntypedFormGroup;
   addTaskDialogRef = inject(MatDialogRef<AddTaskComponent>);
   actionString = 'Add Task';
+  readonly TaskMode = TaskMode;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -56,7 +57,7 @@ export class AddTaskComponent implements OnInit {
       ? 'At least 3 characters long'
       : '';
   }
-
+  //TODO: move the actions to parent component
   async addTask(): Promise<void> {
     const task: IdeaTask = {
       name: this.addTaskForm.controls.name.value,
@@ -70,6 +71,20 @@ export class AddTaskComponent implements OnInit {
     if (didAdd) {
       //close dialog
       this.addTaskDialogRef.close();
+    }
+  }
+
+  async editTask(): Promise<boolean> {
+    const task: IdeaTask = {
+      id: this.data.task.id,
+      name: this.addTaskForm.controls.name.value,
+      description: this.addTaskForm.controls.description.value,
+    };
+    const updated = await this.taskService.editTask(task);
+    if (updated) {
+      //close dialog
+      this.addTaskDialogRef.close();
+      return updated;
     }
   }
 }
