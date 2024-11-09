@@ -9,6 +9,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
+import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskService } from 'src/app/services/task/task.service';
 
@@ -23,9 +24,16 @@ export class AddTaskComponent implements OnInit {
   taskService = inject(TaskService);
   addTaskForm: UntypedFormGroup;
   addTaskDialogRef = inject(MatDialogRef<AddTaskComponent>);
+  actionString = 'Add Task';
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { taskType: IdeaType }) {}
+  constructor(
+    @Inject(MAT_DIALOG_DATA)
+    public data: { taskType: IdeaType; mode?: TaskMode; task?: IdeaTask }
+  ) {}
+
   ngOnInit(): void {
+    console.log(this.data.mode);
+
     this.addTaskForm = new UntypedFormGroup({
       name: new UntypedFormControl('', [
         Validators.required,
@@ -33,6 +41,10 @@ export class AddTaskComponent implements OnInit {
       ]),
       description: new UntypedFormControl(''),
     });
+    if (this.data.mode === TaskMode.Edit) {
+      this.actionString = 'Edit Task';
+      this.addTaskForm.patchValue(this.data.task);
+    }
   }
 
   getValidationMessage() {

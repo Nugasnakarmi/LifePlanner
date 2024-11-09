@@ -1,8 +1,11 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskService } from 'src/app/services/task/task.service';
+import { AddTaskComponent } from '../add-task/add-task.component';
+import { TaskMode } from 'src/app/enums/task-mode.enum';
 
 @Component({
   selector: 'app-task',
@@ -17,6 +20,7 @@ export class TaskComponent {
   @Input() container: any;
   @Input() index: number;
   @Output() taskDeleted = new EventEmitter<number>();
+  readonly addTaskDialog = inject(MatDialog);
 
   deleteTask(taskId: number): void {
     this.taskService.deleteTask(taskId).then((result) => {
@@ -26,11 +30,12 @@ export class TaskComponent {
     });
   }
 
-  editTask(task: IdeaTask): void {
-    // this.taskService.updateTaskContainer(task).then((result) => {
-    //   if (result) {
-    //     this.taskDeleted.emit(task.id);
-    //   }
-    // });
+  onEditTask(task: IdeaTask): void {
+    const dialogRef = this.addTaskDialog.open(AddTaskComponent, {
+      data: { taskType: null, mode: TaskMode.Edit, task: task },
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      // this.getTasks();
+    });
   }
 }
