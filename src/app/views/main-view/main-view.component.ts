@@ -20,11 +20,10 @@ import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
 
 @Component({
-  standalone: true,
-  imports: [DragDropModule, MatIconModule, TaskComponent],
-  selector: 'app-main-view',
-  templateUrl: './main-view.component.html',
-  styleUrls: ['./main-view.component.scss'],
+    imports: [DragDropModule, MatIconModule, TaskComponent],
+    selector: 'app-main-view',
+    templateUrl: './main-view.component.html',
+    styleUrls: ['./main-view.component.scss']
 })
 export class MainViewComponent implements OnInit {
   containers = ['ideas', 'goals', 'objectives', 'achievements'];

@@ -3,11 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 import { RegisterService } from 'src/app/services/register/register.service';
 
 @Component({
-  standalone: true,
-  imports: [],
-  selector: 'app-email-confirm',
-  templateUrl: './email-confirm.component.html',
-  styleUrls: ['./email-confirm.component.scss'],
+    imports: [],
+    selector: 'app-email-confirm',
+    templateUrl: './email-confirm.component.html',
+    styleUrls: ['./email-confirm.component.scss']
 })
 export class EmailConfirmComponent implements OnInit {
   token = '';

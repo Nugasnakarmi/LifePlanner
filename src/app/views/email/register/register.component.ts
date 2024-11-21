@@ -15,16 +15,15 @@ import { RegisterService } from 'src/app/services/register/register.service';
 import { Session, User } from '@supabase/supabase-js';
 
 @Component({
-  standalone: true,
-  imports: [
-    MatIconModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
-    MatInputModule,
-  ],
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss'],
+    imports: [
+        MatIconModule,
+        MatFormFieldModule,
+        ReactiveFormsModule,
+        MatInputModule,
+    ],
+    selector: 'app-register',
+    templateUrl: './register.component.html',
+    styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
   email = new FormControl('', [Validators.required, Validators.email]);

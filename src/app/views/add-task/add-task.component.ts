@@ -14,11 +14,10 @@ import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
-  selector: 'add-task',
-  standalone: true,
-  imports: [MatFormFieldModule, MatInputModule, ReactiveFormsModule],
-  templateUrl: './add-task.component.html',
-  styleUrl: './add-task.component.scss',
+    selector: 'add-task',
+    imports: [MatFormFieldModule, MatInputModule, ReactiveFormsModule],
+    templateUrl: './add-task.component.html',
+    styleUrl: './add-task.component.scss'
 })
 export class AddTaskComponent implements OnInit {
   taskService = inject(TaskService);

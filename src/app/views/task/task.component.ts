@@ -8,11 +8,10 @@ import { AddTaskComponent } from '../add-task/add-task.component';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 
 @Component({
-  selector: 'app-task',
-  standalone: true,
-  imports: [DragDropModule, MatIconModule],
-  templateUrl: './task.component.html',
-  styleUrl: './task.component.scss',
+    selector: 'app-task',
+    imports: [DragDropModule, MatIconModule],
+    templateUrl: './task.component.html',
+    styleUrl: './task.component.scss'
 })
 export class TaskComponent {
   taskService = inject(TaskService);
