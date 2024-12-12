@@ -10,7 +10,7 @@
       required
     />
     @if(email.invalid){
-    <mat-error>{{ getErrorMessage() }}</mat-error>
+    <mat-error>{{ getErrorMessage("email") }}</mat-error>
     }
   </mat-form-field>
   <mat-form-field appearance="fill">
@@ -21,6 +21,9 @@
       [type]="hide ? 'password' : 'text'"
       required
     />
+    @if(password.invalid){
+    <mat-error>{{ getErrorMessage("password") }}</mat-error>
+    }
     <button
       mat-icon-button
       matSuffix

@@ -9,15 +9,15 @@ import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 
 @Component({
-    imports: [
-        MatFormFieldModule,
-        ReactiveFormsModule,
-        MatIconModule,
-        MatInputModule,
-    ],
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
+  imports: [
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    MatInputModule,
+  ],
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
   email = new FormControl('', [Validators.required, Validators.email]);
@@ -28,16 +28,25 @@ export class LoginComponent implements OnInit {
   loginService = inject(LoginService);
   registerDialog = inject(MatDialog);
   router = inject(Router);
-  // loginDialogRef = inject(MatDialogRef<LoginComponent>);
   constructor() {}
 
   ngOnInit(): void {}
-  getErrorMessage() {
-    if (this.email.hasError('required')) {
+
+  getErrorMessage(formControlName: string) {
+    let control = null;
+    if (formControlName == 'email') {
+      control = this.email;
+    }
+
+    if (formControlName == 'password') {
+      control = this.password;
+    }
+
+    if (control.hasError('required')) {
       return 'You must enter a value';
     }
 
-    return this.email.hasError('email') ? 'Not a valid email' : '';
+    return control.hasError('email') ? 'Not a valid email' : '';
   }
 
   async login() {
@@ -45,13 +54,15 @@ export class LoginComponent implements OnInit {
       email: this.email.value,
       password: this.password.value,
     };
-    try {
-      const userSessionDetails = await this.loginService.loginEmailPassword(
-        loginCredentials
-      );
-      this.userDetails = userSessionDetails.user;
-      this.router.navigate(['/main']);
-    } catch (error) {}
+    if (this.email.valid && this.password.valid) {
+      try {
+        const userSessionDetails = await this.loginService.loginEmailPassword(
+          loginCredentials
+        );
+        this.userDetails = userSessionDetails.user;
+        this.router.navigate(['/main']);
+      } catch (error) {}
+    }
   }
   register() {
     this.router.navigate(['/register']);
