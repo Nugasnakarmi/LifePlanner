@@ -3,6 +3,7 @@ import {
   AbstractControl,
   FormControl,
   ReactiveFormsModule,
+  UntypedFormArray,
   ValidationErrors,
   Validators,
 } from '@angular/forms';
@@ -15,20 +16,23 @@ import { RegisterService } from 'src/app/services/register/register.service';
 import { Session, User } from '@supabase/supabase-js';
 
 @Component({
-    imports: [
-        MatIconModule,
-        MatFormFieldModule,
-        ReactiveFormsModule,
-        MatInputModule,
-    ],
-    selector: 'app-register',
-    templateUrl: './register.component.html',
-    styleUrls: ['./register.component.scss']
+  imports: [
+    MatIconModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
+  ],
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
   email = new FormControl('', [Validators.required, Validators.email]);
   password = new FormControl('', [Validators.required]);
-  confirmPassword = new FormControl('', [Validators.required]);
+  confirmPassword = new FormControl('', [
+    Validators.required,
+    this.passwordsMatch.bind(this),
+  ]);
   userDetails:
     | {
         user: User | null;
@@ -61,21 +65,44 @@ export class RegisterComponent implements OnInit {
         : { isMatching: false };
     };
   }
-  getErrorMessage(type) {
-    if (type == 'email') {
+
+  passwordsMatch() {
+    const password = this.password.value;
+    const confirmPassword = this.confirmPassword.value;
+    return password === confirmPassword ? null : { notMatching: true };
+  }
+
+  /*************  ✨ Codeium Command ⭐  *************/
+  /**
+   * Return the error message associated with the given form control name
+   * @param formControlName - the name of the form control to retrieve the error message for
+   * @returns the error message associated with the given form control name
+   */
+  /******  908aca5e-d135-4a3d-ab35-a5ef8dd79854  *******/
+  getErrorMessage(formControlName): string {
+    let control = null;
+
+    if (formControlName == 'email') {
+      control = this.email;
+    }
+
+    if (formControlName == 'password') {
+      control = this.password;
+    }
+    if (formControlName == 'email') {
       if (this.email.hasError('required')) {
         return 'You must enter a value';
       }
 
       return this.email.hasError('email') ? 'Not a valid email' : '';
-    } else if (type == 'password') {
+    } else if (formControlName == 'password') {
       if (this.password.hasError('required')) {
-        return 'Password must be entered';
       }
-    } else if (type == 'confirmPassword') {
+    } else if (formControlName == 'confirmPassword') {
       if (this.confirmPassword.hasError('required')) {
         return 'Please type your password again to confirm';
       } else {
+        return 'Password must be entered';
         return 'Passwords do not match';
       }
     }
