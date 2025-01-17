@@ -2,71 +2,80 @@
   <h1 class="app-name has-gradient-text">LifePlanner</h1>
   @if(!registrationSuccess){
   <p>Register</p>
-  <mat-form-field appearance="fill">
-    <mat-label>Enter your email</mat-label>
-    <input
-      matInput
-      placeholder="pat@example.com"
-      [formControl]="email"
-      required
-    />
-    @if(email.invalid){
-    <mat-error>{{ getErrorMessage("email") }}</mat-error>
-    }
-  </mat-form-field>
+  <form [formGroup]="passwordForm" class="register-form">
+    <mat-form-field appearance="fill">
+      <mat-label>Enter your email</mat-label>
+      <input
+        matInput
+        placeholder="pat@example.com"
+        formControlName="email"
+        required
+      />
+      @if(passwordForm.controls.email.invalid){
+      <mat-error>{{ getErrorMessage("email") }}</mat-error>
+      }
+    </mat-form-field>
 
-  <mat-form-field appearance="fill">
-    <mat-label>Enter your password</mat-label>
-    <input
-      [formControl]="password"
-      matInput
-      [type]="hide ? 'password' : 'text'"
-      required
-    />
+    <mat-form-field appearance="fill">
+      <mat-label>Enter your password</mat-label>
+      <input
+        formControlName="password"
+        matInput
+        [type]="hide ? 'password' : 'text'"
+        required
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="hide = !hide"
+        [attr.aria-label]="'Hide password'"
+        [attr.aria-pressed]="hide"
+      >
+        <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+      </button>
+      @if(passwordForm.controls.password.invalid){
+      <mat-error>{{ getErrorMessage("password") }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Confirm password</mat-label>
+      <input
+        formControlName="confirmPassword"
+        matInput
+        [type]="hide ? 'password' : 'text'"
+        required
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="hide = !hide"
+        [attr.aria-label]="'Hide password'"
+        [attr.aria-pressed]="hide"
+        class="visibility-button"
+      >
+        <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+      </button>
+      @if(passwordForm.controls.confirmPassword.invalid){
+      <mat-error>{{ getErrorMessage("confirmPassword") }}</mat-error>
+      }
+    </mat-form-field>
+
+    @if(passwordForm.errors?.['PasswordNoMatch']&&
+    passwordForm.controls.confirmPassword.value){
+    <mat-error class="password-unmatch-error">{{
+      getErrorMessage("PasswordNoMatch")
+    }}</mat-error>
+    }
     <button
-      mat-icon-button
-      matSuffix
-      (click)="hide = !hide"
-      [attr.aria-label]="'Hide password'"
-      [attr.aria-pressed]="hide"
+      class="standard-button-height"
+      mat-raised-button
+      color="primary"
+      (click)="register()"
     >
-      <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+      Register
     </button>
-    @if(password.invalid){
-    <mat-error>{{ getErrorMessage("password") }}</mat-error>
-    }
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Confirm password</mat-label>
-    <input
-      [formControl]="confirmPassword"
-      matInput
-      [type]="hide ? 'password' : 'text'"
-      required
-    />
-    <button
-      mat-icon-button
-      matSuffix
-      (click)="hide = !hide"
-      [attr.aria-label]="'Hide password'"
-      [attr.aria-pressed]="hide"
-    >
-      <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
-    </button>
-    @if(confirmPassword.invalid){
-    <mat-error>{{ getErrorMessage("confirmPassword") }}</mat-error>
-    }
-  </mat-form-field>
-
-  <button
-    class="standard-button-height"
-    mat-raised-button
-    color="primary"
-    (click)="register()"
-  >
-    Register
-  </button>
+  </form>
   } @else {
   <p>
     Registration was successful for {{ userDetails.user.email }}. Please check

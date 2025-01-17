@@ -5,12 +5,13 @@
 }
 
 .register-container {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 300px;
-  text-align: center;
-
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 300px;
+    text-align: center;
+  }
   .app-name {
     font-size: 28px;
     font-family: "Yatra One", sans-serif;
@@ -29,5 +30,14 @@
 
   #register-text {
     font-size: 0.75em;
+  }
+
+  .password-unmatch-error {
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+  }
+  .visibility-button {
+    margin: 3px;
   }
 }
