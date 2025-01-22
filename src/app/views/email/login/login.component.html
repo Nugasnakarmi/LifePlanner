@@ -30,6 +30,7 @@
       (click)="hide = !hide"
       [attr.aria-label]="'Hide password'"
       [attr.aria-pressed]="hide"
+      class="visibility-button"
     >
       <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
     </button>
