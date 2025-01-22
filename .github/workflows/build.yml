@@ -1,4 +1,4 @@
-name: Build on Push
+name: Build on Push Custom
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
           node-version: "22" # Use the node version required for your project
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --force
 
       - name: Build the project
         run: npm run build
