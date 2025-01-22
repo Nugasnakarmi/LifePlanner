@@ -24,7 +24,14 @@
       [value]="data.task?.description"
     ></textarea>
   </mat-form-field>
-  <button mat-raised-button color="primary" type="submit">
-    {{ actionString }}
-  </button>
+  <div class="action-button-container flex">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      class="action-button"
+    >
+      {{ actionString }}
+    </button>
+  </div>
 </form>

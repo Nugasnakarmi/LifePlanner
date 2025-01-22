@@ -1,4 +1,17 @@
 .add-task-container {
-  height: 50vh;
   width: 50vw;
+  padding: 5px;
+}
+
+.action-button-container {
+  justify-content: flex-end;
+  .action-button {
+    width: 100px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .add-task-container {
+    width: 80vw;
+  }
 }
