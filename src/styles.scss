@@ -43,3 +43,20 @@ body {
 .visibility-button {
   margin: 3px;
 }
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 2.5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  width: 1px;
+  background-color: silver;
+  border-radius: 20px;
+  border: 1px solid silver;
+}
