@@ -25,7 +25,7 @@ jobs:
         run: npm run build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: github-pages
           path: dist
@@ -44,6 +44,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      - name: Remove lock
+        run: rm target/doc/.lock
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
