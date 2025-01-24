@@ -74,7 +74,8 @@
           },
           "configurations": {
             "production": {
-              "browserTarget": "LifePlanner:build:production"
+              "browserTarget": "LifePlanner:build:production",
+              "index": "src/production/index.html"
             }
           }
         },
