@@ -26,8 +26,8 @@ jobs:
 
       - name: Upload build artifacts
         uses: actions/upload-pages-artifact@v3
+        id: deployment
         with:
-          name: github-pages
           path: dist/
           retention-days: 1
 
@@ -46,11 +46,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: ./dist
+      # - name: Download Build Artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: github-pages
+      #     path: ./dist
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
