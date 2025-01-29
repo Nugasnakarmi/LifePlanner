@@ -3,15 +3,15 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
-import { TaskService } from 'src/app/services/task/task.service';
+import { TaskService } from 'src/app/services/task/task.api.service';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 
 @Component({
-    selector: 'app-task',
-    imports: [DragDropModule, MatIconModule],
-    templateUrl: './task.component.html',
-    styleUrl: './task.component.scss'
+  selector: 'app-task',
+  imports: [DragDropModule, MatIconModule],
+  templateUrl: './task.component.html',
+  styleUrl: './task.component.scss',
 })
 export class TaskComponent {
   taskService = inject(TaskService);

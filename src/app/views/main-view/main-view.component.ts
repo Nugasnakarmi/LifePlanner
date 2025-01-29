@@ -14,16 +14,16 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
-import { TaskService } from 'src/app/services/task/task.service';
+import { TaskService } from 'src/app/services/task/task.api.service';
 import { UtilityService } from 'src/app/utility/utility.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
 
 @Component({
-    imports: [DragDropModule, MatIconModule, TaskComponent],
-    selector: 'app-main-view',
-    templateUrl: './main-view.component.html',
-    styleUrls: ['./main-view.component.scss']
+  imports: [DragDropModule, MatIconModule, TaskComponent],
+  selector: 'app-main-view',
+  templateUrl: './main-view.component.html',
+  styleUrls: ['./main-view.component.scss'],
 })
 export class MainViewComponent implements OnInit {
   containers = ['ideas', 'goals', 'objectives', 'achievements'];
