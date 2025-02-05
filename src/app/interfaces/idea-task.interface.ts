@@ -1,5 +1,6 @@
 import { IdeaType } from '../enums/idea-type.enum';
 
+//This is the DTO interface
 export interface IdeaTask {
   id?: number;
   name?: string;

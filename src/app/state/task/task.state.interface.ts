@@ -1,5 +1,5 @@
-import { IdeaTask } from "src/app/interfaces/idea-task.interface";
+import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 
-export const IdeaTaskState {
-    tasks: IdeaTask[];
+export interface IdeaTaskState {
+  tasks: IdeaTask[];
 }

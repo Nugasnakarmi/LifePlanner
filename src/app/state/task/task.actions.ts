@@ -7,7 +7,10 @@ export const loadTaskSuccess = createAction(
   '[Tasks] Load Tasks Success',
   props<{ tasks: IdeaTask[] }>()
 );
-export const loadTasksFailure = createAction('[Tasks] Load Tasks Failure');
+export const loadTasksFailure = createAction(
+  '[Tasks] Load Tasks Failure',
+  props<{ error: any }>()
+);
 export const TaskActions = createActionGroup({
   source: 'Task API',
   events: {

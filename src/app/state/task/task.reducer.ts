@@ -1,9 +1,11 @@
 import { createReducer, on } from '@ngrx/store';
-import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
-import { TaskApiActions } from './task.actions';
+import { IdeaTaskState } from 'src/app/state/task/task.state.interface';
+import { TaskActions } from './task.actions';
 
-export const initialState: IdeaTaskState = [];
+export const initialState: IdeaTaskState = {
+  tasks: [],
+};
 export const tasksReducer = createReducer(
   initialState,
-  on(TaskApiActions.retrievedTaskList, (_state, { tasks }) => tasks)
+  on(TaskActions.retrievedTaskList, (state, { tasks }) => ({ ...state, tasks }))
 );

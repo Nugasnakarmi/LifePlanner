@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
-import { TaskService } from 'src/app/services/task/task.api.service';
+import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { UtilityService } from 'src/app/utility/utility.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
@@ -39,7 +39,7 @@ export class MainViewComponent implements OnInit {
   };
 
   router = inject(Router);
-  taskService = inject(TaskService);
+  taskAPIService = inject(TaskAPIService);
 
   readonly addTaskDialog = inject(MatDialog);
   ngOnInit(): void {
@@ -48,7 +48,7 @@ export class MainViewComponent implements OnInit {
 
   getTasks(): void {
     this.resetContainerData();
-    this.taskService.getTasks().then((data: IdeaTask[]) => {
+    this.taskAPIService.getTasks().then((data: IdeaTask[]) => {
       data.forEach((element) => {
         if (element) {
           const containerName = UtilityService.getEnumKeyByValue(
@@ -86,7 +86,7 @@ export class MainViewComponent implements OnInit {
       const data: IdeaTask = event.container.data[
         event.currentIndex
       ] as unknown as IdeaTask;
-      this.taskService
+      this.taskAPIService
         .updateTaskContainer({
           id: data.id,
           type: parseInt(event.container.id.substring(14)),
