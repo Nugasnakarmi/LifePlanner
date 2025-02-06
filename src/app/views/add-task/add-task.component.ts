@@ -11,16 +11,16 @@ import { MatInputModule } from '@angular/material/input';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
-import { TaskService } from 'src/app/services/task/task.service';
+import { TaskAPIService } from 'src/app/services/task/task.api.service';
 
 @Component({
-    selector: 'add-task',
-    imports: [MatFormFieldModule, MatInputModule, ReactiveFormsModule],
-    templateUrl: './add-task.component.html',
-    styleUrl: './add-task.component.scss'
+  selector: 'add-task',
+  imports: [MatFormFieldModule, MatInputModule, ReactiveFormsModule],
+  templateUrl: './add-task.component.html',
+  styleUrl: './add-task.component.scss',
 })
 export class AddTaskComponent implements OnInit {
-  taskService = inject(TaskService);
+  taskApiService = inject(TaskAPIService);
   addTaskForm: UntypedFormGroup;
   addTaskDialogRef = inject(MatDialogRef<AddTaskComponent>);
   actionString = 'Add Task';
@@ -65,7 +65,7 @@ export class AddTaskComponent implements OnInit {
       completion_status: 0,
       user_id: null,
     };
-    const didAdd = await this.taskService.addTask(task);
+    const didAdd = await this.taskApiService.addTask(task);
 
     if (didAdd) {
       //close dialog
@@ -79,7 +79,7 @@ export class AddTaskComponent implements OnInit {
       name: this.addTaskForm.controls.name.value,
       description: this.addTaskForm.controls.description.value,
     };
-    const updated = await this.taskService.editTask(task);
+    const updated = await this.taskApiService.editTask(task);
     if (updated) {
       //close dialog
       this.addTaskDialogRef.close();

@@ -1,7 +1,8 @@
 <div class="root">
+  @if(tasks$| async; as tasks){
   <div class="board">
     <div class="board-bar">
-      <p class="board-name">Board Name</p>
+      <p class="board-name">Board</p>
     </div>
     <div class="board-wrapper">
       <div class="board-columns" cdkDropListGroup>
@@ -36,4 +37,5 @@
       </div>
     </div>
   </div>
+  }
 </div>

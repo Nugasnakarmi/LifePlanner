@@ -14,16 +14,18 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
-import { TaskService } from 'src/app/services/task/task.service';
+import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { UtilityService } from 'src/app/utility/utility.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
+import { TaskService } from 'src/app/services/task/task.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-    imports: [DragDropModule, MatIconModule, TaskComponent],
-    selector: 'app-main-view',
-    templateUrl: './main-view.component.html',
-    styleUrls: ['./main-view.component.scss']
+  imports: [DragDropModule, MatIconModule, TaskComponent, AsyncPipe],
+  selector: 'app-main-view',
+  templateUrl: './main-view.component.html',
+  styleUrls: ['./main-view.component.scss'],
 })
 export class MainViewComponent implements OnInit {
   containers = ['ideas', 'goals', 'objectives', 'achievements'];
@@ -40,6 +42,8 @@ export class MainViewComponent implements OnInit {
 
   router = inject(Router);
   taskService = inject(TaskService);
+  taskAPIService = inject(TaskAPIService);
+  tasks$: Observable<IdeaTask[]> = this.taskService.tasks$;
 
   readonly addTaskDialog = inject(MatDialog);
   ngOnInit(): void {
@@ -48,7 +52,9 @@ export class MainViewComponent implements OnInit {
 
   getTasks(): void {
     this.resetContainerData();
-    this.taskService.getTasks().then((data: IdeaTask[]) => {
+
+    this.taskService.landingPageInitialized();
+    this.taskAPIService.getTasks().then((data: IdeaTask[]) => {
       data.forEach((element) => {
         if (element) {
           const containerName = UtilityService.getEnumKeyByValue(
@@ -86,7 +92,7 @@ export class MainViewComponent implements OnInit {
       const data: IdeaTask = event.container.data[
         event.currentIndex
       ] as unknown as IdeaTask;
-      this.taskService
+      this.taskAPIService
         .updateTaskContainer({
           id: data.id,
           type: parseInt(event.container.id.substring(14)),
