@@ -3,9 +3,10 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
-import { TaskService } from 'src/app/services/task/task.api.service';
+import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
+import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
   selector: 'app-task',
@@ -15,6 +16,7 @@ import { TaskMode } from 'src/app/enums/task-mode.enum';
 })
 export class TaskComponent {
   taskService = inject(TaskService);
+  taskAPIService = inject(TaskAPIService);
   @Input() task: any;
   @Input() container: any;
   @Input() index: number;
@@ -23,7 +25,7 @@ export class TaskComponent {
   readonly addTaskDialog = inject(MatDialog);
 
   deleteTask(taskId: number): void {
-    this.taskService.deleteTask(taskId).then((result) => {
+    this.taskAPIService.deleteTask(taskId).then((result) => {
       if (result) {
         this.taskDeleted.emit(taskId);
       }

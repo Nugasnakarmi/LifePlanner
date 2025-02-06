@@ -15,7 +15,7 @@ export class TaskEffects {
 
   loadItems$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(taskActions.loadTasks),
+      ofType(taskActions.landingPageInitialized),
       mergeMap(() => {
         const s$ = from(this.taskAPIService.getTasks());
         return s$.pipe(

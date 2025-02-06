@@ -18,6 +18,7 @@ import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { UtilityService } from 'src/app/utility/utility.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
+import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
   imports: [DragDropModule, MatIconModule, TaskComponent],
@@ -39,6 +40,7 @@ export class MainViewComponent implements OnInit {
   };
 
   router = inject(Router);
+  taskService = inject(TaskService);
   taskAPIService = inject(TaskAPIService);
 
   readonly addTaskDialog = inject(MatDialog);
@@ -48,6 +50,8 @@ export class MainViewComponent implements OnInit {
 
   getTasks(): void {
     this.resetContainerData();
+
+    this.taskService.landingPageInitialized();
     this.taskAPIService.getTasks().then((data: IdeaTask[]) => {
       data.forEach((element) => {
         if (element) {
