@@ -1,4 +1,5 @@
 <div class="root">
+  @if(tasks$| async; as tasks){
   <div class="board">
     <div class="board-bar">
       <p class="board-name">Board Name</p>
@@ -36,4 +37,5 @@
       </div>
     </div>
   </div>
+  }
 </div>

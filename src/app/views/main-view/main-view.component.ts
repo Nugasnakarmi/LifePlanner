@@ -19,9 +19,10 @@ import { UtilityService } from 'src/app/utility/utility.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
 import { TaskService } from 'src/app/services/task/task.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-  imports: [DragDropModule, MatIconModule, TaskComponent],
+  imports: [DragDropModule, MatIconModule, TaskComponent, AsyncPipe],
   selector: 'app-main-view',
   templateUrl: './main-view.component.html',
   styleUrls: ['./main-view.component.scss'],
@@ -42,6 +43,7 @@ export class MainViewComponent implements OnInit {
   router = inject(Router);
   taskService = inject(TaskService);
   taskAPIService = inject(TaskAPIService);
+  tasks$: Observable<IdeaTask[]> = this.taskService.tasks$;
 
   readonly addTaskDialog = inject(MatDialog);
   ngOnInit(): void {

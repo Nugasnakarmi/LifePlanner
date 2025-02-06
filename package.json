@@ -1,6 +1,6 @@
 {
   "name": "life-planner",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -25,6 +25,7 @@
     "@ng-bootstrap/ng-bootstrap": "^17.0.1",
     "@ngrx/effects": "^19.0.0",
     "@ngrx/store": "^19.0.0",
+    "@ngrx/store-devtools": "^19.0.1",
     "@supabase/supabase-js": "^2.46.1",
     "assert": "^2.0.0",
     "bulma": "^0.9.3",
