@@ -8,7 +8,7 @@ import {
 
 import { LoginService } from 'src/app/services/login/login.service';
 import { LoginComponent } from '../email/login/login.component';
-import { Observable } from 'rxjs';
+import { map, Observable, Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,10 +29,12 @@ import { AsyncPipe } from '@angular/common';
 })
 export class MainViewComponent implements OnInit {
   containers = ['ideas', 'goals', 'objectives', 'achievements'];
+
   ideas: IdeaTask[] = [];
   goals: IdeaTask[] = [];
   objectives: IdeaTask[] = [];
   achievements: IdeaTask[] = [];
+
   containerRefs = {
     ideas: this.ideas,
     goals: this.goals,
@@ -44,27 +46,39 @@ export class MainViewComponent implements OnInit {
   taskService = inject(TaskService);
   taskAPIService = inject(TaskAPIService);
   tasks$: Observable<IdeaTask[]> = this.taskService.tasks$;
-
+  subscriptions: Subscription;
   readonly addTaskDialog = inject(MatDialog);
   ngOnInit(): void {
+    this.subscriptions = new Subscription();
     this.getTasks();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   getTasks(): void {
     this.resetContainerData();
 
     this.taskService.landingPageInitialized();
-    this.taskAPIService.getTasks().then((data: IdeaTask[]) => {
-      data.forEach((element) => {
-        if (element) {
-          const containerName = UtilityService.getEnumKeyByValue(
-            IdeaType,
-            element.type
-          );
-          if (containerName) this.containerRefs[containerName].push(element);
-        }
-      });
-    });
+    this.subscriptions.add(
+      this.tasks$
+        .pipe(
+          map((tasks) => {
+            tasks.forEach((element) => {
+              if (element) {
+                const containerName = UtilityService.getEnumKeyByValue(
+                  IdeaType,
+                  element.type
+                );
+                if (containerName)
+                  this.containerRefs[containerName].push(element);
+              }
+            });
+          })
+        )
+        .subscribe()
+    );
   }
   resetContainerData(): void {
     this.containerRefs = {
