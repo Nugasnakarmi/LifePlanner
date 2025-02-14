@@ -3,7 +3,7 @@ name: Build on Push Custom
 on:
   push:
     branches:
-      - gh-pages # Triggers the workflow on push to the 'gh-pages' branch
+      - main # Triggers the workflow on push to the 'main' branch
 
 jobs:
   build:
