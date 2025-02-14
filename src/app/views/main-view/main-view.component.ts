@@ -65,6 +65,7 @@ export class MainViewComponent implements OnInit {
       this.tasks$
         .pipe(
           map((tasks) => {
+            console.log(tasks);
             tasks.forEach((element) => {
               if (element) {
                 const containerName = UtilityService.getEnumKeyByValue(
@@ -132,11 +133,11 @@ export class MainViewComponent implements OnInit {
     });
   }
 
-  onTaskDeleted(taskId: number): void {
-    this.getTasks();
-  }
+  // onTaskDeleted(taskId: number): void {
+  //  TODO
+  // }
 
-  onTaskUpdated(): void {
-    this.getTasks();
-  }
+  // onTaskUpdated(): void {
+  //   TODO
+  // }
 }

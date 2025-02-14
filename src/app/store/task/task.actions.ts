@@ -13,3 +13,17 @@ export const loadTasksFailure = createAction(
   '[Tasks] Load Tasks Failure',
   props<{ error: any }>()
 );
+
+export const taskWasUpdated = createAction(
+  '[Tasks] Task Was Updated',
+  props<{ task: IdeaTask }>()
+);
+
+export const taskWasUpdatedSuccessfully = createAction(
+  '[Tasks] Task Was Updated Successfully'
+);
+
+export const taskUpdateFailed = createAction(
+  '[Tasks] Task Updating Has Failed',
+  props<{ error: string }>()
+);

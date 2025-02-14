@@ -12,6 +12,7 @@ import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
+import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
   selector: 'add-task',
@@ -20,7 +21,9 @@ import { TaskAPIService } from 'src/app/services/task/task.api.service';
   styleUrl: './add-task.component.scss',
 })
 export class AddTaskComponent implements OnInit {
-  taskApiService = inject(TaskAPIService);
+  taskAPIService = inject(TaskAPIService);
+  taskService = inject(TaskService);
+
   addTaskForm: UntypedFormGroup;
   addTaskDialogRef = inject(MatDialogRef<AddTaskComponent>);
   actionString = 'Add Task';
@@ -32,8 +35,6 @@ export class AddTaskComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log(this.data.mode);
-
     this.addTaskForm = new UntypedFormGroup({
       name: new UntypedFormControl('', [
         Validators.required,
@@ -65,7 +66,7 @@ export class AddTaskComponent implements OnInit {
       completion_status: 0,
       user_id: null,
     };
-    const didAdd = await this.taskApiService.addTask(task);
+    const didAdd = await this.taskAPIService.addTask(task);
 
     if (didAdd) {
       //close dialog
@@ -73,17 +74,20 @@ export class AddTaskComponent implements OnInit {
     }
   }
 
-  async editTask(): Promise<boolean> {
+  editTask(): void {
     const task: IdeaTask = {
       id: this.data.task.id,
       name: this.addTaskForm.controls.name.value,
       description: this.addTaskForm.controls.description.value,
     };
-    const updated = await this.taskApiService.editTask(task);
-    if (updated) {
-      //close dialog
-      this.addTaskDialogRef.close();
-      return updated;
-    }
+
+    this.taskService.taskWasUpdated(task);
+
+    // const updated = await this.taskAPIService.editTask(task);
+    // if (updated) {
+    //   //close dialog
+    //   this.addTaskDialogRef.close();
+    //   return updated;
+    // }
   }
 }
