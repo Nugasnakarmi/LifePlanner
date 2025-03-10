@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { IdeaTaskState } from 'src/app/state/task/task.state.interface';
+import { IdeaTaskState } from 'src/app/store/task/task.state.interface';
 import * as taskActions from './task.actions';
 
 export const initialState: IdeaTaskState = {
