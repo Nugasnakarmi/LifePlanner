@@ -40,7 +40,7 @@ export const appConfig: ApplicationConfig = {
       preventDuplicates: true,
     }),
     provideStore(),
-    provideState({ name: 'task', reducer: tasksReducer }),
+    provideState({ name: 'idea-task', reducer: tasksReducer }),
     provideEffects([TaskEffects]),
     provideStoreDevtools({ maxAge: 25 }), // Enable Redux DevTools
   ],

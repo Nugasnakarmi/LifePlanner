@@ -29,65 +29,29 @@ export class TaskEffects {
     )
   );
 
-  updateTask$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(taskActions.taskWasUpdated),
-      switchMap(({ task, dialogRef }) =>
-        from(this.taskAPIService.editTask(task)).pipe(
-          map((res: boolean) =>
-            res
-              ? taskActions.taskWasUpdatedSuccessfully({ dialogRef })
-              : taskActions.taskUpdateFailed({
+  updateTask$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(taskActions.taskWasUpdated),
+        switchMap(({ task }) =>
+          from(this.taskAPIService.editTask(task)).pipe(
+            map((res: boolean) =>
+              res
+                ? taskActions.taskWasUpdatedSuccessfully({ task })
+                : taskActions.taskUpdateFailed({
+                    error: 'Failed to update task',
+                  })
+            ),
+            catchError(() =>
+              of(
+                taskActions.taskUpdateFailed({
                   error: 'Failed to update task',
-                  dialogRef,
                 })
-          ),
-          catchError(() =>
-            of(
-              taskActions.taskUpdateFailed({
-                error: 'Failed to update task',
-                dialogRef,
-              })
+              )
             )
           )
         )
-      )
-    )
-  );
-
-  // updateTaskSuccessful$ = createEffect(
-  //   () =>
-  //     this.actions$.pipe(
-  //       ofType(
-  //         taskActions.taskWasUpdatedSuccessfully,
-  //         taskActions.taskUpdateFailed
-  //       ),
-  //       tap(([{ dialogRef , error }]) => {
-  //         this.dialogService.closeAddTaskDialog(dialogRef);
-  //       })
-  //     ),
-  //   { dispatch: false }
-  // );
-  updateTaskSuccessful$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(
-          taskActions.taskWasUpdatedSuccessfully,
-          taskActions.taskUpdateFailed
-        ),
-        map((action) => {
-          if (action.type === taskActions.taskWasUpdatedSuccessfully.type) {
-            return { dialogRef: action.dialogRef };
-          } else {
-            return { error: action.error, dialogRef: action.dialogRef };
-          }
-        }),
-        tap((payload) => {
-          if (payload?.dialogRef || payload?.error) {
-            this.dialogService.closeAddTaskDialog(payload.dialogRef);
-          }
-        })
       ),
-    { dispatch: false }
+    { dispatch: true }
   );
 }

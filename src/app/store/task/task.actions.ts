@@ -19,15 +19,15 @@ export const loadTasksFailure = createAction(
 
 export const taskWasUpdated = createAction(
   '[Tasks] Task Was Updated',
-  props<{ task: IdeaTask; dialogRef: MatDialogRef<AddTaskComponent> }>()
+  props<{ task: IdeaTask }>()
 );
 
 export const taskWasUpdatedSuccessfully = createAction(
   '[Tasks] Task Was Updated Successfully',
-  props<{ dialogRef: MatDialogRef<AddTaskComponent> }>()
+  props<{ task: IdeaTask }>()
 );
 
 export const taskUpdateFailed = createAction(
   '[Tasks] Task Updating Has Failed',
-  props<{ error: string; dialogRef: MatDialogRef<AddTaskComponent> }>()
+  props<{ error: string }>()
 );

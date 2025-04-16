@@ -1,6 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { IdeaTaskState } from './task.state.interface';
-export const selectTaskFeature = createFeatureSelector<IdeaTaskState>('task');
+export const selectTaskFeature =
+  createFeatureSelector<IdeaTaskState>('idea-task');
 export const selectTasks = createSelector(
   selectTaskFeature,
   (state) => state.tasks
