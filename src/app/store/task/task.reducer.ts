@@ -13,9 +13,27 @@ export const tasksReducer = createReducer(
     ...state,
     loading: true,
   })),
-  on(taskActions.loadTaskSuccess, (state, { tasks }) => ({
-    ...state,
-    tasks,
-    loading: false,
-  }))
+  on(taskActions.taskNeedsToUpdate, (state, { task }) => {
+    console.log('Current state:', state);
+    console.log('Task received:', task);
+
+    return {
+      ...state,
+      tasks: state.tasks.map((existingTask) =>
+        existingTask.id === task.id
+          ? { ...existingTask, ...task }
+          : existingTask
+      ),
+      loading: false,
+    };
+  }),
+  on(taskActions.loadTaskSuccess, (state, { tasks }) => {
+    console.log('Current state:', state);
+    console.log('Tasks received:', tasks);
+    return {
+      ...state,
+      tasks,
+      loading: false,
+    };
+  })
 );

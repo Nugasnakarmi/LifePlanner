@@ -58,13 +58,12 @@ export class MainViewComponent implements OnInit {
   }
 
   getTasks(): void {
-    this.resetContainerData();
-
     this.taskService.landingPageInitialized();
     this.subscriptions.add(
       this.tasks$
         .pipe(
           map((tasks) => {
+            this.resetContainerData();
             console.log(tasks);
             tasks.forEach((element) => {
               if (element) {

@@ -25,8 +25,12 @@ export class TaskService {
   ): void {
     const clonedDialogRef: MatDialogRef<AddTaskComponent> =
       _.cloneDeep(dialogRef);
+
     this.store.dispatch(
       taskActions.taskWasUpdated({ task, dialogRef: clonedDialogRef })
     );
+  }
+  public taskNeedsToUpdate(task: IdeaTask): void {
+    this.store.dispatch(taskActions.taskNeedsToUpdate({ task }));
   }
 }

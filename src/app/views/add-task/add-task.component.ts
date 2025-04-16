@@ -80,7 +80,7 @@ export class AddTaskComponent implements OnInit {
       name: this.addTaskForm.controls.name.value,
       description: this.addTaskForm.controls.description.value,
     };
-
+    this.taskService.taskNeedsToUpdate(task);
     this.taskService.taskWasUpdated(task, this.addTaskDialogRef);
 
     // const updated = await this.taskAPIService.editTask(task);

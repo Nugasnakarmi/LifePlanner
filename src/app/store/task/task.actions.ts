@@ -22,9 +22,13 @@ export const taskWasUpdated = createAction(
   props<{ task: IdeaTask; dialogRef: MatDialogRef<AddTaskComponent> }>()
 );
 
+export const taskNeedsToUpdate = createAction(
+  '[Tasks] Task Needs to be Updated',
+  props<{ task: IdeaTask }>()
+);
 export const taskWasUpdatedSuccessfully = createAction(
   '[Tasks] Task Was Updated Successfully',
-  props<{ dialogRef: MatDialogRef<AddTaskComponent> }>()
+  props<{ dialogRef: MatDialogRef<AddTaskComponent>; task: IdeaTask }>()
 );
 
 export const taskUpdateFailed = createAction(
