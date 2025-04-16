@@ -10,7 +10,6 @@ export class DialogService {
   constructor() {}
 
   closeAddTaskDialog(dialogRef: MatDialogRef<AddTaskComponent>) {
-    // const clonedDialogRef = _.cloneDeep(dialogRef);
     dialogRef.close();
   }
 }

@@ -54,27 +54,4 @@ export class TaskEffects {
       ),
     { dispatch: true }
   );
-
-  // updateTaskSuccessful$ = createEffect(
-  //   () =>
-  //     this.actions$.pipe(
-  //       ofType(
-  //         taskActions.taskWasUpdatedSuccessfully,
-  //         taskActions.taskUpdateFailed
-  //       ),
-  //       map((action) => {
-  //         if (action.type === taskActions.taskWasUpdatedSuccessfully.type) {
-  //           return { dialogRef: action.dialogRef };
-  //         } else {
-  //           return { error: action.error, dialogRef: action.dialogRef };
-  //         }
-  //       }),
-  //       tap((payload) => {
-  //         if (payload?.dialogRef || payload?.error) {
-  //           this.dialogService.closeAddTaskDialog(this.dialogRef);
-  //         }
-  //       })
-  //     ),
-  //   { dispatch: false }
-  // );
 }

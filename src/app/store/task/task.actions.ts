@@ -22,10 +22,6 @@ export const taskWasUpdated = createAction(
   props<{ task: IdeaTask }>()
 );
 
-export const taskNeedsToUpdate = createAction(
-  '[Tasks] Task Needs to be Updated',
-  props<{ task: IdeaTask }>()
-);
 export const taskWasUpdatedSuccessfully = createAction(
   '[Tasks] Task Was Updated Successfully',
   props<{ task: IdeaTask }>()

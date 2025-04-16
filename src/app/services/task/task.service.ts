@@ -28,7 +28,4 @@ export class TaskService {
     this.store.dispatch(taskActions.taskWasUpdated({ task }));
     this.dialogService.closeAddTaskDialog(dialogRef);
   }
-  public taskNeedsToUpdate(task: IdeaTask): void {
-    this.store.dispatch(taskActions.taskNeedsToUpdate({ task }));
-  }
 }
