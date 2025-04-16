@@ -8,11 +8,13 @@ import { DialogRef } from '@angular/cdk/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AddTaskComponent } from 'src/app/views/add-task/add-task.component';
 import * as _ from 'lodash';
+import { DialogService } from '../dialog/dialog.service';
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
   store = inject(Store<TaskState>);
+  dialogService = inject(DialogService);
 
   tasks$: Observable<IdeaTask[]> = this.store.select(selectTasks);
   public landingPageInitialized(): void {
@@ -23,12 +25,8 @@ export class TaskService {
     task: IdeaTask,
     dialogRef: MatDialogRef<AddTaskComponent>
   ): void {
-    const clonedDialogRef: MatDialogRef<AddTaskComponent> =
-      _.cloneDeep(dialogRef);
-
-    this.store.dispatch(
-      taskActions.taskWasUpdated({ task, dialogRef: clonedDialogRef })
-    );
+    this.store.dispatch(taskActions.taskWasUpdated({ task }));
+    this.dialogService.closeAddTaskDialog(dialogRef);
   }
   public taskNeedsToUpdate(task: IdeaTask): void {
     this.store.dispatch(taskActions.taskNeedsToUpdate({ task }));

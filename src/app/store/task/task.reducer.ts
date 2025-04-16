@@ -13,7 +13,7 @@ export const tasksReducer = createReducer(
     ...state,
     loading: true,
   })),
-  on(taskActions.taskNeedsToUpdate, (state, { task }) => {
+  on(taskActions.taskWasUpdatedSuccessfully, (state, { task }) => {
     console.log('Current state:', state);
     console.log('Task received:', task);
 
