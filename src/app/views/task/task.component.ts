@@ -20,16 +20,11 @@ export class TaskComponent {
   @Input() task: any;
   @Input() container: any;
   @Input() index: number;
-  @Output() taskDeleted = new EventEmitter<number>();
   @Output() taskUpdated = new EventEmitter<void>();
   readonly addTaskDialog = inject(MatDialog);
 
   deleteTask(taskId: number): void {
-    this.taskAPIService.deleteTask(taskId).then((result) => {
-      if (result) {
-        this.taskDeleted.emit(taskId);
-      }
-    });
+    this.taskService.taskDeletionInitiated(taskId);
   }
 
   onEditTask(task: IdeaTask): void {

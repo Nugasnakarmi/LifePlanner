@@ -31,3 +31,18 @@ export const taskUpdateFailed = createAction(
   '[Tasks] Task Updating Has Failed',
   props<{ error: string }>()
 );
+
+export const taskWasDeleted = createAction(
+  '[Tasks] Task Deletion Initiated',
+  props<{ taskId: number }>()
+);
+
+export const taskWasDeletedSuccessfully = createAction(
+  '[Tasks] Task Was Deleted Successfully',
+  props<{ taskId: number }>()
+);
+
+export const taskDeletionFailed = createAction(
+  '[Tasks] Task Deletion Has Failed',
+  props<{ error: string }>()
+);
