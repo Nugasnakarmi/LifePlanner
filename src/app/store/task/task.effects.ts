@@ -54,4 +54,28 @@ export class TaskEffects {
       ),
     { dispatch: true }
   );
+
+  deleteTask$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(taskActions.taskWasDeleted),
+      switchMap(({ taskId }) =>
+        from(this.taskAPIService.deleteTask(taskId)).pipe(
+          map((res: boolean) =>
+            res
+              ? taskActions.taskWasDeletedSuccessfully({ taskId })
+              : taskActions.taskDeletionFailed({
+                  error: 'Failed to delete task',
+                })
+          ),
+          catchError(() =>
+            of(
+              taskActions.taskDeletionFailed({
+                error: 'Failed to delete task',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
 }
