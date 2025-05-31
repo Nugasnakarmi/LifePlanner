@@ -42,7 +42,7 @@
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",
     "@types/jasmine": "~5.1.0",
-    "@types/node": "^22.15.26",
+    "@types/node": "^22.15.29",
     "angular-cli-ghpages": "^2.0.3",
     "jasmine-core": "~5.2.0",
     "karma": "~6.4.0",
