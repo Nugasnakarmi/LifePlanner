@@ -35,5 +35,10 @@ export const tasksReducer = createReducer(
       tasks,
       loading: false,
     };
-  })
+  }),
+  on(taskActions.taskWasDeletedSuccessfully, (state, { taskId }) => ({
+    ...state,
+    tasks: state.tasks.filter((task) => task.id !== taskId),
+    loading: false,
+  }))
 );

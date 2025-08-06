@@ -28,4 +28,8 @@ export class TaskService {
     this.store.dispatch(taskActions.taskWasUpdated({ task }));
     this.dialogService.closeAddTaskDialog(dialogRef);
   }
+
+  public taskDeletionInitiated(taskId: number): void {
+    this.store.dispatch(taskActions.taskWasDeleted({ taskId }));
+  }
 }
