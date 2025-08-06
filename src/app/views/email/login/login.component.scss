@@ -17,6 +17,14 @@
     font-family: "Yatra One", sans-serif;
     font-weight: bold;
     text-align: center;
+    //make the text more prominent
+    color: #13f7f4;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    font-weight: 900;
+    //dark shadow around the text
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   .has-gradient-text {
