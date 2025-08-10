@@ -20,9 +20,16 @@ import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
 import { TaskService } from 'src/app/services/task/task.service';
 import { AsyncPipe } from '@angular/common';
+import { BoardComponent } from '../board/board.component';
 
 @Component({
-  imports: [DragDropModule, MatIconModule, TaskComponent, AsyncPipe],
+  imports: [
+    DragDropModule,
+    MatIconModule,
+    TaskComponent,
+    AsyncPipe,
+    BoardComponent,
+  ],
   selector: 'app-main-view',
   templateUrl: './main-view.component.html',
   styleUrls: ['./main-view.component.scss'],

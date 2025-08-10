@@ -1,0 +1,13 @@
+<div class="board-bar">
+  @if(!editingName){
+  <p class="board-name" (click)="startEditName()">Board</p>
+  } @if(editingName){
+  <input
+    class="board-name-input"
+    [(ngModel)]="tempBoardName"
+    (blur)="finishEditName()"
+    (keydown)="handleNameKey($event)"
+    autofocus
+  />
+  }
+</div>
