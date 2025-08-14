@@ -13,7 +13,8 @@ import { TaskEffects } from './store/task/task.effects';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { applyMiddleware } from 'redux';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
-
+import { BoardEffects } from './store/board/board.effects';
+import { boardsReducer } from './store/board/board.reducer';
 // const composeEnhancers = composeWithDevTools({
 //   realtime: true,
 //   name: 'Your Instance Name',
@@ -41,7 +42,8 @@ export const appConfig: ApplicationConfig = {
     }),
     provideStore(),
     provideState({ name: 'idea-task', reducer: tasksReducer }),
-    provideEffects([TaskEffects]),
+    provideState({ name: 'board', reducer: boardsReducer }), // Assuming you have a board reducer
+    provideEffects([TaskEffects, BoardEffects]),
     provideStoreDevtools({ maxAge: 25 }), // Enable Redux DevTools
   ],
 };

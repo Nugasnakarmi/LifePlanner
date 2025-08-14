@@ -8,6 +8,7 @@ export interface IdeaTask {
   type?: IdeaType;
   completion_status?: number;
   user_id?: string;
+  board_id?: number;
   created_at?: Date;
   last_edited?: Date;
 }
