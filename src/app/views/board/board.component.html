@@ -1,13 +1,24 @@
 <div class="board-bar">
-  @if(!editingName){
-  <p class="board-name" (click)="startEditName()">Board</p>
-  } @if(editingName){
-  <input
-    class="board-name-input"
-    [(ngModel)]="tempBoardName"
-    (blur)="finishEditName()"
-    (keydown)="handleNameKey($event)"
-    autofocus
-  />
+  @if(boards$ | async; as boards) {
+  <div class="board-name">
+    @if(!editingName){
+    <p class="board-name" (click)="startEditName()">
+      {{ tempBoardName }}
+    </p>
+    <button mat-button (click)="onNewBoardClick()">New board</button>
+    } @if(editingName){
+    <input
+      matInput
+      [formControl]="boardNameFormControl"
+      type="text"
+      class="board-name-input"
+      name="boardName"
+      (blur)="finishEditName()"
+      (keydown)="handleNameKey($event)"
+      autofocus
+    />
+    }
+  </div>
+
   }
 </div>

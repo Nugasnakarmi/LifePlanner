@@ -12,6 +12,7 @@ import { map, Observable, Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';

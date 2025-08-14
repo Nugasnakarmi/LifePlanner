@@ -1,27 +1,51 @@
-import { Component, Input } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject, Input, OnInit } from '@angular/core';
+import { FormControl, UntypedFormControl, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { map, Observable } from 'rxjs';
+import { Board } from 'src/app/interfaces/board.interface';
+import { BoardService } from 'src/app/services/board/board.service';
 
 @Component({
+  imports: [MatButtonModule, AsyncPipe, MatInputModule],
   selector: 'board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
 })
-export class BoardComponent {
-  @Input() tasks$: any;
-  @Input() containers: any;
-  @Input() containerRefs: any;
-  @Input() openAddTask: any;
+export class BoardComponent implements OnInit {
   @Input() drop: any;
   @Input() boardName: string = 'Board';
   editingName = false;
   tempBoardName = this.boardName;
+  boardService = inject(BoardService);
+  boards$: Observable<Board[]> = this.boardService.boards$;
+  boardNameFormControl: UntypedFormControl;
+  ngOnInit() {
+    // Initialize any necessary data or subscriptions here
+    this.boardNameFormControl = new UntypedFormControl('', [
+      Validators.required,
+    ]);
+
+    this.boards$
+      .pipe(
+        map((boards: Board[]) => {
+          // Process the boards if needed
+          console.log('Boards loaded:', boards);
+          if (boards.length > 0) {
+            this.tempBoardName = boards[0].name; // Set the first board's name as default
+            this.boardNameFormControl.setValue(this.tempBoardName);
+          }
+        })
+      )
+      .subscribe();
+  }
 
   startEditName() {
-    this.tempBoardName = this.boardName;
     this.editingName = true;
   }
 
   finishEditName() {
-    this.boardName = this.tempBoardName.trim() || this.boardName;
     this.editingName = false;
   }
 
@@ -29,5 +53,11 @@ export class BoardComponent {
     if (event.key === 'Enter') {
       this.finishEditName();
     }
+  }
+
+  onNewBoardClick() {
+    // Logic to handle new board creation
+    console.log('New board button clicked');
+    // You can implement the logic to open a dialog or navigate to a new board creation page
   }
 }

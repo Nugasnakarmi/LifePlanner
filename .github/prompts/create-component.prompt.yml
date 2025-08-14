@@ -10,3 +10,4 @@ prompts:
         ng generate component user-profile
         // Add @Input() user, @Output() profileUpdated, and template code
   # Add more prompt templates below
+  - model: openai/gpt-4.1

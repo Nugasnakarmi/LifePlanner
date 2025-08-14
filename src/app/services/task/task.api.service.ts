@@ -26,6 +26,7 @@ export class TaskAPIService {
           type: taskData.type,
           completion_status: taskData.completion_status,
           user_id: user.id,
+          board_id: taskData.board_id,
         });
 
       if (error) {
