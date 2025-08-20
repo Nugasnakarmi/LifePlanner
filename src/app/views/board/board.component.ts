@@ -19,7 +19,7 @@ export class BoardComponent implements OnInit {
   editingName = false;
   tempBoardName = this.boardName;
   boardService = inject(BoardService);
-  boards$: Observable<Board[]> = this.boardService.boards$;
+  boards$: Observable<Board[]>;
   boardNameFormControl: UntypedFormControl;
   ngOnInit() {
     // Initialize any necessary data or subscriptions here
@@ -27,18 +27,17 @@ export class BoardComponent implements OnInit {
       Validators.required,
     ]);
 
-    this.boards$
-      .pipe(
-        map((boards: Board[]) => {
-          // Process the boards if needed
-          console.log('Boards loaded:', boards);
-          if (boards.length > 0) {
-            this.tempBoardName = boards[0].name; // Set the first board's name as default
-            this.boardNameFormControl.setValue(this.tempBoardName);
-          }
-        })
-      )
-      .subscribe();
+    this.boards$ = this.boardService.boards$.pipe(
+      map((boards: Board[]) => {
+        // Process the boards if needed
+        console.log('Boards loaded:', boards);
+        if (boards.length > 0) {
+          this.tempBoardName = boards[0].name; // Set the first board's name as default
+          this.boardNameFormControl.setValue(this.tempBoardName);
+        }
+        return boards;
+      })
+    );
   }
 
   startEditName() {
