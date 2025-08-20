@@ -3,13 +3,14 @@
   <div class="board-name">
     @if(!editingName){
     <p class="board-name" (click)="startEditName()">
-      {{ tempBoardName }}
+      {{ currentBoard.name }}
     </p>
     <button mat-button (click)="onNewBoardClick()">New board</button>
     } @if(editingName){
     <input
       matInput
       [formControl]="boardNameFormControl"
+      [(model)]="currentBoard.name"
       type="text"
       class="board-name-input"
       name="boardName"

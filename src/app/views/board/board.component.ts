@@ -17,10 +17,10 @@ export class BoardComponent implements OnInit {
   @Input() drop: any;
   @Input() boardName: string = 'Board';
   editingName = false;
-  tempBoardName = this.boardName;
   boardService = inject(BoardService);
   boards$: Observable<Board[]>;
   boardNameFormControl: UntypedFormControl;
+  currentBoard: Board | null = null;
   ngOnInit() {
     // Initialize any necessary data or subscriptions here
     this.boardNameFormControl = new UntypedFormControl('', [
@@ -32,8 +32,8 @@ export class BoardComponent implements OnInit {
         // Process the boards if needed
         console.log('Boards loaded:', boards);
         if (boards.length > 0) {
-          this.tempBoardName = boards[0].name; // Set the first board's name as default
-          this.boardNameFormControl.setValue(this.tempBoardName);
+          this.currentBoard = boards[0]; // Set the first board's name as default
+          // this.boardNameFormControl.setValue(this.currentBoard.name);
         }
         return boards;
       })
@@ -46,6 +46,11 @@ export class BoardComponent implements OnInit {
 
   finishEditName() {
     this.editingName = false;
+    const currentBoardName: string = this.boardNameFormControl.value;
+    const newBoard: Board = { name: currentBoardName, ...this.currentBoard }; // Assuming user_id and id are part of the board
+    if (currentBoardName.trim() !== '') {
+      this.boardService.nameEditFinished(newBoard);
+    }
   }
 
   handleNameKey(event: KeyboardEvent) {
