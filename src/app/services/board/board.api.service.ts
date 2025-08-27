@@ -12,7 +12,10 @@ export class BoardAPIService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
 
+<<<<<<< HEAD
   //TODO - Convert promises to observables
+=======
+>>>>>>> main
   async addBoard(boardData: Board): Promise<boolean> {
     try {
       let user: User = await this.supabaseService.getUser();
