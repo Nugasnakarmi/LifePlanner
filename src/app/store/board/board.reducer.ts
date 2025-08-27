@@ -22,5 +22,10 @@ export const boardsReducer = createReducer(
   on(boardActions.loadBoardsFailure, (state, { error }) => ({
     ...state,
     loading: false,
+  })),
+  on(boardActions.boardEditedSuccessfully, (state, { board }) => ({
+    ...state,
+    boards: [...state.boards.map((b) => (b.id === board.id ? board : b))],
+    loading: true,
   }))
 );

@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import * as boardActions from './board.actions';
 import * as taskActions from '../task/task.actions';
 import { catchError, EMPTY, map, mergeMap, of, switchMap, tap } from 'rxjs';
+import { Board } from 'src/app/interfaces/board.interface';
 
 @Injectable()
 export class BoardEffects {
@@ -37,54 +38,19 @@ export class BoardEffects {
     )
   );
 
-  // loadBoardsSuccess$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(boardActions.loadBoardsSuccess),
-  //     tap(({ boards }) => {
-  //       this.toastRService.success('Boards loaded successfully');
-  //       //we may want to refresh board or sth
-  //     })
-  //   )
-  // );
-
-  // loadBoardsFailure$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(boardActions.loadBoardsFailure),
-  //     tap(({ error }) => {
-  //       this.toastRService.error(`Failed to load boards: ${error.message}`);
-  //     })
-  //   )
-  // );
-
   boardNameEdited$ = createEffect(() =>
     this.actions$.pipe(
       ofType(boardActions.boardNameEdited),
       mergeMap(({ board }) =>
         this.boardAPIService
           .editBoard(board)
-          .then(() => boardActions.boardEditedSuccessfully())
+          .then((board: Board) =>
+            boardActions.boardEditedSuccessfully({ board })
+          )
           .catch((error) => boardActions.boardEditFailed({ error }))
       )
     )
   );
-
-  // boardEditedSuccessfully$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(boardActions.boardEditedSuccessfully),
-  //     tap(() => {
-  //       this.toastRService.success(`Board updated successfully`);
-  //     })
-  //   )
-  // );
-
-  // boardEditFailed$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(boardActions.boardEditFailed),
-  //     tap(({ error }) => {
-  //       this.toastRService.error(`Failed to update board : ${error.message}`);
-  //     })
-  //   )
-  // );
 
   constructor(private actions$: Actions) {}
 }

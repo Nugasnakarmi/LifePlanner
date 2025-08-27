@@ -22,7 +22,8 @@ export const boardNameEdited = createAction(
 );
 
 export const boardEditedSuccessfully = createAction(
-  '[Boards] Board was edited successfully'
+  '[Boards] Board was edited successfully',
+  props<{ board: Board }>()
 );
 
 export const boardEditFailed = createAction(

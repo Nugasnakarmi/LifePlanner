@@ -7,17 +7,18 @@
     </p>
     <button mat-button (click)="onNewBoardClick()">New board</button>
     } @if(editingName){
-    <input
-      matInput
-      [formControl]="boardNameFormControl"
-      [(model)]="currentBoard.name"
-      type="text"
-      class="board-name-input"
-      name="boardName"
-      (blur)="finishEditName()"
-      (keydown)="handleNameKey($event)"
-      autofocus
-    />
+    <form>
+      <mat-form-field>
+        <input
+          [formControl]="boardNameControl"
+          type="text"
+          class="board-name-input"
+          (blur)="finishEditName($event)"
+          (keydown)="handleNameKey($event)"
+          autofocus
+        />
+      </mat-form-field>
+    </form>
     }
   </div>
 

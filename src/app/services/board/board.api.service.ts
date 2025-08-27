@@ -50,7 +50,7 @@ export class BoardAPIService {
     } catch (error) {}
   }
 
-  async editBoard(boardData: Board): Promise<boolean> {
+  async editBoard(boardData: Board): Promise<unknown> {
     try {
       let { data, error } = await this.supabaseService.supabase
         .from('boards')
@@ -59,12 +59,15 @@ export class BoardAPIService {
           description: boardData.description,
           user_id: boardData.user_id,
         })
-        .eq('id', boardData.id);
+        .eq('id', boardData.id)
+        .select('*')
+        .limit(1)
+        .single();
       if (error) {
         throw error;
       }
 
-      return true;
+      return data;
     } catch (error) {
       return false;
     }
