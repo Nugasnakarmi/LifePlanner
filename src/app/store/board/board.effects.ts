@@ -1,25 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { BoardAPIService } from 'src/app/services/board/board.api.service';
-<<<<<<< HEAD
 import { ToastrService } from 'ngx-toastr';
 import * as boardActions from './board.actions';
 import * as taskActions from '../task/task.actions';
 import { catchError, EMPTY, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
-=======
-import * as boardActions from './board.actions';
-import * as taskActions from '../task/task.actions';
-import { catchError, map, mergeMap, of } from 'rxjs';
->>>>>>> main
 
 @Injectable()
 export class BoardEffects {
   boardAPIService = inject(BoardAPIService);
-<<<<<<< HEAD
   toastRService = inject(ToastrService);
-=======
->>>>>>> main
 
   addBoard$ = createEffect(() =>
     this.actions$.pipe(
