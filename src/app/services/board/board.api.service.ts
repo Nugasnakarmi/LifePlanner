@@ -12,6 +12,7 @@ export class BoardAPIService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
 
+  //TODO - Convert promises to observables
   async addBoard(boardData: Board): Promise<boolean> {
     try {
       let user: User = await this.supabaseService.getUser();
@@ -42,11 +43,33 @@ export class BoardAPIService {
       if (error) {
         throw error;
       }
+
       if (boards) {
         return boards;
       }
+    } catch (error) {}
+  }
+
+  async editBoard(boardData: Board): Promise<unknown> {
+    try {
+      let { data, error } = await this.supabaseService.supabase
+        .from('boards')
+        .update({
+          name: boardData.name,
+          description: boardData.description,
+          user_id: boardData.user_id,
+        })
+        .eq('id', boardData.id)
+        .select('*')
+        .limit(1)
+        .single();
+      if (error) {
+        throw error;
+      }
+
+      return data;
     } catch (error) {
-      this.toastRService.error(`Failed to fetch boards : ${error.message}`);
+      return false;
     }
   }
 }
