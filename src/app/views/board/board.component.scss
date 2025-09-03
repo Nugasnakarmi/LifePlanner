@@ -2,9 +2,21 @@
   background: rgba(grey, 50%);
   padding: 8px 30px;
 }
+
 .board-name {
   font-family: "Montserrat", sans-serif;
   font-size: 20px;
   font-weight: bold;
   color: #fff;
+}
+
+.board-name-input {
+  background-color: transparent;
+  font-family: "Montserrat", sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  border-width: 0;
+  border-width: 0;
+  outline: none;
 }
