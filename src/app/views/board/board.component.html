@@ -1,12 +1,8 @@
 <div class="board-bar">
   @if(boards$ | async; as boards) {
   <div class="board-name">
-    @if(!editingName){
-    <p class="board-name" (click)="startEditName()">
-      {{ currentBoard.name }}
-    </p>
-    <button mat-button (click)="onNewBoardClick()">New board</button>
-    } @if(editingName){
+    <!-- <button mat-button (click)="onNewBoardClick()">New board</button> -->
+
     <form>
       <mat-form-field>
         <input
@@ -19,7 +15,6 @@
         />
       </mat-form-field>
     </form>
-    }
   </div>
 
   }

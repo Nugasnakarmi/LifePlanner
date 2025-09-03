@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { map, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardService } from 'src/app/services/board/board.service';
+import { DialogService } from 'src/app/services/dialog/dialog.service';
 
 @Component({
   imports: [MatButtonModule, AsyncPipe, MatInputModule, ReactiveFormsModule],
@@ -22,6 +23,8 @@ export class BoardComponent implements OnInit {
   @Input() boardName: string = 'Board';
   editingName = false;
   boardService = inject(BoardService);
+  dialogService = inject(DialogService);
+
   boards$: Observable<Board[]>;
   boardNameControl: UntypedFormControl;
   currentBoard: Board | null = null;
@@ -73,5 +76,6 @@ export class BoardComponent implements OnInit {
     // Logic to handle new board creation
     console.log('New board button clicked');
     // You can implement the logic to open a dialog or navigate to a new board creation page
+    // this.dialog.open(NewBoardDialogComponent);
   }
 }
