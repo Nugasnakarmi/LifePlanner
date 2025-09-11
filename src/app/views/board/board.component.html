@@ -1,5 +1,13 @@
+<new-board
+  [showNewBoardMenu]="showNewBoardMenu"
+  [newBoardNameControl]="newBoardNameControl"
+  (newBoardMenuToggle)="onNewBoardMenuToggle()"
+  (createNewBoard)="createNewBoard()"
+></new-board>
+
+@if(!showNewBoardMenu){
 <div class="board-bar">
-  @if(boards$ | async; as boards) {
+  @if(boards$ | async; as boards ) {
   <div class="board-name">
     <!-- <button mat-button (click)="onNewBoardClick()">New board</button> -->
 
@@ -16,6 +24,6 @@
       </mat-form-field>
     </form>
   </div>
-
   }
 </div>
+}

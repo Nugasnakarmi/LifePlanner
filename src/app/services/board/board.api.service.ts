@@ -22,7 +22,11 @@ export class BoardAPIService {
           name: boardData.name,
           description: boardData.description,
           user_id: user.id,
+          created_at: new Date().toISOString(),
         });
+      if (data) {
+        console.log('Board added:', data);
+      }
       if (error) {
         throw error;
       }

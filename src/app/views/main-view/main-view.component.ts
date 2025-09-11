@@ -8,7 +8,7 @@ import {
 
 import { LoginService } from 'src/app/services/login/login.service';
 import { LoginComponent } from '../email/login/login.component';
-import { map, Observable, Subscription } from 'rxjs';
+import { map, Observable, Subscription, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,6 +22,8 @@ import { TaskComponent } from '../task/task.component';
 import { TaskService } from 'src/app/services/task/task.service';
 import { AsyncPipe } from '@angular/common';
 import { BoardComponent } from '../board/board.component';
+import { BoardService } from 'src/app/services/board/board.service';
+import { Board } from 'src/app/interfaces/board.interface';
 
 @Component({
   imports: [
@@ -34,6 +36,8 @@ import { BoardComponent } from '../board/board.component';
   selector: 'app-main-view',
   templateUrl: './main-view.component.html',
   styleUrls: ['./main-view.component.scss'],
+  standalone: true,
+  providers: [AsyncPipe],
 })
 export class MainViewComponent implements OnInit {
   containers = ['ideas', 'goals', 'objectives', 'achievements'];
@@ -53,39 +57,42 @@ export class MainViewComponent implements OnInit {
   router = inject(Router);
   taskService = inject(TaskService);
   taskAPIService = inject(TaskAPIService);
-  tasks$: Observable<IdeaTask[]> = this.taskService.tasks$;
-  subscriptions: Subscription;
+  boardService = inject(BoardService);
+
+  tasks$: Observable<IdeaTask[]>;
+  boards$: Observable<Board[]>;
+
   readonly addTaskDialog = inject(MatDialog);
   ngOnInit(): void {
-    this.subscriptions = new Subscription();
+    this.getUserBoards();
     this.getTasks();
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  //get my boards
+  getUserBoards(): void {
+    // Implement board fetching logic if needed
+    this.taskService.landingPageInitialized();
+    this.boards$ = this.boardService.boards$.pipe(
+      tap((boards) => {
+        console.log('Boards in main view:', boards);
+      })
+    );
   }
 
   getTasks(): void {
-    this.taskService.landingPageInitialized();
-    this.subscriptions.add(
-      this.tasks$
-        .pipe(
-          map((tasks) => {
-            this.resetContainerData();
-            console.log(tasks);
-            tasks.forEach((element) => {
-              if (element) {
-                const containerName = UtilityService.getEnumKeyByValue(
-                  IdeaType,
-                  element.type
-                );
-                if (containerName)
-                  this.containerRefs[containerName].push(element);
-              }
-            });
-          })
-        )
-        .subscribe()
+    this.tasks$ = this.taskService.tasks$.pipe(
+      tap((tasks) => {
+        this.resetContainerData();
+        tasks.forEach((element) => {
+          if (element) {
+            const containerName = UtilityService.getEnumKeyByValue(
+              IdeaType,
+              element.type
+            );
+            if (containerName) this.containerRefs[containerName].push(element);
+          }
+        });
+      })
     );
   }
   resetContainerData(): void {

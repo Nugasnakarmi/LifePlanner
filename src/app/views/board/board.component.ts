@@ -11,9 +11,20 @@ import { map, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardService } from 'src/app/services/board/board.service';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
+import { LifeplannerTitleMenuComponent } from './new-board/new-board.component';
+import { SupabaseService } from 'src/app/services/supabase/supabase.service';
+import { User } from '@supabase/supabase-js';
+import { CdkDragPlaceholder } from '@angular/cdk/drag-drop';
 
 @Component({
-  imports: [MatButtonModule, AsyncPipe, MatInputModule, ReactiveFormsModule],
+  imports: [
+    MatButtonModule,
+    AsyncPipe,
+    MatInputModule,
+    ReactiveFormsModule,
+    LifeplannerTitleMenuComponent,
+    CdkDragPlaceholder,
+  ],
   selector: 'board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
@@ -24,11 +35,18 @@ export class BoardComponent implements OnInit {
   editingName = false;
   boardService = inject(BoardService);
   dialogService = inject(DialogService);
+  supabaseService = inject(SupabaseService);
 
   boards$: Observable<Board[]>;
   boardNameControl: UntypedFormControl;
   currentBoard: Board | null = null;
   currentBoardName: string = '';
+  showNewBoardMenu = false;
+  newBoardNameControl = new UntypedFormControl('', [
+    Validators.required,
+    Validators.minLength(3),
+  ]);
+
   ngOnInit() {
     // Initialize any necessary data or subscriptions here
     this.boardNameControl = new UntypedFormControl(this.boardName, [
@@ -77,5 +95,22 @@ export class BoardComponent implements OnInit {
     console.log('New board button clicked');
     // You can implement the logic to open a dialog or navigate to a new board creation page
     // this.dialog.open(NewBoardDialogComponent);
+  }
+
+  onNewBoardMenuToggle() {
+    this.showNewBoardMenu = !this.showNewBoardMenu;
+  }
+
+  async createNewBoard() {
+    const name = this.newBoardNameControl.value?.trim();
+    let board: Board = {
+      name: name,
+      description: '',
+    };
+    if (name) {
+      this.boardService.createBoard(board); // Assumes createBoard uses Supabase API
+      this.newBoardNameControl.reset();
+      this.showNewBoardMenu = false;
+    }
   }
 }

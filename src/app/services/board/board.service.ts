@@ -17,7 +17,16 @@ export class BoardService {
 
   boards$: Observable<Board[]> = this.store.select(selectBoards);
 
+  getBoards(): void {
+    this.store.dispatch(boardActions.loadBoards());
+  }
+
   nameEditFinished(board: Board): void {
     this.store.dispatch(boardActions.boardNameEdited({ board: board }));
+  }
+
+  //create new board
+  createBoard(board: Board): void {
+    this.store.dispatch(boardActions.addBoard({ board }));
   }
 }
