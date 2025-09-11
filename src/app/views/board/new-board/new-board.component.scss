@@ -1,0 +1,13 @@
+/* Add any custom styles for the title menu here */
+.lifeplanner-title-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.new-board-menu {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}

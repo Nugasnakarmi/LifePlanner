@@ -2,10 +2,11 @@ import { Board } from 'src/app/interfaces/board.interface';
 import { createAction, props } from '@ngrx/store';
 
 export const addBoard = createAction(
-  '[Boards] Add Board',
+  '[Boards] Create Board button was clicked',
   props<{ board: Board }>()
 );
 
+export const loadBoards = createAction('[Boards] Load Boards');
 export const loadBoardsSuccess = createAction(
   '[Boards] Load Boards Success',
   props<{ boards: Board[] }>()
