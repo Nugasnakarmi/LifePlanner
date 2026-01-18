@@ -11,6 +11,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-builders/custom-webpack": "^21.0.3",
     "@angular/animations": "^21.1.0",
     "@angular/cdk": "^21.1.0",
     "@angular/common": "^21.1.0",
@@ -37,10 +38,10 @@
     "zone.js": "^0.15.0"
   },
   "devDependencies": {
-    "@angular-builders/custom-webpack": "^18.0.0",
     "@angular-devkit/build-angular": "^21.1.0",
     "@angular/cli": "^21.1.0",
     "@angular/compiler-cli": "^21.1.0",
+    "@ngtools/webpack": "^21.1.0",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^22.17.1",
     "angular-cli-ghpages": "^2.0.3",
