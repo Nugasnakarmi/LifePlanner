@@ -29,7 +29,7 @@
     "@supabase/supabase-js": "^2.46.1",
     "assert": "^2.0.0",
     "bulma": "^0.9.3",
-    "ngx-toastr": "^19.0.0",
+    "ngx-toastr": "^19.1.0",
     "redux-devtools-extension": "^2.13.9",
     "rxjs": "^7.8.1",
     "tslib": "^2.3.1",
