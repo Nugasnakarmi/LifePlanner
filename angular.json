@@ -70,11 +70,11 @@
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "LifePlanner:build"
+            "buildTarget": "LifePlanner:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "LifePlanner:build:production",
+              "buildTarget": "LifePlanner:build:production",
               "index": "src/production/index.html"
             }
           }
