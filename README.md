@@ -1,23 +1,18 @@
-# LifePlanner
+# Life Planner
 
-LifePlanner is a passion project for Sagun Nakarmi, which delivers a life-event management platform for users.
+This project is a planner application built using various technologies.
 
-## What it looks like
+## Technologies
+- TypeScript (68.7%)
+- HTML (14.7%)
+- SCSS (13.9%)
+- JavaScript (2.7%)
 
-![alt text](/src/assets/lifeplanner_visual.gif)
+## Installation
+Instructions for installing the project...
 
-## Try it out
+## Usage
+Instructions for using the project...
 
-https://nugasnakarmi.github.io/LifePlanner/
-
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## Contributing
+Guidelines for contributing to the project...
