@@ -10,3 +10,8 @@ export const selectBoardLoadingState = createSelector(
   selectBoardFeature,
   (state) => state.loading
 );
+
+export const selectSelectedBoard = createSelector(
+  selectBoardFeature,
+  (state) => state.selectedBoard
+);

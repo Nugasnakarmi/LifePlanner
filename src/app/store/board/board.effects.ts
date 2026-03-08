@@ -18,7 +18,13 @@ export class BoardEffects {
       mergeMap(({ board }) =>
         this.boardAPIService
           .addBoard(board)
-          .then(() => boardActions.loadBoardsSuccess({ boards: [board] }))
+          .then(() =>
+            this.boardAPIService
+              .getBoards()
+              .then((fetchedBoards) =>
+                boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] })
+              )
+          )
           .catch((error) => boardActions.loadBoardsFailure({ error }))
       )
     )
