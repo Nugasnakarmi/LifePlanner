@@ -1,7 +1,7 @@
 <div class="login-container" (keydown)="keyDown($event)">
   <h1 class="app-name has-gradient-text">LifePlanner</h1>
   <p>Login to start saving your life events</p>
-  <mat-form-field appearance="fill">
+  <mat-form-field appearance="outline">
     <mat-label>Enter your email</mat-label>
     <input
       matInput
@@ -13,7 +13,7 @@
     <mat-error>{{ getErrorMessage("email") }}</mat-error>
     }
   </mat-form-field>
-  <mat-form-field appearance="fill">
+  <mat-form-field appearance="outline">
     <mat-label>Enter your password</mat-label>
     <input
       [formControl]="password"

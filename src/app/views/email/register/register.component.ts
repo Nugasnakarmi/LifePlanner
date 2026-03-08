@@ -1,19 +1,15 @@
 import { Component, inject, OnInit } from '@angular/core';
 import {
-  AbstractControl,
-  FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  UntypedFormArray,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { ToastrService } from 'ngx-toastr';
 import { MatInputModule } from '@angular/material/input';
+import { ToastrService } from 'ngx-toastr';
 import { RegisterService } from 'src/app/services/register/register.service';
 import { Session, User } from '@supabase/supabase-js';
 import { UtilityService } from 'src/app/utility/utility.service';
@@ -22,6 +18,7 @@ import { UtilityService } from 'src/app/utility/utility.service';
   imports: [
     MatIconModule,
     MatFormFieldModule,
+    MatButtonModule,
     ReactiveFormsModule,
     MatInputModule,
   ],
@@ -30,8 +27,7 @@ import { UtilityService } from 'src/app/utility/utility.service';
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
-  fb = new FormBuilder();
-  passwordForm = null;
+  passwordForm!: FormGroup;
   userDetails:
     | {
         user: User | null;
@@ -44,7 +40,6 @@ export class RegisterComponent implements OnInit {
   hide = true;
   toastRService = inject(ToastrService);
   registerService = inject(RegisterService);
-  private registerDialogRef: MatDialogRef<RegisterComponent>;
   registrationSuccess = false;
   ngOnInit(): void {
     this.passwordForm = new FormGroup(
@@ -63,7 +58,7 @@ export class RegisterComponent implements OnInit {
     return password === confirmPassword ? null : { notMatching: true };
   }
 
-  getErrorMessage(formControlName): string {
+  getErrorMessage(formControlName: string): string {
     const email = this.passwordForm.get('email');
     const password = this.passwordForm.get('password');
     const confirmPassword = this.passwordForm.get('confirmPassword');
@@ -76,6 +71,7 @@ export class RegisterComponent implements OnInit {
       return email.hasError('email') ? 'Not a valid email' : '';
     } else if (formControlName == 'password') {
       if (password.hasError('required')) {
+        return 'You must enter a password';
       }
     } else if (formControlName == 'confirmPassword') {
       if (confirmPassword.hasError('required')) {
@@ -91,7 +87,6 @@ export class RegisterComponent implements OnInit {
 
   async register(): Promise<void> {
     const email = this.passwordForm.get('email');
-    const password = this.passwordForm.get('password');
     const confirmPassword = this.passwordForm.get('confirmPassword');
 
     if (this.passwordForm.valid) {
@@ -103,9 +98,5 @@ export class RegisterComponent implements OnInit {
         this.registrationSuccess = true;
       }
     }
-  }
-
-  closeLoginDialog() {
-    this.registerDialogRef.close();
   }
 }
