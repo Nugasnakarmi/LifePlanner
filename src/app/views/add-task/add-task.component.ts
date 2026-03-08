@@ -32,7 +32,7 @@ export class AddTaskComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { taskType: IdeaType; mode?: TaskMode; task?: IdeaTask }
+    public data: { taskType: IdeaType; mode?: TaskMode; task?: IdeaTask; boardId?: number }
   ) {}
 
   ngOnInit(): void {
@@ -66,6 +66,7 @@ export class AddTaskComponent implements OnInit {
       type: this.data.taskType,
       completion_status: 0,
       user_id: null,
+      board_id: this.data.boardId,
     };
     const didAdd = await this.taskAPIService.addTask(task);
 

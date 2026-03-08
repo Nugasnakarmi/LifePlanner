@@ -2,5 +2,6 @@ import { Board } from 'src/app/interfaces/board.interface';
 
 export interface BoardState {
   boards: Board[];
+  selectedBoard: Board | null;
   loading: boolean;
 }

@@ -7,23 +7,28 @@
 
 @if(!showNewBoardMenu){
 <div class="board-bar">
-  @if(boards$ | async; as boards ) {
-  <div class="board-name">
-    <!-- <button mat-button (click)="onNewBoardClick()">New board</button> -->
-
-    <form>
-      <mat-form-field>
-        <input
-          [formControl]="boardNameControl"
-          type="text"
-          class="board-name-input"
-          (blur)="finishEditName()"
-          (keydown)="handleNameKey($event)"
-          autofocus
-        />
-      </mat-form-field>
-    </form>
+  @if(boards$ | async; as boards) { @if(selectedBoard$ | async; as selectedBoard) {
+  <div class="board-tabs">
+    @for(board of boards; track board.id) {
+    <button
+      class="board-tab"
+      [class.active]="board.id === selectedBoard.id"
+      (click)="switchBoard(board)"
+    >
+      @if(editingName && board.id === selectedBoard.id) {
+      <input
+        [formControl]="boardNameControl"
+        class="board-name-input"
+        (blur)="finishEditName(selectedBoard)"
+        (keydown)="handleNameKey($event, selectedBoard)"
+        autofocus
+      />
+      } @else {
+      <span (dblclick)="startEditBoardName(board)">{{ board.name }}</span>
+      }
+    </button>
+    }
   </div>
-  }
+  } }
 </div>
 }

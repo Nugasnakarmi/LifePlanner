@@ -31,3 +31,8 @@ export const boardEditFailed = createAction(
   '[Boards] Board edit failed',
   props<{ error: any }>()
 );
+
+export const selectBoard = createAction(
+  '[Boards] Board was selected',
+  props<{ board: Board }>()
+);

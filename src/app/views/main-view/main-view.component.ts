@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   CdkDragDrop,
   DragDropModule,
@@ -6,13 +6,10 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 
-import { LoginService } from 'src/app/services/login/login.service';
-import { LoginComponent } from '../email/login/login.component';
-import { map, Observable, Subscription, tap } from 'rxjs';
+import { Observable, Subscription, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
@@ -39,7 +36,7 @@ import { Board } from 'src/app/interfaces/board.interface';
   standalone: true,
   providers: [AsyncPipe],
 })
-export class MainViewComponent implements OnInit {
+export class MainViewComponent implements OnInit, OnDestroy {
   containers = ['ideas', 'goals', 'objectives', 'achievements'];
 
   ideas: IdeaTask[] = [];
@@ -61,29 +58,41 @@ export class MainViewComponent implements OnInit {
 
   tasks$: Observable<IdeaTask[]>;
   boards$: Observable<Board[]>;
+  selectedBoard: Board | null = null;
+
+  private selectedBoardSub: Subscription | undefined;
 
   readonly addTaskDialog = inject(MatDialog);
+
   ngOnInit(): void {
     this.getUserBoards();
     this.getTasks();
+    this.selectedBoardSub = this.boardService.selectedBoard$.subscribe(
+      (board) => {
+        this.selectedBoard = board;
+        this.getTasks();
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.selectedBoardSub?.unsubscribe();
   }
 
   //get my boards
   getUserBoards(): void {
-    // Implement board fetching logic if needed
     this.taskService.landingPageInitialized();
-    this.boards$ = this.boardService.boards$.pipe(
-      tap((boards) => {
-        console.log('Boards in main view:', boards);
-      })
-    );
+    this.boards$ = this.boardService.boards$;
   }
 
   getTasks(): void {
     this.tasks$ = this.taskService.tasks$.pipe(
       tap((tasks) => {
         this.resetContainerData();
-        tasks.forEach((element) => {
+        const filteredTasks = this.selectedBoard
+          ? tasks.filter((t) => t.board_id === this.selectedBoard.id)
+          : tasks;
+        filteredTasks.forEach((element) => {
           if (element) {
             const containerName = UtilityService.getEnumKeyByValue(
               IdeaType,
@@ -95,6 +104,7 @@ export class MainViewComponent implements OnInit {
       })
     );
   }
+
   resetContainerData(): void {
     this.containerRefs = {
       ideas: [],
@@ -126,32 +136,18 @@ export class MainViewComponent implements OnInit {
           id: data.id,
           type: parseInt(event.container.id.substring(14)),
         } as IdeaTask)
-        .then((updated) => {
-          //Don't need to do this
-          // if (updated) {
-          //   this.getTasks();
-          // }
-        });
+        .then((updated) => {});
     }
   }
 
   updateUserDetails(userDetails: any) {}
 
   openAddTask(type: string): void {
-    console.log(IdeaType[type]);
     const dialogRef = this.addTaskDialog.open(AddTaskComponent, {
-      data: { taskType: IdeaType[type] },
+      data: { taskType: IdeaType[type], boardId: this.selectedBoard?.id },
     });
     dialogRef.afterClosed().subscribe(() => {
       this.getTasks();
     });
   }
-
-  // onTaskDeleted(taskId: number): void {
-  //  TODO
-  // }
-
-  // onTaskUpdated(): void {
-  //   TODO
-  // }
 }

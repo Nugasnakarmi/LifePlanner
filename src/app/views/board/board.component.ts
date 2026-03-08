@@ -7,13 +7,12 @@ import {
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardService } from 'src/app/services/board/board.service';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { LifeplannerTitleMenuComponent } from './new-board/new-board.component';
 import { SupabaseService } from 'src/app/services/supabase/supabase.service';
-import { User } from '@supabase/supabase-js';
 import { CdkDragPlaceholder } from '@angular/cdk/drag-drop';
 
 @Component({
@@ -38,6 +37,7 @@ export class BoardComponent implements OnInit {
   supabaseService = inject(SupabaseService);
 
   boards$: Observable<Board[]>;
+  selectedBoard$: Observable<Board | null>;
   boardNameControl: UntypedFormControl;
   currentBoard: Board | null = null;
   currentBoardName: string = '';
@@ -48,53 +48,45 @@ export class BoardComponent implements OnInit {
   ]);
 
   ngOnInit() {
-    // Initialize any necessary data or subscriptions here
     this.boardNameControl = new UntypedFormControl(this.boardName, [
       Validators.required,
       Validators.minLength(3),
     ]);
 
-    this.boards$ = this.boardService.boards$.pipe(
-      map((boards: Board[]) => {
-        // Process the boards if needed
-        console.log('Boards loaded:', boards);
-        if (boards.length > 0) {
-          this.currentBoard = boards[0]; // Set the first board's name as default
-          this.boardNameControl.setValue(this.currentBoard.name);
-        }
-        return boards;
-      })
-    );
+    this.boards$ = this.boardService.boards$;
+    this.selectedBoard$ = this.boardService.selectedBoard$;
+  }
+
+  switchBoard(board: Board) {
+    this.boardService.selectBoard(board);
   }
 
   startEditName() {
     this.editingName = true;
   }
 
-  finishEditName() {
+  startEditBoardName(board: Board) {
+    this.boardNameControl.setValue(board.name);
+    this.editingName = true;
+  }
+
+  finishEditName(board: Board) {
     this.editingName = false;
     const currentBoardName = this.boardNameControl.value;
 
     if (currentBoardName.trim() !== '') {
-      const newBoard: Board = {
-        ...this.currentBoard,
+      const updatedBoard: Board = {
+        ...board,
         name: currentBoardName,
-      }; // Assuming user_id and id are part of the board
-      this.boardService.nameEditFinished(newBoard);
+      };
+      this.boardService.nameEditFinished(updatedBoard);
     }
   }
 
-  handleNameKey(event: KeyboardEvent) {
+  handleNameKey(event: KeyboardEvent, board: Board) {
     if (event.key === 'Enter') {
-      this.finishEditName();
+      this.finishEditName(board);
     }
-  }
-
-  onNewBoardClick() {
-    // Logic to handle new board creation
-    console.log('New board button clicked');
-    // You can implement the logic to open a dialog or navigate to a new board creation page
-    // this.dialog.open(NewBoardDialogComponent);
   }
 
   onNewBoardMenuToggle() {
@@ -108,7 +100,7 @@ export class BoardComponent implements OnInit {
       description: '',
     };
     if (name) {
-      this.boardService.createBoard(board); // Assumes createBoard uses Supabase API
+      this.boardService.createBoard(board);
       this.newBoardNameControl.reset();
       this.showNewBoardMenu = false;
     }
