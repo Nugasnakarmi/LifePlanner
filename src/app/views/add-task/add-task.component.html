@@ -3,7 +3,7 @@
   class="add-task-container flex-column"
   (submit)="data.mode === TaskMode.Edit ? editTask() : addTask()"
 >
-  <mat-form-field>
+  <mat-form-field appearance="outline">
     <mat-label>Enter task name</mat-label>
     <input
       matInput
@@ -11,17 +11,18 @@
       formControlName="name"
       [value]="data.task?.name"
     />
+    @if(addTaskForm.controls.name.invalid && addTaskForm.controls.name.touched){
+    <mat-error>{{ getValidationMessage() }}</mat-error>
+    }
   </mat-form-field>
-  @if(addTaskForm.controls.name.invalid && addTaskForm.controls.name.touched){
-  <mat-error>{{ getValidationMessage() }}</mat-error>
-  }
-  <mat-form-field>
+  <mat-form-field appearance="outline">
     <mat-label>Please explain the task</mat-label>
     <textarea
       matInput
       placeholder="Task description"
       formControlName="description"
       [value]="data.task?.description"
+      rows="4"
     ></textarea>
   </mat-form-field>
   <div class="action-button-container flex">
@@ -30,6 +31,7 @@
       color="primary"
       type="submit"
       class="action-button"
+      [disabled]="addTaskForm.invalid"
     >
       {{ actionString }}
     </button>

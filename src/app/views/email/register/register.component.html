@@ -3,7 +3,7 @@
   @if(!registrationSuccess){
   <p>Register</p>
   <form [formGroup]="passwordForm" class="register-form">
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="outline">
       <mat-label>Enter your email</mat-label>
       <input
         matInput
@@ -16,7 +16,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="outline">
       <mat-label>Enter your password</mat-label>
       <input
         formControlName="password"
@@ -39,7 +39,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="fill">
+    <mat-form-field appearance="outline">
       <mat-label>Confirm password</mat-label>
       <input
         formControlName="confirmPassword"

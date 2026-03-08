@@ -1,8 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LoginService } from 'src/app/services/login/login.service';
-import { RegisterComponent } from '../register/register.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -11,6 +10,7 @@ import { Router } from '@angular/router';
 @Component({
   imports: [
     MatFormFieldModule,
+    MatButtonModule,
     ReactiveFormsModule,
     MatIconModule,
     MatInputModule,
@@ -26,7 +26,6 @@ export class LoginComponent implements OnInit {
   hide = true;
   userDetails = null;
   loginService = inject(LoginService);
-  registerDialog = inject(MatDialog);
   router = inject(Router);
   constructor() {}
 
