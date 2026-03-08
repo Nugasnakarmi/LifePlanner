@@ -27,7 +27,7 @@ import { UtilityService } from 'src/app/utility/utility.service';
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
-  passwordForm: FormGroup = null;
+  passwordForm!: FormGroup;
   userDetails:
     | {
         user: User | null;
