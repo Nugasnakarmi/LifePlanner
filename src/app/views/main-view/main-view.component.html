@@ -24,6 +24,7 @@
             class="tasks-container example-list"
             cdkDropList
             #todoList="cdkDropList"
+            [id]="container"
             [cdkDropListData]="containerRefs[container]"
             (cdkDropListDropped)="drop($event)"
           >
