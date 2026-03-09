@@ -58,5 +58,21 @@ export class BoardEffects {
     )
   );
 
+  deleteBoard$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(boardActions.deleteBoard),
+      mergeMap(({ boardId }) =>
+        this.boardAPIService
+          .deleteBoard(boardId)
+          .then((success) =>
+            success
+              ? boardActions.deleteBoardSuccess({ boardId })
+              : boardActions.deleteBoardFailure({ error: 'Failed to delete board' })
+          )
+          .catch((error) => boardActions.deleteBoardFailure({ error }))
+      )
+    )
+  );
+
   constructor(private actions$: Actions) {}
 }

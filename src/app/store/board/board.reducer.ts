@@ -46,5 +46,17 @@ export const boardsReducer = createReducer(
   on(boardActions.selectBoard, (state, { board }) => ({
     ...state,
     selectedBoard: board,
-  }))
+  })),
+  on(boardActions.deleteBoardSuccess, (state, { boardId }) => {
+    const updatedBoards = state.boards.filter((b) => b.id !== boardId);
+    const newSelectedBoard =
+      state.selectedBoard?.id === boardId
+        ? (updatedBoards[0] ?? null)
+        : state.selectedBoard;
+    return {
+      ...state,
+      boards: updatedBoards,
+      selectedBoard: newSelectedBoard,
+    };
+  })
 );

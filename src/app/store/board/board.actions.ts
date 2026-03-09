@@ -36,3 +36,18 @@ export const selectBoard = createAction(
   '[Boards] Board was selected',
   props<{ board: Board }>()
 );
+
+export const deleteBoard = createAction(
+  '[Boards] Delete Board',
+  props<{ boardId: number }>()
+);
+
+export const deleteBoardSuccess = createAction(
+  '[Boards] Delete Board Success',
+  props<{ boardId: number }>()
+);
+
+export const deleteBoardFailure = createAction(
+  '[Boards] Delete Board Failure',
+  props<{ error: any }>()
+);

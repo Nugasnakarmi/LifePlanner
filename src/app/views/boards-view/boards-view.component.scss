@@ -2,6 +2,10 @@
   padding: 40px;
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: 600px) {
+    padding: 16px;
+  }
 }
 
 .boards-header {
@@ -9,6 +13,10 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 32px;
+
+  @media (max-width: 600px) {
+    margin-bottom: 16px;
+  }
 }
 
 .boards-title {
@@ -17,6 +25,10 @@
   font-weight: bold;
   color: #fff;
   margin: 0;
+
+  @media (max-width: 600px) {
+    font-size: 20px;
+  }
 }
 
 .new-board-form {
@@ -31,33 +43,64 @@
   mat-form-field {
     flex: 1;
   }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
 }
 
 .boards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 20px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .board-card {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  padding: 24px 20px;
+  padding: 20px;
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
   min-height: 100px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
+  position: relative;
 
   &:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
+
+    .board-card-actions {
+      opacity: 1;
+    }
   }
 
   &:focus {
     outline: 2px solid #fff;
     outline-offset: 2px;
+  }
+
+  @media (max-width: 600px) {
+    min-height: 80px;
+    padding: 16px;
+
+    .board-card-actions {
+      opacity: 1;
+    }
   }
 }
 
@@ -73,6 +116,48 @@
   font-size: 13px;
   color: rgba(255, 255, 255, 0.7);
   margin-top: 8px;
+}
+
+.board-card-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-top: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.card-action-btn {
+  color: rgba(255, 255, 255, 0.8);
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &--delete {
+    &:hover {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.15);
+    }
+  }
+}
+
+.board-card-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+
+  .edit-name-field {
+    width: 100%;
+  }
+
+  .edit-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+  }
 }
 
 .no-boards-message {

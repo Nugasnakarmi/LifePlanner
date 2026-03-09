@@ -1,6 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import { IdeaTaskState } from 'src/app/store/task/task.state.interface';
 import * as taskActions from './task.actions';
+import * as boardActions from 'src/app/store/board/board.actions';
 
 export const initialState: IdeaTaskState = {
   tasks: [],
@@ -49,5 +50,9 @@ export const tasksReducer = createReducer(
     ...state,
     tasks: state.tasks.filter((task) => task.id !== taskId),
     loading: false,
+  })),
+  on(boardActions.deleteBoardSuccess, (state, { boardId }) => ({
+    ...state,
+    tasks: state.tasks.filter((task) => task.board_id !== boardId),
   }))
 );

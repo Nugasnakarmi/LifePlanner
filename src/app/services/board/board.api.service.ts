@@ -54,6 +54,33 @@ export class BoardAPIService {
     } catch (error) {}
   }
 
+  async deleteBoard(boardId: number): Promise<boolean> {
+    try {
+      // Delete all tasks for this board first
+      const { error: tasksError } = await this.supabaseService.supabase
+        .from('tasks')
+        .delete()
+        .eq('board_id', boardId);
+      if (tasksError) {
+        throw tasksError;
+      }
+
+      const { error } = await this.supabaseService.supabase
+        .from('boards')
+        .delete()
+        .eq('id', boardId);
+      if (error) {
+        throw error;
+      }
+
+      this.toastRService.success('Board deleted successfully');
+      return true;
+    } catch (error) {
+      this.toastRService.error(`Failed to delete board: ${error?.message ?? error}`);
+      return false;
+    }
+  }
+
   async editBoard(boardData: Board): Promise<unknown> {
     try {
       let { data, error } = await this.supabaseService.supabase
