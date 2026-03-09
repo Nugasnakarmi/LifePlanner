@@ -12,7 +12,6 @@ import { MatInputModule } from '@angular/material/input';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
-import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
@@ -22,7 +21,6 @@ import { TaskService } from 'src/app/services/task/task.service';
   styleUrl: './add-task.component.scss',
 })
 export class AddTaskComponent implements OnInit {
-  taskAPIService = inject(TaskAPIService);
   taskService = inject(TaskService);
 
   addTaskForm: UntypedFormGroup;
@@ -59,7 +57,7 @@ export class AddTaskComponent implements OnInit {
       : '';
   }
   //TODO: move the actions to parent component
-  async addTask(): Promise<void> {
+  addTask(): void {
     const task: IdeaTask = {
       name: this.addTaskForm.controls.name.value,
       description: this.addTaskForm.controls.description.value,
@@ -68,12 +66,8 @@ export class AddTaskComponent implements OnInit {
       user_id: null,
       board_id: this.data.boardId,
     };
-    const didAdd = await this.taskAPIService.addTask(task);
-
-    if (didAdd) {
-      //close dialog
-      this.addTaskDialogRef.close();
-    }
+    this.taskService.taskWasAdded(task);
+    this.addTaskDialogRef.close();
   }
 
   editTask(): void {

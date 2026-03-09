@@ -29,6 +29,24 @@ export class TaskEffects {
     )
   );
 
+  addTask$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(taskActions.taskWasAdded),
+      switchMap(({ task }) =>
+        from(this.taskAPIService.addTask(task)).pipe(
+          map((addedTask: IdeaTask | null) =>
+            addedTask
+              ? taskActions.taskWasAddedSuccessfully({ task: addedTask })
+              : taskActions.taskAddFailed({ error: 'Failed to add task' })
+          ),
+          catchError(() =>
+            of(taskActions.taskAddFailed({ error: 'Failed to add task' }))
+          )
+        )
+      )
+    )
+  );
+
   updateTask$ = createEffect(
     () =>
       this.actions$.pipe(

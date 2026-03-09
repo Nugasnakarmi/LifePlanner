@@ -17,6 +17,21 @@ export const loadTasksFailure = createAction(
   props<{ error: any }>()
 );
 
+export const taskWasAdded = createAction(
+  '[Tasks] Task Was Added',
+  props<{ task: IdeaTask }>()
+);
+
+export const taskWasAddedSuccessfully = createAction(
+  '[Tasks] Task Was Added Successfully',
+  props<{ task: IdeaTask }>()
+);
+
+export const taskAddFailed = createAction(
+  '[Tasks] Task Adding Has Failed',
+  props<{ error: string }>()
+);
+
 export const taskWasUpdated = createAction(
   '[Tasks] Task Was Updated',
   props<{ task: IdeaTask }>()
