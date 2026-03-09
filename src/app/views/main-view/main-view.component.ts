@@ -123,10 +123,12 @@ export class MainViewComponent implements OnInit, OnDestroy {
       const data: IdeaTask = event.container.data[
         event.currentIndex
       ] as unknown as IdeaTask;
+      const containerType = IdeaType[event.container.id as keyof typeof IdeaType];
+      if (containerType === undefined) return;
       this.taskAPIService
         .updateTaskContainer({
           id: data.id,
-          type: parseInt(event.container.id.substring(14)),
+          type: containerType,
         } as IdeaTask)
         .then((updated) => {});
     }
