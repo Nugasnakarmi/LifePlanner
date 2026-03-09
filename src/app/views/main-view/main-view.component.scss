@@ -12,6 +12,27 @@
   min-width: 0;
   min-height: 0;
 
+  .board-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 16px;
+    background: rgba(grey, 50%);
+
+    .back-button {
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: bold;
+    }
+
+    .board-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+    }
+  }
+
   .board-wrapper {
     display: flex;
     flex-grow: 1;

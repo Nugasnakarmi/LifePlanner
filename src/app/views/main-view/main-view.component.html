@@ -1,7 +1,15 @@
 <div class="root">
   <div class="board">
-    <board></board>
-    @if(boards$ | async; as boards){ @if(tasks$| async; as tasks){
+    <div class="board-header">
+      <button mat-button class="back-button" (click)="goToBoards()">
+        <mat-icon>arrow_back</mat-icon>
+        Boards
+      </button>
+      @if(selectedBoard) {
+      <span class="board-name">{{ selectedBoard.name }}</span>
+      }
+    </div>
+    @if(tasks$ | async; as tasks){
     <div class="board-wrapper">
       <div class="board-columns" cdkDropListGroup>
         @for(container of containers; track container){
@@ -32,6 +40,6 @@
         }
       </div>
     </div>
-    } }
+    }
   </div>
 </div>

@@ -10,6 +10,7 @@ import { Observable, Subscription, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
@@ -18,7 +19,6 @@ import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
 import { TaskService } from 'src/app/services/task/task.service';
 import { AsyncPipe } from '@angular/common';
-import { BoardComponent } from '../board/board.component';
 import { BoardService } from 'src/app/services/board/board.service';
 import { Board } from 'src/app/interfaces/board.interface';
 
@@ -26,9 +26,9 @@ import { Board } from 'src/app/interfaces/board.interface';
   imports: [
     DragDropModule,
     MatIconModule,
+    MatButtonModule,
     TaskComponent,
     AsyncPipe,
-    BoardComponent,
   ],
   selector: 'app-main-view',
   templateUrl: './main-view.component.html',
@@ -57,7 +57,6 @@ export class MainViewComponent implements OnInit, OnDestroy {
   boardService = inject(BoardService);
 
   tasks$: Observable<IdeaTask[]>;
-  boards$: Observable<Board[]>;
   selectedBoard: Board | null = null;
 
   private selectedBoardSub: Subscription | undefined;
@@ -65,7 +64,6 @@ export class MainViewComponent implements OnInit, OnDestroy {
   readonly addTaskDialog = inject(MatDialog);
 
   ngOnInit(): void {
-    this.getUserBoards();
     this.getTasks();
     this.selectedBoardSub = this.boardService.selectedBoard$.subscribe(
       (board) => {
@@ -77,12 +75,6 @@ export class MainViewComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.selectedBoardSub?.unsubscribe();
-  }
-
-  //get my boards
-  getUserBoards(): void {
-    this.taskService.landingPageInitialized();
-    this.boards$ = this.boardService.boards$;
   }
 
   getTasks(): void {
@@ -149,5 +141,9 @@ export class MainViewComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe(() => {
       this.getTasks();
     });
+  }
+
+  goToBoards(): void {
+    this.router.navigate(['/boards']);
   }
 }
