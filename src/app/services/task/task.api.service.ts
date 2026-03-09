@@ -15,7 +15,7 @@ export class TaskAPIService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
 
-  async addTask(taskData: IdeaTask): Promise<boolean> {
+  async addTask(taskData: IdeaTask): Promise<IdeaTask | null> {
     try {
       let user: User = await this.supabaseService.getUser();
       let { data, error } = await this.supabaseService.supabase
@@ -27,16 +27,19 @@ export class TaskAPIService {
           completion_status: taskData.completion_status,
           user_id: user.id,
           board_id: taskData.board_id,
-        });
+        })
+        .select()
+        .single();
 
       if (error) {
         throw error;
       }
 
       this.toastRService.success(`Task ${taskData.name} added successfully`);
-      return true;
+      return data as IdeaTask;
     } catch (error) {
-      this.toastRService.error(`Failed to add task : ${error.message}`);
+      this.toastRService.error(`Failed to add task: ${error.message}`);
+      return null;
     }
   }
 
@@ -55,7 +58,7 @@ export class TaskAPIService {
         return tasks;
       }
     } catch (error) {
-      this.toastRService.error(`Failed to add task : ${error.message}`);
+      this.toastRService.error(`Failed to get tasks: ${error.message}`);
     }
   }
 

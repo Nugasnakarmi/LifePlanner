@@ -21,6 +21,10 @@ export class TaskService {
     this.store.dispatch(taskActions.landingPageInitialized());
   }
 
+  public taskWasAdded(task: IdeaTask): void {
+    this.store.dispatch(taskActions.taskWasAdded({ task }));
+  }
+
   public taskWasUpdated(
     task: IdeaTask,
     dialogRef: MatDialogRef<AddTaskComponent>
