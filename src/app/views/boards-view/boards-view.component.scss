@@ -1,0 +1,82 @@
+.boards-view-container {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.boards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.boards-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+}
+
+.new-board-form {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.boards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.board-card {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 24px 20px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  &:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+}
+
+.board-card-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.board-card-description {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 8px;
+}
+
+.no-boards-message {
+  font-family: 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+}

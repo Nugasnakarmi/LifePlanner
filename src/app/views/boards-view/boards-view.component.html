@@ -1,0 +1,41 @@
+<div class="boards-view-container">
+  <div class="boards-header">
+    <h2 class="boards-title">Your Boards</h2>
+    <button mat-raised-button color="primary" (click)="toggleNewBoardForm()">
+      <mat-icon>{{ showNewBoardForm ? 'close' : 'add' }}</mat-icon>
+      {{ showNewBoardForm ? 'Cancel' : 'New Board' }}
+    </button>
+  </div>
+
+  @if(showNewBoardForm) {
+  <div class="new-board-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Board name</mat-label>
+      <input matInput [formControl]="newBoardNameControl" placeholder="Enter board name" (keydown.enter)="createBoard()" />
+    </mat-form-field>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="createBoard()"
+      [disabled]="newBoardNameControl.invalid"
+    >
+      Create
+    </button>
+  </div>
+  }
+
+  @if(boards$ | async; as boards) {
+  <div class="boards-grid">
+    @for(board of boards; track board.id) {
+    <div class="board-card" (click)="selectBoard(board)" tabindex="0" (keydown.enter)="selectBoard(board)">
+      <div class="board-card-name">{{ board.name }}</div>
+      @if(board.description) {
+      <div class="board-card-description">{{ board.description }}</div>
+      }
+    </div>
+    } @empty {
+    <p class="no-boards-message">No boards yet. Create one to get started!</p>
+    }
+  </div>
+  }
+</div>

@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit {
           loginCredentials
         );
         this.userDetails = userSessionDetails.user;
-        this.router.navigate(['/main']);
+        this.router.navigate(['/boards']);
       } catch (error) {}
     }
   }
