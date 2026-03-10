@@ -23,15 +23,15 @@
     color: #fff;
   }
   .goals-tasks {
-    background-color: rgb(162, 178, 226);
+    background-color: rgba(249, 208, 122, 0.3);
   }
 
   .objectives-tasks {
-    background-color: rgb(252, 172, 0);
+    background-color: rgba(249, 208, 122, 0.5);
   }
 
   .achievements-tasks {
-    background-color: rgb(97, 192, 19);
+    background-color: rgba(249, 208, 122, 0.7);
   }
 
   .tasks:not(.cdk-drag-placeholder) {

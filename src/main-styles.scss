@@ -1,11 +1,16 @@
 //global styles and change variables
 @import url("https://fonts.googleapis.com/css2?family=Yatra+One&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap");
 /*Update bulma's component variables*/
 $family-sans-serif: "Yatra One", sans-serif;
 $control-border-width: 2px;
 $input-border-color: transparent;
 $input-shadow: none;
+
+// Theme color palette
+$color-primary: #010014;
+$color-yellow: #F9D07A;
+$color-white: #ffffff;
 
 //global styles
 html,
@@ -19,12 +24,15 @@ body {
   font-weight: 800;
 }
 html {
-  background-image: url("./assets/cool-background.png");
+  background-color: $color-primary;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(249, 208, 122, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(249, 208, 122, 0.04) 0%, transparent 40%);
   background-size: cover;
   overflow-y: auto !important;
 }
 .has-gradient-text {
-  background: -webkit-linear-gradient(#13f7f4, #2af598);
+  background: -webkit-linear-gradient(#F9D07A, #d4a94e);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -33,14 +41,12 @@ html {
   font-family: "Yatra One", sans-serif;
   font-weight: bold;
   text-align: center;
-  //make the text more prominent
-  color: #13f7f4;
+  color: $color-yellow;
   letter-spacing: 1px;
   line-height: 1.2;
   text-transform: uppercase;
   font-weight: 900;
-  //dark shadow around the text
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 //create a collection of size overrides
 .size-50-override {

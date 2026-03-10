@@ -17,10 +17,10 @@
     align-items: center;
     gap: 16px;
     padding: 8px 16px;
-    background: rgba(grey, 50%);
+    background: rgba(1, 0, 20, 0.7);
 
     .back-button {
-      color: #fff;
+      color: #F9D07A;
       font-family: 'Montserrat', sans-serif;
       font-weight: bold;
     }
@@ -68,7 +68,7 @@
         margin: 50px;
         padding: 25px;
         border-radius: 4px;
-        background: rgba(#fff, 40%);
+        background: rgba(255, 255, 255, 0.08);
         &:not(:first-child) {
           margin-left: 0;
         }
