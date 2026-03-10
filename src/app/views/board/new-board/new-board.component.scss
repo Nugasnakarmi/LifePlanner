@@ -10,4 +10,21 @@
   margin-top: 0.5rem;
   display: flex;
   gap: 0.5rem;
+
+  input {
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(249, 208, 122, 0.3);
+    border-radius: 4px;
+    padding: 6px 10px;
+    outline: none;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    &:focus {
+      border-color: #F9D07A;
+    }
+  }
 }
