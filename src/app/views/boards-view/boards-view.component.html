@@ -27,10 +27,41 @@
   @if(boards$ | async; as boards) {
   <div class="boards-grid">
     @for(board of boards; track board.id) {
-    <div class="board-card" (click)="selectBoard(board)" tabindex="0" (keydown.enter)="selectBoard(board)">
+    <div class="board-card" (click)="editingBoardId !== board.id && selectBoard(board)" tabindex="0" (keydown.enter)="editingBoardId === board.id ? null : selectBoard(board)">
+      @if(editingBoardId === board.id) {
+      <div class="board-card-edit" (click)="$event.stopPropagation()">
+        <mat-form-field appearance="outline" class="edit-name-field">
+          <input
+            matInput
+            [formControl]="editBoardNameControl"
+            placeholder="Board name"
+            (keydown.enter)="saveEditBoard(board, $event)"
+            (keydown.escape)="cancelEditBoard($event)"
+            autofocus
+          />
+        </mat-form-field>
+        <div class="edit-actions">
+          <button mat-icon-button color="primary" (click)="saveEditBoard(board, $event)" [disabled]="editBoardNameControl.invalid" title="Save" aria-label="Save board name">
+            <mat-icon>check</mat-icon>
+          </button>
+          <button mat-icon-button (click)="cancelEditBoard($event)" title="Cancel" aria-label="Cancel editing">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+      } @else {
       <div class="board-card-name">{{ board.name }}</div>
       @if(board.description) {
       <div class="board-card-description">{{ board.description }}</div>
+      }
+      <div class="board-card-actions">
+        <button mat-icon-button class="card-action-btn" (click)="startEditBoard(board, $event)" title="Rename board" [attr.aria-label]="'Rename board ' + board.name">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button class="card-action-btn card-action-btn--delete" (click)="deleteBoard(board, $event)" title="Delete board" [attr.aria-label]="'Delete board ' + board.name">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
       }
     </div>
     } @empty {

@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
@@ -34,8 +34,14 @@ export class BoardsViewComponent implements OnInit {
 
   boards$: Observable<Board[]>;
   showNewBoardForm = false;
+  editingBoardId: number | null = null;
 
   newBoardNameControl = new UntypedFormControl('', [
+    Validators.required,
+    Validators.minLength(3),
+  ]);
+
+  editBoardNameControl = new UntypedFormControl('', [
     Validators.required,
     Validators.minLength(3),
   ]);
@@ -65,5 +71,42 @@ export class BoardsViewComponent implements OnInit {
       this.newBoardNameControl.reset();
       this.showNewBoardForm = false;
     }
+  }
+
+  startEditBoard(board: Board, event: Event): void {
+    event.stopPropagation();
+    this.editingBoardId = board.id ?? null;
+    this.editBoardNameControl.setValue(board.name);
+  }
+
+  saveEditBoard(board: Board, event: Event): void {
+    event.stopPropagation();
+    const name = this.editBoardNameControl.value?.trim();
+    if (name && this.editBoardNameControl.valid) {
+      this.boardService.nameEditFinished({ ...board, name });
+    }
+    this.editingBoardId = null;
+  }
+
+  cancelEditBoard(event: Event): void {
+    event.stopPropagation();
+    this.editingBoardId = null;
+  }
+
+  async deleteBoard(board: Board, event: Event): Promise<void> {
+    event.stopPropagation();
+    if (!board.id) return;
+
+    const tasks = await firstValueFrom(this.taskService.tasks$);
+    const boardTasks = tasks.filter((t) => t.board_id === board.id);
+
+    if (boardTasks.length > 0) {
+      const confirmed = window.confirm(
+        `"${board.name}" has ${boardTasks.length} task(s). Deleting this board will also delete all its tasks. Are you sure?`
+      );
+      if (!confirmed) return;
+    }
+
+    this.boardService.deleteBoard(board.id);
   }
 }

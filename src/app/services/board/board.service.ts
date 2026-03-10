@@ -34,4 +34,8 @@ export class BoardService {
   selectBoard(board: Board): void {
     this.store.dispatch(boardActions.selectBoard({ board }));
   }
+
+  deleteBoard(boardId: number): void {
+    this.store.dispatch(boardActions.deleteBoard({ boardId }));
+  }
 }
