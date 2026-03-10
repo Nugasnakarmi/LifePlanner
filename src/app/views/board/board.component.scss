@@ -1,5 +1,5 @@
 .board-bar {
-  background: rgba(grey, 50%);
+  background: rgba(1, 0, 20, 0.7);
   padding: 8px 30px;
 }
 
@@ -30,7 +30,7 @@
 }
 
 .board-tab {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(249, 208, 122, 0.1);
   border: none;
   border-radius: 4px 4px 0 0;
   color: #fff;
@@ -42,11 +42,11 @@
   transition: background 0.2s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(249, 208, 122, 0.2);
   }
 
   &.active {
-    background: rgba(255, 255, 255, 0.45);
-    border-bottom: 3px solid #fff;
+    background: rgba(249, 208, 122, 0.25);
+    border-bottom: 3px solid #F9D07A;
   }
 }
