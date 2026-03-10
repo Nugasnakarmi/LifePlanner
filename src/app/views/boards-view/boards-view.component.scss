@@ -251,6 +251,10 @@
   transition: opacity 0.3s;
 }
 
+.board-card:focus-within .board-card-actions {
+  opacity: 1;
+}
+
 .card-action-btn {
   color: rgba(249, 208, 122, 0.7);
 
@@ -261,8 +265,8 @@
 
   &--delete {
     &:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.1);
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.15);
     }
   }
 }
