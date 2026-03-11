@@ -60,6 +60,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
 
   tasks$: Observable<IdeaTask[]>;
   selectedBoard: Board | null = null;
+  listDragEnabled = false;
 
   private selectedBoardSub: Subscription | undefined;
 
@@ -150,5 +151,9 @@ export class MainViewComponent implements OnInit, OnDestroy {
 
   goToBoards(): void {
     this.router.navigate(['/boards']);
+  }
+
+  toggleListDrag(): void {
+    this.listDragEnabled = !this.listDragEnabled;
   }
 }

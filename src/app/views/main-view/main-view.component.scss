@@ -25,6 +25,21 @@
       font-weight: bold;
     }
 
+    .drag-mode-button {
+      margin-left: auto;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: bold;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      transition: color 0.2s, border-color 0.2s;
+
+      &.drag-mode-active {
+        color: #F9D07A;
+        border-color: #F9D07A;
+      }
+    }
+
     .board-name {
       font-family: 'Montserrat', sans-serif;
       font-size: 20px;
