@@ -61,6 +61,12 @@ body {
   border: 1px solid rgba(249, 208, 122, 0.3);
 }
 
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(249, 208, 122, 0.3) transparent;
+}
+
 // Angular Material theme overrides to match #010014 / #F9D07A / #fff palette
 .mat-mdc-raised-button.mat-primary {
   --mdc-protected-button-container-color: #F9D07A;
@@ -115,7 +121,164 @@ body {
 }
 
 // Navbar override to match new theme
-.navbar.has-background-dark {
+.app-navbar {
   background-color: #010014 !important;
   border-bottom: 1px solid rgba(249, 208, 122, 0.1);
 }
+
+// Burger bar lines: white on dark navbar
+.app-navbar .navbar-burger span {
+  background-color: #fff;
+}
+
+// ─── Light Mode Overrides ───────────────────────────────────────────────────
+
+html.light-mode {
+  body {
+    color: #010014;
+  }
+
+  // Navbar
+  .app-navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid rgba(249, 208, 122, 0.3) !important;
+    box-shadow: 0 1px 8px rgba(1, 0, 20, 0.06);
+
+    .navbar-burger span {
+      background-color: #010014;
+    }
+
+    // Mobile expanded menu background
+    @media screen and (max-width: 1023px) {
+      .navbar-menu.is-active {
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(1, 0, 20, 0.08);
+      }
+    }
+  }
+
+  // User menu button text in light navbar
+  .user-menu-button {
+    color: #010014 !important;
+  }
+
+  // Theme toggle icon in light mode
+  .theme-toggle-button {
+    color: #010014 !important;
+  }
+
+  // Scrollbar
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(249, 208, 122, 0.5);
+    border: 1px solid rgba(249, 208, 122, 0.5);
+  }
+
+  /* Firefox scrollbar in light mode */
+  * {
+    scrollbar-color: rgba(249, 208, 122, 0.5) transparent;
+  }
+
+  // Angular Material form fields
+  .mat-mdc-form-field {
+    --mat-form-field-outlined-input-text-color: #010014;
+    --mat-form-field-outlined-input-text-placeholder-color: rgba(1, 0, 20, 0.4);
+    --mat-form-field-outlined-label-text-color: rgba(1, 0, 20, 0.6);
+    --mat-form-field-outlined-hover-label-text-color: rgba(1, 0, 20, 0.85);
+  }
+
+  // Material dialogs
+  .mat-mdc-dialog-container {
+    --mat-dialog-container-color: #ffffff;
+    --mat-dialog-subhead-color: #010014;
+    --mat-dialog-supporting-text-color: rgba(1, 0, 20, 0.85);
+  }
+
+  // Toastr
+  .toast-error {
+    background-color: rgba(255, 255, 255, 0.97) !important;
+    border: 1px solid rgba(249, 208, 122, 0.3) !important;
+    color: #010014 !important;
+  }
+
+  // Landing page
+  landing-page .landing-container {
+    background: linear-gradient(135deg, #f5f0ff 0%, #ece5ff 40%, #f5f0ff 100%) !important;
+  }
+
+  landing-page .welcome-section h1 {
+    color: #010014 !important;
+  }
+
+  landing-page .welcome-section p {
+    color: rgba(1, 0, 20, 0.8) !important;
+  }
+
+  landing-page .welcome-section ul li {
+    color: #010014 !important;
+  }
+
+  landing-page .feature-card {
+    background: rgba(249, 208, 122, 0.12) !important;
+    color: #010014 !important;
+    border-color: rgba(249, 208, 122, 0.3) !important;
+  }
+
+  landing-page .login-section {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f0ff 50%, #ffffff 100%) !important;
+    border-color: rgba(249, 208, 122, 0.3) !important;
+    box-shadow: 0 8px 32px rgba(1, 0, 20, 0.08) !important;
+  }
+
+  // Login component text
+  app-login .login-container p {
+    color: rgba(1, 0, 20, 0.85) !important;
+  }
+
+  app-login #register-text {
+    color: rgba(1, 0, 20, 0.75) !important;
+  }
+
+  // Boards view host background
+  app-boards-view {
+    background: #f5f0ff !important;
+  }
+
+  app-boards-view .boards-title {
+    color: #010014 !important;
+  }
+
+  app-boards-view .board-card {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-color: rgba(249, 208, 122, 0.2) !important;
+  }
+
+  app-boards-view .board-card:hover {
+    background: rgba(249, 208, 122, 0.1) !important;
+    box-shadow: 0 12px 40px rgba(1, 0, 20, 0.1), 0 4px 12px rgba(249, 208, 122, 0.1) !important;
+  }
+
+  app-boards-view .board-card-name {
+    color: #010014 !important;
+  }
+
+  app-boards-view .board-card-description {
+    color: rgba(1, 0, 20, 0.55) !important;
+  }
+
+  app-boards-view .no-boards-message {
+    color: rgba(1, 0, 20, 0.5) !important;
+  }
+
+  app-boards-view .template-card {
+    background: rgba(249, 208, 122, 0.08) !important;
+  }
+
+  app-boards-view .template-card-name {
+    color: #010014 !important;
+  }
+
+  app-boards-view .template-card-description {
+    color: rgba(1, 0, 20, 0.6) !important;
+  }
+}
+
