@@ -4,12 +4,12 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class ThemeService {
-  private _isDarkMode = signal<boolean>(true);
+  private _isDarkMode = signal<boolean>(false);
   readonly isDarkMode = this._isDarkMode.asReadonly();
 
   constructor() {
     const saved = localStorage.getItem('lifeplanner-theme');
-    const dark = saved !== 'light';
+    const dark = saved === 'dark';
     this._isDarkMode.set(dark);
     this.applyTheme(dark);
   }
