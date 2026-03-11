@@ -1,4 +1,5 @@
 import { Board } from 'src/app/interfaces/board.interface';
+import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { createAction, props } from '@ngrx/store';
 
 export const addBoard = createAction(
@@ -50,4 +51,9 @@ export const deleteBoardSuccess = createAction(
 export const deleteBoardFailure = createAction(
   '[Boards] Delete Board Failure',
   props<{ error: any }>()
+);
+
+export const createBoardFromTemplate = createAction(
+  '[Boards] Create Board From Template',
+  props<{ template: BoardTemplate }>()
 );

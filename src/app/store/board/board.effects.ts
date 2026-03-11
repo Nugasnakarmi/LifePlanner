@@ -74,5 +74,20 @@ export class BoardEffects {
     )
   );
 
+  createBoardFromTemplate$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(boardActions.createBoardFromTemplate),
+      mergeMap(({ template }) =>
+        this.boardAPIService
+          .addBoardFromTemplate(template)
+          .then(() => this.boardAPIService.getBoards())
+          .then((fetchedBoards) =>
+            boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] })
+          )
+          .catch((error) => boardActions.loadBoardsFailure({ error }))
+      )
+    )
+  );
+
   constructor(private actions$: Actions) {}
 }
