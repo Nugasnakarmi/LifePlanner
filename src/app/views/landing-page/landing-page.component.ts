@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { LoginComponent } from '../email/login/login.component';
-import { RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
+import { SupabaseService } from 'src/app/services/supabase/supabase.service';
 
 @Component({
   selector: 'landing-page',
@@ -9,4 +10,14 @@ import { RouterOutlet } from '@angular/router';
   imports: [LoginComponent],
   standalone: true,
 })
-export class LandingPageComponent {}
+export class LandingPageComponent implements OnInit {
+  private supabaseService = inject(SupabaseService);
+  private router = inject(Router);
+
+  async ngOnInit(): Promise<void> {
+    const session = await this.supabaseService.getSession();
+    if (session) {
+      this.router.navigate(['/boards']);
+    }
+  }
+}

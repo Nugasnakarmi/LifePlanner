@@ -5,11 +5,12 @@ import { ResetPasswordComponent } from './views/email/reset-password/reset-passw
 import { RegisterComponent } from './views/email/register/register.component';
 import { LandingPageComponent } from './views/landing-page/landing-page.component';
 import { BoardsViewComponent } from './views/boards-view/boards-view.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
-  { path: 'boards', component: BoardsViewComponent },
-  { path: 'main', component: MainViewComponent },
+  { path: 'boards', component: BoardsViewComponent, canActivate: [authGuard] },
+  { path: 'main', component: MainViewComponent, canActivate: [authGuard] },
   { path: 'confirmEmail', component: EmailConfirmComponent },
   { path: 'resetPassword', component: ResetPasswordComponent },
   { path: 'register', component: RegisterComponent },
