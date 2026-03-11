@@ -399,7 +399,7 @@
   font-weight: 600;
 }
 
-.template-arrow {
+  .template-arrow {
   color: rgba(249, 208, 122, 0.5);
   font-size: 16px;
   width: 16px;
@@ -409,5 +409,83 @@
   .template-card:hover & {
     transform: translateX(4px);
     color: #F9D07A;
+  }
+}
+
+:host-context(.light-mode) {
+  background: #f5f0ff;
+
+  .boards-title {
+    color: #010014;
+  }
+
+  .board-card {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(249, 208, 122, 0.2);
+
+    &:hover {
+      background: rgba(249, 208, 122, 0.1);
+      box-shadow: 0 12px 40px rgba(1, 0, 20, 0.1), 0 4px 12px rgba(249, 208, 122, 0.1);
+    }
+  }
+
+  .board-card-name {
+    color: #010014;
+  }
+
+  .board-card-description {
+    color: rgba(1, 0, 20, 0.55);
+  }
+
+  .no-boards-message {
+    color: rgba(1, 0, 20, 0.5);
+  }
+
+  .template-card {
+    background: rgba(249, 208, 122, 0.08);
+  }
+
+  .template-card-name {
+    color: #010014;
+  }
+
+  .template-card-description {
+    color: rgba(1, 0, 20, 0.6);
+  }
+
+  .template-toggle-btn {
+    color: #7A5900;
+    border-color: rgba(122, 89, 0, 0.3);
+
+    &:hover {
+      color: #5C4000;
+      border-color: #5C4000;
+      background: rgba(92, 64, 0, 0.05);
+    }
+  }
+
+  .template-card-icon mat-icon {
+    color: #5C4000;
+  }
+
+  .template-task-count {
+    color: #7A5900;
+  }
+
+  .card-action-btn {
+    color: #7A5900;
+
+    &:hover {
+      color: #5C4000;
+      background: rgba(92, 64, 0, 0.08);
+    }
+  }
+
+  .template-arrow {
+    color: #7A5900;
+
+    .template-card:hover & {
+      color: #5C4000;
+    }
   }
 }

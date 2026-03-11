@@ -42,4 +42,12 @@
   color: #F9D07A;
 }
 
+:host-context(.light-mode) {
+  .user-menu-button {
+    color: #010014;
+  }
 
+  .theme-toggle-button {
+    color: #010014;
+  }
+}

@@ -42,3 +42,19 @@
     }
   }
 }
+
+:host-context(.light-mode) {
+  .login-container {
+    p {
+      color: rgba(1, 0, 20, 0.85);
+    }
+
+    #register-text {
+      color: rgba(1, 0, 20, 0.75);
+
+      a {
+        color: #5C4000;
+      }
+    }
+  }
+}

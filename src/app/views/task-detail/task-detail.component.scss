@@ -96,3 +96,29 @@
     }
   }
 }
+
+:host-context(.light-mode) {
+  .task-detail-header {
+    .task-container-label {
+      color: #5C4000;
+    }
+
+    .close-button {
+      color: rgba(1, 0, 20, 0.7);
+
+      &:hover {
+        color: #5C4000;
+      }
+    }
+  }
+
+  .task-detail-body {
+    .task-name {
+      color: #010014;
+    }
+
+    .task-description {
+      color: rgba(1, 0, 20, 0.75);
+    }
+  }
+}

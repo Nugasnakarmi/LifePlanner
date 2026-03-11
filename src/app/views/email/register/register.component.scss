@@ -52,3 +52,11 @@
     padding-left: 1em;
   }
 }
+
+:host-context(.light-mode) {
+  .register-container {
+    p {
+      color: rgba(1, 0, 20, 0.85);
+    }
+  }
+}
