@@ -137,13 +137,17 @@ body {
 }
 
 // ─── Light Mode Overrides ───────────────────────────────────────────────────
+// Only Angular Material MDC tokens, Toastr, scrollbar, and Bulma navbar overrides
+// live here (they cannot be set from a component's own SCSS file).
+// All other per-component light-mode styles live in the component's own SCSS file
+// using the :host-context(.light-mode) selector.
 
 html.light-mode {
   body {
     color: #010014;
   }
 
-  // Navbar
+  // Navbar — Bulma resets require !important and must be global
   .app-navbar {
     background-color: #ffffff !important;
     border-bottom: 1px solid rgba(249, 208, 122, 0.3) !important;
@@ -162,16 +166,6 @@ html.light-mode {
     }
   }
 
-  // User menu button text in light navbar
-  .user-menu-button {
-    color: #010014 !important;
-  }
-
-  // Theme toggle icon in light mode
-  .theme-toggle-button {
-    color: #010014 !important;
-  }
-
   // Scrollbar
   *::-webkit-scrollbar-thumb {
     background-color: rgba(249, 208, 122, 0.5);
@@ -183,7 +177,7 @@ html.light-mode {
     scrollbar-color: rgba(249, 208, 122, 0.5) transparent;
   }
 
-  // Angular Material form fields
+  // Angular Material form fields — MDC CSS custom properties must be set globally
   .mat-mdc-form-field {
     --mat-form-field-outlined-input-text-color: #010014;
     --mat-form-field-outlined-input-text-placeholder-color: rgba(1, 0, 20, 0.4);
@@ -203,201 +197,31 @@ html.light-mode {
     --mat-form-field-error-text-color: #B00020;
   }
 
-  // Material dialogs
+  // Material dialogs — MDC CSS custom properties must be set globally
   .mat-mdc-dialog-container {
     --mat-dialog-container-color: #ffffff;
     --mat-dialog-subhead-color: #010014;
     --mat-dialog-supporting-text-color: rgba(1, 0, 20, 0.85);
   }
 
-  // Toastr
+  // Toastr — injected outside Angular component trees, must be global
   .toast-error {
     background-color: rgba(255, 255, 255, 0.97) !important;
     border: 1px solid rgba(249, 208, 122, 0.3) !important;
     color: #010014 !important;
   }
 
-  // Landing page
-  landing-page .landing-container {
-    background: linear-gradient(135deg, #f5f0ff 0%, #ece5ff 40%, #f5f0ff 100%) !important;
-  }
-
-  landing-page .welcome-section h1 {
-    color: #010014 !important;
-  }
-
-  landing-page .welcome-section p {
-    color: rgba(1, 0, 20, 0.8) !important;
-  }
-
-  landing-page .welcome-section ul li {
-    color: #010014 !important;
-  }
-
-  landing-page .feature-card {
-    background: rgba(249, 208, 122, 0.12) !important;
-    color: #010014 !important;
-    border-color: rgba(249, 208, 122, 0.3) !important;
-  }
-
-  landing-page .login-section {
-    background: linear-gradient(135deg, #ffffff 0%, #f5f0ff 50%, #ffffff 100%) !important;
-    border-color: rgba(249, 208, 122, 0.3) !important;
-    box-shadow: 0 8px 32px rgba(1, 0, 20, 0.08) !important;
-  }
-
-  // Login component text
-  app-login .login-container p {
-    color: rgba(1, 0, 20, 0.85) !important;
-  }
-
-  app-login #register-text {
-    color: rgba(1, 0, 20, 0.75) !important;
-  }
-
-  // Boards view host background
-  app-boards-view {
-    background: #f5f0ff !important;
-  }
-
-  app-boards-view .boards-title {
-    color: #010014 !important;
-  }
-
-  app-boards-view .board-card {
-    background: rgba(255, 255, 255, 0.85) !important;
-    border-color: rgba(249, 208, 122, 0.2) !important;
-  }
-
-  app-boards-view .board-card:hover {
-    background: rgba(249, 208, 122, 0.1) !important;
-    box-shadow: 0 12px 40px rgba(1, 0, 20, 0.1), 0 4px 12px rgba(249, 208, 122, 0.1) !important;
-  }
-
-  app-boards-view .board-card-name {
-    color: #010014 !important;
-  }
-
-  app-boards-view .board-card-description {
-    color: rgba(1, 0, 20, 0.55) !important;
-  }
-
-  app-boards-view .no-boards-message {
-    color: rgba(1, 0, 20, 0.5) !important;
-  }
-
-  app-boards-view .template-card {
-    background: rgba(249, 208, 122, 0.08) !important;
-  }
-
-  app-boards-view .template-card-name {
-    color: #010014 !important;
-  }
-
-  app-boards-view .template-card-description {
-    color: rgba(1, 0, 20, 0.6) !important;
-  }
-
-  // Gradient text (app name, page headings) — override component-scoped yellow gradient
+  // Gradient text utility — used in multiple components; !important overrides each
+  // component's own ViewEncapsulation-scoped .has-gradient-text definition
   .has-gradient-text {
     background: -webkit-linear-gradient(#5C4000, #8B6200) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
   }
 
-  // Icon buttons (mat-primary) — yellow icon on light background fails contrast
+  // Icon buttons — MDC CSS custom property must be set globally
   .mat-mdc-icon-button.mat-primary {
     --mdc-icon-button-icon-color: #5C4000;
-  }
-
-  // Login — register/forgot-password link text
-  app-login #register-text a {
-    color: #5C4000 !important;
-  }
-
-  // Register page text (shown on light html background at /register)
-  app-register .register-container p {
-    color: rgba(1, 0, 20, 0.85) !important;
-  }
-
-  // Reset-password page
-  app-reset-password .reset-password-form .reset-password-title {
-    color: rgba(1, 0, 20, 0.85) !important;
-  }
-
-  app-reset-password .reset-password-form .password-unmatch-error {
-    color: #B00020 !important;
-  }
-
-  app-reset-password .reset-password-form {
-    background-color: rgba(249, 208, 122, 0.08) !important;
-    border-color: rgba(92, 64, 0, 0.15) !important;
-  }
-
-  // Email-confirm page — white text on near-white container
-  app-email-confirm .email-confirm-text {
-    color: #010014 !important;
-    background-color: rgba(249, 208, 122, 0.1) !important;
-    border-color: rgba(92, 64, 0, 0.15) !important;
-  }
-
-  // Boards view — template and card action elements missing from earlier overrides
-  app-boards-view .template-toggle-btn {
-    color: #7A5900 !important;
-    border-color: rgba(122, 89, 0, 0.3) !important;
-  }
-
-  app-boards-view .template-toggle-btn:hover {
-    color: #5C4000 !important;
-    border-color: #5C4000 !important;
-    background: rgba(92, 64, 0, 0.05) !important;
-  }
-
-  app-boards-view .template-card-icon mat-icon {
-    color: #5C4000 !important;
-  }
-
-  app-boards-view .template-task-count {
-    color: #7A5900 !important;
-  }
-
-  app-boards-view .card-action-btn {
-    color: #7A5900 !important;
-  }
-
-  app-boards-view .card-action-btn:hover {
-    color: #5C4000 !important;
-    background: rgba(92, 64, 0, 0.08) !important;
-  }
-
-  app-boards-view .template-arrow {
-    color: #7A5900 !important;
-  }
-
-  // Task-detail fullscreen dialog — all text was white, dialog bg is now white
-  app-task-detail .task-container-label {
-    color: #5C4000 !important;
-  }
-
-  app-task-detail .close-button {
-    color: rgba(1, 0, 20, 0.7) !important;
-  }
-
-  app-task-detail .close-button:hover {
-    color: #5C4000 !important;
-  }
-
-  app-task-detail .task-name {
-    color: #010014 !important;
-  }
-
-  app-task-detail .task-description {
-    color: rgba(1, 0, 20, 0.75) !important;
-  }
-
-  // Task cards inside the board — white text on white card backgrounds
-  app-task .tasks {
-    color: #010014 !important;
   }
 }
 

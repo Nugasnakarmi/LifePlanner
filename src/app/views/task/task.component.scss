@@ -90,3 +90,9 @@
     color: #004d99;
   }
 }
+
+:host-context(.light-mode) {
+  .tasks {
+    color: #010014;
+  }
+}

@@ -19,3 +19,11 @@
         width: 50%;
       }
   }
+
+:host-context(.light-mode) {
+  .email-confirm-text {
+    color: #010014;
+    background-color: rgba(249, 208, 122, 0.1);
+    border-color: rgba(92, 64, 0, 0.15);
+  }
+}
