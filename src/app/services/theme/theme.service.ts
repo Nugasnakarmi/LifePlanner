@@ -8,8 +8,13 @@ export class ThemeService {
   readonly isDarkMode = this._isDarkMode.asReadonly();
 
   constructor() {
-    const saved = localStorage.getItem('lifeplanner-theme');
-    const dark = saved === 'dark';
+    let dark = false;
+    try {
+      const saved = localStorage.getItem('lifeplanner-theme');
+      dark = saved === 'dark';
+    } catch {
+      // localStorage blocked or unavailable — fall back to light (default)
+    }
     this._isDarkMode.set(dark);
     this.applyTheme(dark);
   }
@@ -17,7 +22,11 @@ export class ThemeService {
   toggleTheme(): void {
     const newDark = !this._isDarkMode();
     this._isDarkMode.set(newDark);
-    localStorage.setItem('lifeplanner-theme', newDark ? 'dark' : 'light');
+    try {
+      localStorage.setItem('lifeplanner-theme', newDark ? 'dark' : 'light');
+    } catch {
+      // localStorage unavailable — preference won't persist
+    }
     this.applyTheme(newDark);
   }
 

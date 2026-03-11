@@ -10,6 +10,7 @@
       [class.is-active]="menuActive"
       (click)="toggleMenu()"
       aria-label="menu"
+      aria-controls="navbar-main-menu"
       [attr.aria-expanded]="menuActive"
     >
       <span aria-hidden="true"></span>
@@ -18,7 +19,7 @@
     </button>
   </div>
 
-  <div class="navbar-menu" [class.is-active]="menuActive">
+  <div id="navbar-main-menu" class="navbar-menu" [class.is-active]="menuActive">
     <div class="navbar-end">
       <div class="navbar-item">
         <button
