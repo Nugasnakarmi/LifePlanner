@@ -3,28 +3,64 @@
   class="add-task-container flex-column"
   (submit)="data.mode === TaskMode.Edit ? editTask() : addTask()"
 >
-  <mat-form-field appearance="outline">
-    <mat-label>Enter task name</mat-label>
-    <input
-      matInput
-      placeholder="Task name"
-      formControlName="name"
-      [value]="data.task?.name"
-    />
-    @if(addTaskForm.controls.name.invalid && addTaskForm.controls.name.touched){
-    <mat-error>{{ getValidationMessage() }}</mat-error>
-    }
-  </mat-form-field>
-  <mat-form-field appearance="outline">
-    <mat-label>Please explain the task</mat-label>
-    <textarea
-      matInput
-      placeholder="Task description"
-      formControlName="description"
-      [value]="data.task?.description"
-      rows="4"
-    ></textarea>
-  </mat-form-field>
+  <div class="field-with-emoji">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Enter task name</mat-label>
+      <input
+        matInput
+        placeholder="Task name"
+        formControlName="name"
+        [value]="data.task?.name"
+      />
+      @if(addTaskForm.controls.name.invalid && addTaskForm.controls.name.touched){
+      <mat-error>{{ getValidationMessage() }}</mat-error>
+      }
+    </mat-form-field>
+    <button
+      type="button"
+      class="emoji-toggle-button"
+      (click)="toggleEmojiPicker('name')"
+      title="Insert emoji"
+      aria-label="Insert emoji into task name"
+    >
+      😊
+    </button>
+  </div>
+
+  @if(showEmojiPickerForName) {
+  <div class="emoji-picker-wrapper">
+    <emoji-picker (emoji-click)="onEmojiSelected($event, 'name')"></emoji-picker>
+  </div>
+  }
+
+  <div class="field-with-emoji">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Please explain the task</mat-label>
+      <textarea
+        matInput
+        placeholder="Task description"
+        formControlName="description"
+        [value]="data.task?.description"
+        rows="4"
+      ></textarea>
+    </mat-form-field>
+    <button
+      type="button"
+      class="emoji-toggle-button"
+      (click)="toggleEmojiPicker('description')"
+      title="Insert emoji"
+      aria-label="Insert emoji into task description"
+    >
+      😊
+    </button>
+  </div>
+
+  @if(showEmojiPickerForDesc) {
+  <div class="emoji-picker-wrapper">
+    <emoji-picker (emoji-click)="onEmojiSelected($event, 'description')"></emoji-picker>
+  </div>
+  }
+
   <div class="action-button-container flex">
     <button
       mat-raised-button

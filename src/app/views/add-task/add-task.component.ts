@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
@@ -13,10 +13,12 @@ import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskService } from 'src/app/services/task/task.service';
+import 'emoji-picker-element';
 
 @Component({
   selector: 'add-task',
   imports: [MatFormFieldModule, MatButtonModule, MatInputModule, ReactiveFormsModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './add-task.component.html',
   styleUrl: './add-task.component.scss',
 })
@@ -27,6 +29,9 @@ export class AddTaskComponent implements OnInit {
   addTaskDialogRef = inject(MatDialogRef<AddTaskComponent>);
   actionString = 'Add Task';
   readonly TaskMode = TaskMode;
+
+  showEmojiPickerForName = false;
+  showEmojiPickerForDesc = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -52,10 +57,34 @@ export class AddTaskComponent implements OnInit {
       return 'You must enter a name for the task';
     }
 
-    return this.addTaskForm.controls.name.hasError('minLength')
+    return this.addTaskForm.controls.name.hasError('minlength')
       ? 'At least 3 characters long'
       : '';
   }
+
+  toggleEmojiPicker(field: 'name' | 'description'): void {
+    if (field === 'name') {
+      this.showEmojiPickerForName = !this.showEmojiPickerForName;
+      this.showEmojiPickerForDesc = false;
+    } else {
+      this.showEmojiPickerForDesc = !this.showEmojiPickerForDesc;
+      this.showEmojiPickerForName = false;
+    }
+  }
+
+  onEmojiSelected(event: { detail: { unicode: string } }, field: 'name' | 'description'): void {
+    const emoji: string = event.detail?.unicode ?? '';
+    if (!emoji) return;
+    const control = this.addTaskForm.controls[field];
+    const currentValue: string = control.value ?? '';
+    control.setValue(currentValue + emoji);
+    if (field === 'name') {
+      this.showEmojiPickerForName = false;
+    } else {
+      this.showEmojiPickerForDesc = false;
+    }
+  }
+
   //TODO: move the actions to parent component
   addTask(): void {
     const task: IdeaTask = {

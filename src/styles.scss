@@ -113,6 +113,11 @@ body {
   --mat-dialog-supporting-text-color: rgba(255, 255, 255, 0.85);
 }
 
+// Fullscreen task detail dialog
+.task-detail-fullscreen-dialog .mat-mdc-dialog-surface {
+  border-radius: 0;
+}
+
 // Toastr overrides for dark theme
 .toast-error {
   background-color: rgba(1, 0, 20, 0.95) !important;
