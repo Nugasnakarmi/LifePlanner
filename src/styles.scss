@@ -225,3 +225,10 @@ html.light-mode {
   }
 }
 
+@media (forced-colors: active) {
+  .has-gradient-text {
+    -webkit-text-fill-color: CanvasText !important;
+    background: none !important;
+  }
+}
+
