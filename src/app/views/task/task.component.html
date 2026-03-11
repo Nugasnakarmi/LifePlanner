@@ -8,7 +8,7 @@
     <p class="description">{{ task.description }}</p>
   </div>
   <div class="action-buttons flex-column-center">
-    <button class="expand-button" (click)="onExpandTask(task)" title="Expand to fullscreen">
+    <button class="expand-button" (click)="onExpandTask(task)" title="Expand to fullscreen" aria-label="Expand to fullscreen">
       <mat-icon class="expand-icon">open_in_full</mat-icon>
     </button>
     <button class="edit-button" (click)="onEditTask(task)">

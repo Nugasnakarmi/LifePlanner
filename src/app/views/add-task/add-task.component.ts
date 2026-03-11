@@ -9,7 +9,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
@@ -18,7 +17,7 @@ import 'emoji-picker-element';
 
 @Component({
   selector: 'add-task',
-  imports: [MatFormFieldModule, MatButtonModule, MatInputModule, ReactiveFormsModule, MatIconModule],
+  imports: [MatFormFieldModule, MatButtonModule, MatInputModule, ReactiveFormsModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './add-task.component.html',
   styleUrl: './add-task.component.scss',
@@ -58,7 +57,7 @@ export class AddTaskComponent implements OnInit {
       return 'You must enter a name for the task';
     }
 
-    return this.addTaskForm.controls.name.hasError('minLength')
+    return this.addTaskForm.controls.name.hasError('minlength')
       ? 'At least 3 characters long'
       : '';
   }
