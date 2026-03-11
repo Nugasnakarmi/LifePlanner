@@ -37,14 +37,16 @@ import { Board } from 'src/app/interfaces/board.interface';
   providers: [AsyncPipe],
 })
 export class MainViewComponent implements OnInit, OnDestroy {
-  containers = ['ideas', 'goals', 'objectives', 'achievements'];
+  containers = ['symptoms', 'ideas', 'goals', 'objectives', 'achievements'];
 
   ideas: IdeaTask[] = [];
   goals: IdeaTask[] = [];
   objectives: IdeaTask[] = [];
   achievements: IdeaTask[] = [];
+  symptoms: IdeaTask[] = [];
 
   containerRefs = {
+    symptoms: this.symptoms,
     ideas: this.ideas,
     goals: this.goals,
     objectives: this.objectives,
@@ -99,6 +101,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
 
   resetContainerData(): void {
     this.containerRefs = {
+      symptoms: [],
       ideas: [],
       goals: [],
       objectives: [],

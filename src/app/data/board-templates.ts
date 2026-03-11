@@ -13,49 +13,49 @@ export const BOARD_TEMPLATES: BoardTemplate[] = [
         name: 'Chronic pelvic pain (especially during menstruation)',
         description:
           'One of the most common symptoms. Record intensity (1–10), duration, and when it occurs in your cycle.',
-        type: IdeaType.ideas,
+        type: IdeaType.symptoms,
       },
       {
         name: 'Heavy or irregular menstrual bleeding',
         description:
           'Note flow volume, duration, and any changes compared to previous cycles.',
-        type: IdeaType.ideas,
+        type: IdeaType.symptoms,
       },
       {
         name: 'Pain during or after sexual intercourse (dyspareunia)',
         description:
           'Track frequency and severity. Discuss with your gynaecologist if persistent.',
-        type: IdeaType.ideas,
+        type: IdeaType.symptoms,
       },
       {
         name: 'Pain with bowel movements or urination',
         description:
           'Particularly common during menstruation. Log occurrence dates and severity.',
-        type: IdeaType.ideas,
+        type: IdeaType.symptoms,
       },
       {
         name: 'Abdominal bloating and nausea',
         description:
           'Note relation to menstrual cycle, foods eaten, and any triggers identified.',
-        type: IdeaType.ideas,
+        type: IdeaType.symptoms,
       },
       {
         name: 'Persistent fatigue and low energy',
         description:
           'Rate energy levels daily and track correlation with cycle phases.',
-        type: IdeaType.ideas,
+        type: IdeaType.symptoms,
       },
       {
         name: 'Lower back and leg pain',
         description:
           'Document location, intensity, and timing. Note any relief measures that help.',
-        type: IdeaType.ideas,
+        type: IdeaType.symptoms,
       },
       {
         name: 'Infertility or difficulty conceiving',
         description:
           'Endometriosis affects up to 50% of women with infertility. Seek specialist advice early.',
-        type: IdeaType.ideas,
+        type: IdeaType.symptoms,
       },
 
       // Preventive Measures
