@@ -29,6 +29,31 @@
       Create
     </button>
   </div>
+
+  <div class="template-section">
+    <button class="template-toggle-btn" (click)="toggleTemplates()">
+      <mat-icon>{{ showTemplates ? 'expand_less' : 'expand_more' }}</mat-icon>
+      {{ showTemplates ? 'Hide Templates' : 'Use a Template' }}
+    </button>
+
+    @if(showTemplates) {
+    <div class="template-grid">
+      @for(template of templates; track template.id) {
+      <div class="template-card" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
+        <div class="template-card-icon">
+          <mat-icon>healing</mat-icon>
+        </div>
+        <div class="template-card-name">{{ template.name }}</div>
+        <div class="template-card-description">{{ template.description }}</div>
+        <div class="template-card-footer">
+          <span class="template-task-count">{{ template.tasks.length }} tasks pre-loaded</span>
+          <mat-icon class="template-arrow">arrow_forward</mat-icon>
+        </div>
+      </div>
+      }
+    </div>
+    }
+  </div>
   }
 
   @if(boards$ | async; as boards) {

@@ -3,4 +3,5 @@ export enum IdeaType {
   goals,
   objectives,
   achievements,
+  symptoms,
 }

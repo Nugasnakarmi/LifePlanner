@@ -11,6 +11,8 @@ import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
+import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
+import { BOARD_TEMPLATES } from 'src/app/data/board-templates';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
 
@@ -34,7 +36,9 @@ export class BoardsViewComponent implements OnInit {
 
   boards$: Observable<Board[]>;
   showNewBoardForm = false;
+  showTemplates = false;
   editingBoardId: number | null = null;
+  templates: BoardTemplate[] = BOARD_TEMPLATES;
 
   newBoardNameControl = new UntypedFormControl('', [
     Validators.required,
@@ -60,7 +64,12 @@ export class BoardsViewComponent implements OnInit {
     this.showNewBoardForm = !this.showNewBoardForm;
     if (!this.showNewBoardForm) {
       this.newBoardNameControl.reset();
+      this.showTemplates = false;
     }
+  }
+
+  toggleTemplates(): void {
+    this.showTemplates = !this.showTemplates;
   }
 
   createBoard(): void {
@@ -70,7 +79,14 @@ export class BoardsViewComponent implements OnInit {
       this.boardService.createBoard(board);
       this.newBoardNameControl.reset();
       this.showNewBoardForm = false;
+      this.showTemplates = false;
     }
+  }
+
+  createBoardFromTemplate(template: BoardTemplate): void {
+    this.boardService.createBoardFromTemplate(template);
+    this.showNewBoardForm = false;
+    this.showTemplates = false;
   }
 
   startEditBoard(board: Board, event: Event): void {
@@ -110,3 +126,4 @@ export class BoardsViewComponent implements OnInit {
     this.boardService.deleteBoard(board.id);
   }
 }
+

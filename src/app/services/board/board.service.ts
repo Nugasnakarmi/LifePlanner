@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Board } from 'src/app/interfaces/board.interface';
+import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectBoards, selectSelectedBoard } from 'src/app/store/board/board.selector';
@@ -37,5 +38,9 @@ export class BoardService {
 
   deleteBoard(boardId: number): void {
     this.store.dispatch(boardActions.deleteBoard({ boardId }));
+  }
+
+  createBoardFromTemplate(template: BoardTemplate): void {
+    this.store.dispatch(boardActions.createBoardFromTemplate({ template }));
   }
 }

@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from 'src/environments/environment';
 import { Board } from 'src/app/interfaces/board.interface';
+import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { SupabaseService } from '../supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -77,6 +78,51 @@ export class BoardAPIService {
       return true;
     } catch (error) {
       this.toastRService.error(`Failed to delete board: ${error?.message ?? error}`);
+      return false;
+    }
+  }
+
+  async addBoardFromTemplate(template: BoardTemplate): Promise<boolean> {
+    try {
+      const user: User = await this.supabaseService.getUser();
+      const { data: boardData, error: boardError } = await this.supabaseService.supabase
+        .from('boards')
+        .insert({
+          name: template.name,
+          description: template.description,
+          user_id: user.id,
+          created_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (boardError) {
+        throw boardError;
+      }
+
+      const board = boardData as Board;
+
+      const taskRows = template.tasks.map((task) => ({
+        name: task.name,
+        description: task.description,
+        type: task.type,
+        completion_status: 0,
+        user_id: user.id,
+        board_id: board.id,
+      }));
+
+      const { error: tasksError } = await this.supabaseService.supabase
+        .from('tasks')
+        .insert(taskRows);
+
+      if (tasksError) {
+        throw tasksError;
+      }
+
+      this.toastRService.success(`Board "${template.name}" created from template`);
+      return true;
+    } catch (error) {
+      this.toastRService.error(`Failed to create board from template: ${error.message}`);
       return false;
     }
   }
