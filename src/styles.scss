@@ -189,6 +189,18 @@ html.light-mode {
     --mat-form-field-outlined-input-text-placeholder-color: rgba(1, 0, 20, 0.4);
     --mat-form-field-outlined-label-text-color: rgba(1, 0, 20, 0.6);
     --mat-form-field-outlined-hover-label-text-color: rgba(1, 0, 20, 0.85);
+    --mat-form-field-outlined-focus-label-text-color: #5C4000;
+    --mat-form-field-outlined-outline-color: rgba(92, 64, 0, 0.3);
+    --mat-form-field-outlined-focus-outline-color: #8B6200;
+    --mat-form-field-outlined-hover-outline-color: rgba(92, 64, 0, 0.5);
+    --mat-form-field-outlined-caret-color: #5C4000;
+    --mat-form-field-outlined-error-label-text-color: #B00020;
+    --mat-form-field-outlined-error-focus-label-text-color: #B00020;
+    --mat-form-field-outlined-error-hover-label-text-color: #B00020;
+    --mat-form-field-outlined-error-outline-color: #B00020;
+    --mat-form-field-outlined-error-focus-outline-color: #B00020;
+    --mat-form-field-outlined-error-hover-outline-color: rgba(176, 0, 32, 0.5);
+    --mat-form-field-error-text-color: #B00020;
   }
 
   // Material dialogs
@@ -284,6 +296,108 @@ html.light-mode {
 
   app-boards-view .template-card-description {
     color: rgba(1, 0, 20, 0.6) !important;
+  }
+
+  // Gradient text (app name, page headings) — override component-scoped yellow gradient
+  .has-gradient-text {
+    background: -webkit-linear-gradient(#5C4000, #8B6200) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+
+  // Icon buttons (mat-primary) — yellow icon on light background fails contrast
+  .mat-mdc-icon-button.mat-primary {
+    --mdc-icon-button-icon-color: #5C4000;
+  }
+
+  // Login — register/forgot-password link text
+  app-login #register-text a {
+    color: #5C4000 !important;
+  }
+
+  // Register page text (shown on light html background at /register)
+  app-register .register-container p {
+    color: rgba(1, 0, 20, 0.85) !important;
+  }
+
+  // Reset-password page
+  app-reset-password .reset-password-form .reset-password-title {
+    color: rgba(1, 0, 20, 0.85) !important;
+  }
+
+  app-reset-password .reset-password-form .password-unmatch-error {
+    color: #B00020 !important;
+  }
+
+  app-reset-password .reset-password-form {
+    background-color: rgba(249, 208, 122, 0.08) !important;
+    border-color: rgba(92, 64, 0, 0.15) !important;
+  }
+
+  // Email-confirm page — white text on near-white container
+  app-email-confirm .email-confirm-text {
+    color: #010014 !important;
+    background-color: rgba(249, 208, 122, 0.1) !important;
+    border-color: rgba(92, 64, 0, 0.15) !important;
+  }
+
+  // Boards view — template and card action elements missing from earlier overrides
+  app-boards-view .template-toggle-btn {
+    color: #7A5900 !important;
+    border-color: rgba(122, 89, 0, 0.3) !important;
+  }
+
+  app-boards-view .template-toggle-btn:hover {
+    color: #5C4000 !important;
+    border-color: #5C4000 !important;
+    background: rgba(92, 64, 0, 0.05) !important;
+  }
+
+  app-boards-view .template-card-icon mat-icon {
+    color: #5C4000 !important;
+  }
+
+  app-boards-view .template-task-count {
+    color: #7A5900 !important;
+  }
+
+  app-boards-view .card-action-btn {
+    color: #7A5900 !important;
+  }
+
+  app-boards-view .card-action-btn:hover {
+    color: #5C4000 !important;
+    background: rgba(92, 64, 0, 0.08) !important;
+  }
+
+  app-boards-view .template-arrow {
+    color: #7A5900 !important;
+  }
+
+  // Task-detail fullscreen dialog — all text was white, dialog bg is now white
+  app-task-detail .task-container-label {
+    color: #5C4000 !important;
+  }
+
+  app-task-detail .close-button {
+    color: rgba(1, 0, 20, 0.7) !important;
+  }
+
+  app-task-detail .close-button:hover {
+    color: #5C4000 !important;
+  }
+
+  app-task-detail .task-name {
+    color: #010014 !important;
+  }
+
+  app-task-detail .task-description {
+    color: rgba(1, 0, 20, 0.75) !important;
+  }
+
+  // Task cards inside the board — white text on white card backgrounds
+  app-task .tasks {
+    color: #010014 !important;
   }
 }
 
