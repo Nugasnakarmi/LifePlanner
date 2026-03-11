@@ -14,4 +14,5 @@ export const routes: Routes = [
   { path: 'confirmEmail', component: EmailConfirmComponent },
   { path: 'resetPassword', component: ResetPasswordComponent },
   { path: 'register', component: RegisterComponent },
+  { path: '**', redirectTo: '' },
 ];
