@@ -1,0 +1,24 @@
+<div class="task-detail-container flex-column">
+  <div class="task-detail-header flex-row-space-between">
+    <span class="task-container-label">{{ data.container }}</span>
+    <button class="close-button" (click)="close()" title="Collapse">
+      <mat-icon>close_fullscreen</mat-icon>
+    </button>
+  </div>
+
+  <div class="task-detail-body flex-column">
+    <h2 class="task-name">{{ data.task.name }}</h2>
+    <p class="task-description">{{ data.task.description }}</p>
+  </div>
+
+  <div class="task-detail-actions flex-row-space-between">
+    <button mat-raised-button color="primary" class="edit-action-button" (click)="onEditTask()">
+      <mat-icon>edit</mat-icon>
+      Edit Task
+    </button>
+    <button class="delete-action-button" (click)="deleteTask()">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+  </div>
+</div>

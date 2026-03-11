@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { AddTaskComponent } from '../add-task/add-task.component';
+import { TaskDetailComponent } from '../task-detail/task-detail.component';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { TaskService } from 'src/app/services/task/task.service';
 
@@ -33,6 +34,17 @@ export class TaskComponent {
     });
     dialogRef.afterClosed().subscribe(() => {
       this.taskUpdated.emit();
+    });
+  }
+
+  onExpandTask(task: IdeaTask): void {
+    this.addTaskDialog.open(TaskDetailComponent, {
+      data: { task: task, container: this.container },
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      panelClass: 'task-detail-fullscreen-dialog',
     });
   }
 }

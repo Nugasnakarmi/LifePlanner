@@ -69,6 +69,17 @@
   }
 }
 
+.expand-button {
+  border: none;
+  background-color: transparent;
+  border-radius: 2px;
+  padding: 0px;
+  cursor: pointer;
+  .expand-icon {
+    color: #1a6b1a;
+  }
+}
+
 .edit-button {
   border: none;
   background-color: transparent;
