@@ -8,12 +8,22 @@
       @if(selectedBoard) {
       <span class="board-name">{{ selectedBoard.name }}</span>
       }
+      <button
+        mat-button
+        class="drag-mode-button"
+        [class.drag-mode-active]="listDragEnabled"
+        (click)="toggleListDrag()"
+        [title]="listDragEnabled ? 'Disable list reordering' : 'Enable list reordering'"
+      >
+        <mat-icon>drag_indicator</mat-icon>
+        {{ listDragEnabled ? 'Lock Lists' : 'Reorder Lists' }}
+      </button>
     </div>
     @if(tasks$ | async; as tasks){
     <div class="board-wrapper">
       <div class="board-columns" cdkDropListGroup>
         @for(container of containers; track container){
-        <div class="board-column" cdkDrag>
+        <div class="board-column" cdkDrag [cdkDragDisabled]="!listDragEnabled">
           <div class="title-container flex-row-space-between">
             <div class="column-title">{{ container }}</div>
             <button class="add-task-button" (click)="openAddTask(container)">
