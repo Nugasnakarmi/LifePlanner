@@ -21,6 +21,7 @@ import { TaskService } from 'src/app/services/task/task.service';
 import { AsyncPipe } from '@angular/common';
 import { BoardService } from 'src/app/services/board/board.service';
 import { Board } from 'src/app/interfaces/board.interface';
+import { ListDetailComponent } from '../list-detail/list-detail.component';
 
 @Component({
   imports: [
@@ -155,5 +156,16 @@ export class MainViewComponent implements OnInit, OnDestroy {
 
   toggleListDrag(): void {
     this.listDragEnabled = !this.listDragEnabled;
+  }
+
+  openExpandList(container: string): void {
+    this.addTaskDialog.open(ListDetailComponent, {
+      data: { container, boardId: this.selectedBoard?.id },
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      panelClass: 'task-detail-fullscreen-dialog',
+    });
   }
 }
