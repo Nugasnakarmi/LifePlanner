@@ -26,9 +26,14 @@
         <div class="board-column" cdkDrag [cdkDragDisabled]="!listDragEnabled">
           <div class="title-container flex-row-space-between">
             <div class="column-title">{{ container }}</div>
-            <button class="add-task-button" (click)="openAddTask(container)">
-              <mat-icon>add</mat-icon>
-            </button>
+            <div class="title-actions">
+              <button class="expand-list-button" (click)="openExpandList(container)" title="Expand list to fullscreen" aria-label="Expand list to fullscreen">
+                <mat-icon>open_in_full</mat-icon>
+              </button>
+              <button class="add-task-button" (click)="openAddTask(container)">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
           </div>
           <div
             class="tasks-container example-list"
