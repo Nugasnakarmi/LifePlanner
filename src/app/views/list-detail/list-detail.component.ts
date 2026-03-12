@@ -15,6 +15,7 @@ import { TaskDetailComponent } from '../task-detail/task-detail.component';
 
 @Component({
   selector: 'app-list-detail',
+  standalone: true,
   imports: [MatButtonModule, MatIconModule, AsyncPipe],
   templateUrl: './list-detail.component.html',
   styleUrl: './list-detail.component.scss',
