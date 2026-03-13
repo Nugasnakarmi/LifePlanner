@@ -1,8 +1,46 @@
+// ─── Variables ────────────────────────────────────────────────────────────────
+$gold: #F9D07A;
+$gold-dark: #d4a94e;
+$gold-dim: rgba(249, 208, 122, 0.15);
+
+// ─── Container ────────────────────────────────────────────────────────────────
 .add-task-container {
   width: 50vw;
-  padding: 5px;
+  padding: 28px 32px 24px;
+  gap: 4px;
 }
 
+// ─── Dialog header ────────────────────────────────────────────────────────────
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid $gold-dim;
+
+  .dialog-icon {
+    color: $gold;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .dialog-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: $gold;
+    background: linear-gradient($gold, $gold-dark);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.3px;
+  }
+}
+
+// ─── Field with emoji ─────────────────────────────────────────────────────────
 .field-with-emoji {
   display: flex;
   align-items: flex-start;
@@ -24,12 +62,13 @@
     transition: border-color 0.2s, background 0.2s;
 
     &:hover {
-      border-color: #F9D07A;
+      border-color: $gold;
       background: rgba(249, 208, 122, 0.1);
     }
   }
 }
 
+// ─── Emoji picker ─────────────────────────────────────────────────────────────
 .emoji-picker-wrapper {
   display: flex;
   justify-content: flex-start;
@@ -55,15 +94,68 @@
   }
 }
 
+// ─── Action button ────────────────────────────────────────────────────────────
 .action-button-container {
   justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid $gold-dim;
+
   .action-button {
-    width: 100px;
+    width: 120px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
   }
 }
 
+// ─── Responsive ───────────────────────────────────────────────────────────────
 @media screen and (max-width: 600px) {
   .add-task-container {
     width: 80vw;
+    padding: 20px 20px 16px;
+  }
+}
+
+// ─── Light mode ───────────────────────────────────────────────────────────────
+:host-context(.light-mode) {
+  .dialog-header {
+    border-bottom-color: rgba(92, 64, 0, 0.15);
+
+    .dialog-icon {
+      color: #5C4000;
+    }
+
+    .dialog-title {
+      color: #5C4000;
+      background: linear-gradient(#5C4000, #8B6200);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+
+  .field-with-emoji .emoji-toggle-button {
+    border-color: rgba(92, 64, 0, 0.3);
+
+    &:hover {
+      border-color: #5C4000;
+      background: rgba(92, 64, 0, 0.05);
+    }
+  }
+
+  .emoji-picker-wrapper emoji-picker {
+    --background: #ffffff;
+    --border-color: rgba(92, 64, 0, 0.2);
+    --button-active-background: rgba(92, 64, 0, 0.1);
+    --button-hover-background: rgba(92, 64, 0, 0.05);
+    --indicator-color: #5C4000;
+    --input-border-color: rgba(92, 64, 0, 0.3);
+    --input-font-color: #010014;
+    --input-placeholder-color: rgba(1, 0, 20, 0.4);
+    --outline-color: #5C4000;
+  }
+
+  .action-button-container {
+    border-top-color: rgba(92, 64, 0, 0.15);
   }
 }
