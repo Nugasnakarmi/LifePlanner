@@ -23,7 +23,7 @@
     <div class="board-wrapper">
       <div class="board-columns" cdkDropListGroup>
         @for(container of containers; track container){
-        <div class="board-column" cdkDrag [cdkDragDisabled]="!listDragEnabled">
+        <div class="board-column board-column--{{ container }}" cdkDrag [cdkDragDisabled]="!listDragEnabled">
           <div class="title-container flex-row-space-between">
             <div class="column-title">{{ container }}</div>
             <div class="title-actions">
