@@ -166,3 +166,67 @@
 .tasks-container {
   flex-grow: 1;
 }
+
+// ─── Light mode overrides ─────────────────────────────────────────────────────
+:host-context(.light-mode) {
+  .board-header {
+    background: rgba(255, 255, 255, 0.85);
+
+    .back-button {
+      color: #5C4000;
+    }
+
+    .drag-mode-button {
+      color: rgba(1, 0, 20, 0.6);
+      border-color: rgba(1, 0, 20, 0.2);
+
+      &.drag-mode-active {
+        color: #5C4000;
+        border-color: #5C4000;
+      }
+    }
+
+    .board-name {
+      color: #010014;
+    }
+  }
+
+  .board-column {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(1, 0, 20, 0.1);
+    border-top-color: rgba(92, 64, 0, 0.2);
+
+    // Container-specific top accent borders in light mode
+    &.board-column--symptoms {
+      border-top-color: rgba(220, 80, 80, 0.5);
+    }
+    &.board-column--ideas {
+      border-top-color: rgba(37, 99, 235, 0.4);
+    }
+    &.board-column--goals {
+      border-top-color: rgba(92, 64, 0, 0.4);
+    }
+    &.board-column--objectives {
+      border-top-color: rgba(92, 64, 0, 0.65);
+    }
+    &.board-column--achievements {
+      border-top-color: #5C4000;
+    }
+
+    .column-title {
+      color: #010014;
+    }
+
+    .expand-list-button {
+      color: rgba(1, 0, 20, 0.6);
+
+      &:hover {
+        color: #5C4000;
+      }
+    }
+
+    .add-task-button {
+      color: rgba(1, 0, 20, 0.6);
+    }
+  }
+}

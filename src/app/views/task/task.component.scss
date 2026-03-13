@@ -18,7 +18,8 @@ $icon-edit:   #60a5fa;
   color: #fff;
   transition: $transition-card;
 
-  &:hover {
+  &:hover,
+  &:focus-within {
     background: rgba(255, 255, 255, 0.09);
     border-color: rgba(255, 255, 255, 0.11);
     border-left-color: $gold;
@@ -29,6 +30,7 @@ $icon-edit:   #60a5fa;
 
     .action-buttons {
       opacity: 1;
+      pointer-events: auto;
     }
   }
 }
@@ -62,11 +64,13 @@ $icon-edit:   #60a5fa;
   flex-shrink: 0;
   gap: 2px;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s ease;
 
   // Always show on touch devices
   @media (hover: none) {
     opacity: 1;
+    pointer-events: auto;
   }
 }
 
