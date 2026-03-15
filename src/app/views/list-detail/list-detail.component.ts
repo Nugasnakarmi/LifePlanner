@@ -29,7 +29,7 @@ export class ListDetailComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { container: string; boardId?: number }
+    public data: { container: string; displayName: string; boardId?: number }
   ) {}
 
   ngOnInit(): void {

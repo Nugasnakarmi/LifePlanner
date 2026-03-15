@@ -26,9 +26,9 @@ describe('TaskComponent', () => {
 
     fixture = TestBed.createComponent(TaskComponent);
     component = fixture.componentInstance;
-    component.task = { id: 1, name: 'Test Task', description: 'Test desc', type: 0 };
-    component.container = 'ideas';
-    component.index = 0;
+    fixture.componentRef.setInput('task', { id: 1, name: 'Test Task', description: 'Test desc', type: 0 });
+    fixture.componentRef.setInput('container', 'ideas');
+    fixture.componentRef.setInput('index', 0);
     fixture.detectChanges();
   });
 
@@ -37,7 +37,7 @@ describe('TaskComponent', () => {
   });
 
   it('should open TaskDetailComponent fullscreen dialog on onExpandTask()', () => {
-    component.onExpandTask(component.task);
+    component.onExpandTask(component.task());
     expect(dialogSpy.open).toHaveBeenCalledWith(
       TaskDetailComponent,
       jasmine.objectContaining({
@@ -46,7 +46,7 @@ describe('TaskComponent', () => {
         maxWidth: '100vw',
         maxHeight: '100vh',
         panelClass: 'task-detail-fullscreen-dialog',
-        data: { task: component.task, container: 'ideas' },
+        data: { task: component.task(), container: 'ideas' },
       })
     );
   });
