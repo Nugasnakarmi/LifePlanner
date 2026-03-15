@@ -6,8 +6,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
@@ -15,6 +17,8 @@ import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { BOARD_TEMPLATES } from 'src/app/data/board-templates';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
+import { UserTemplateService } from 'src/app/services/user-template/user-template.service';
+import { CreateTemplateDialogComponent } from './create-template-dialog/create-template-dialog.component';
 
 @Component({
   selector: 'app-boards-view',
@@ -22,8 +26,10 @@ import { TaskService } from 'src/app/services/task/task.service';
   imports: [
     AsyncPipe,
     MatButtonModule,
+    MatDialogModule,
     MatIconModule,
     MatInputModule,
+    MatTooltipModule,
     ReactiveFormsModule,
   ],
   templateUrl: './boards-view.component.html',
@@ -32,34 +38,25 @@ import { TaskService } from 'src/app/services/task/task.service';
 export class BoardsViewComponent implements OnInit {
   boardService = inject(BoardService);
   taskService = inject(TaskService);
+  userTemplateService = inject(UserTemplateService);
   router = inject(Router);
+  dialog = inject(MatDialog);
 
   boards$: Observable<Board[]>;
+  userTemplates$: Observable<BoardTemplate[]>;
+
   showNewBoardForm = false;
   showTemplates = false;
   editingBoardId: number | null = null;
-  templates: BoardTemplate[] = BOARD_TEMPLATES;
+  systemTemplates: BoardTemplate[] = BOARD_TEMPLATES;
   activeCategory: string | null = null;
 
   templateCategories: { key: string; label: string }[] = [
     { key: 'health', label: 'Health' },
     { key: 'productivity', label: 'Productivity' },
     { key: 'finance', label: 'Finance' },
+    { key: 'custom', label: 'Custom' },
   ];
-
-  get filteredTemplates(): BoardTemplate[] {
-    if (!this.activeCategory) {
-      return this.templates;
-    }
-    return this.templates.filter((t) => t.category === this.activeCategory);
-  }
-
-  getCategoryLabel(category: string): string {
-    return (
-      this.templateCategories.find((c) => c.key === category)?.label ??
-      category.charAt(0).toUpperCase() + category.slice(1)
-    );
-  }
 
   newBoardNameControl = new UntypedFormControl('', [
     Validators.required,
@@ -74,6 +71,24 @@ export class BoardsViewComponent implements OnInit {
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
     this.boards$ = this.boardService.boards$;
+    this.userTemplates$ = this.userTemplateService.templates$;
+    this.userTemplateService.loadTemplates();
+  }
+
+  get filteredSystemTemplates(): BoardTemplate[] {
+    if (!this.activeCategory) return this.systemTemplates;
+    return this.systemTemplates.filter((t) => t.category === this.activeCategory);
+  }
+
+  getCategoryLabel(category: string): string {
+    return (
+      this.templateCategories.find((c) => c.key === category)?.label ??
+      category.charAt(0).toUpperCase() + category.slice(1)
+    );
+  }
+
+  setActiveCategory(category: string | null): void {
+    this.activeCategory = category;
   }
 
   selectBoard(board: Board): void {
@@ -86,6 +101,7 @@ export class BoardsViewComponent implements OnInit {
     if (!this.showNewBoardForm) {
       this.newBoardNameControl.reset();
       this.showTemplates = false;
+      this.activeCategory = null;
     }
   }
 
@@ -94,10 +110,6 @@ export class BoardsViewComponent implements OnInit {
     if (!this.showTemplates) {
       this.activeCategory = null;
     }
-  }
-
-  setActiveCategory(category: string | null): void {
-    this.activeCategory = category;
   }
 
   createBoard(): void {
@@ -115,6 +127,29 @@ export class BoardsViewComponent implements OnInit {
     this.boardService.createBoardFromTemplate(template);
     this.showNewBoardForm = false;
     this.showTemplates = false;
+  }
+
+  openCreateTemplateDialog(): void {
+    const ref = this.dialog.open(CreateTemplateDialogComponent, {
+      panelClass: 'create-template-panel',
+      disableClose: false,
+    });
+    ref.afterClosed().subscribe((saved) => {
+      if (saved) {
+        this.userTemplateService.loadTemplates();
+      }
+    });
+  }
+
+  deleteUserTemplate(template: BoardTemplate, event: Event): void {
+    event.stopPropagation();
+    if (!template.dbId) return;
+    const confirmed = window.confirm(
+      `Delete the template "${template.name}"? This cannot be undone.`
+    );
+    if (confirmed) {
+      this.userTemplateService.deleteTemplate(template.dbId);
+    }
   }
 
   startEditBoard(board: Board, event: Event): void {
@@ -154,4 +189,5 @@ export class BoardsViewComponent implements OnInit {
     this.boardService.deleteBoard(board.id);
   }
 }
+
 

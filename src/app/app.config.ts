@@ -15,6 +15,8 @@ import { applyMiddleware } from 'redux';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { BoardEffects } from './store/board/board.effects';
 import { boardsReducer } from './store/board/board.reducer';
+import { UserTemplateEffects } from './store/user-template/user-template.effects';
+import { userTemplateReducer } from './store/user-template/user-template.reducer';
 // const composeEnhancers = composeWithDevTools({
 //   realtime: true,
 //   name: 'Your Instance Name',
@@ -42,8 +44,9 @@ export const appConfig: ApplicationConfig = {
     }),
     provideStore(),
     provideState({ name: 'idea-task', reducer: tasksReducer }),
-    provideState({ name: 'board', reducer: boardsReducer }), // Assuming you have a board reducer
-    provideEffects([TaskEffects, BoardEffects]),
+    provideState({ name: 'board', reducer: boardsReducer }),
+    provideState({ name: 'user-template', reducer: userTemplateReducer }),
+    provideEffects([TaskEffects, BoardEffects, UserTemplateEffects]),
     provideStoreDevtools({ maxAge: 25 }), // Enable Redux DevTools
   ],
 };

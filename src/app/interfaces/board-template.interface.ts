@@ -13,4 +13,7 @@ export interface BoardTemplate {
   icon: string;
   category: string;
   tasks: BoardTemplateTask[];
+  /** Present only for user-created templates stored in Supabase. */
+  dbId?: number;
+  isUserTemplate?: boolean;
 }
