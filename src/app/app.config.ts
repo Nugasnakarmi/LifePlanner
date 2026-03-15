@@ -49,7 +49,7 @@ export const appConfig: ApplicationConfig = {
     provideState({ name: 'board', reducer: boardsReducer }), // Assuming you have a board reducer
      provideState({ name: 'user-template', reducer: userTemplateReducer }),
     provideState({ name: 'board-list', reducer: boardListsReducer }),
-    provideEffects([TaskEffects, BoardEffects, BoardListEffects]),
+    provideEffects([TaskEffects, BoardEffects, BoardListEffects, UserTemplateEffects]),
     provideStoreDevtools({ maxAge: 25 }), // Enable Redux DevTools
   ],
 };

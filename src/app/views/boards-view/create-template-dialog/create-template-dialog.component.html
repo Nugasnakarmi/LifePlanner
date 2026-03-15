@@ -170,7 +170,7 @@
         <!-- Task count summary -->
         @if (tasks.length > 0) {
           <div class="task-summary">
-            @for (col of taskColumnSummary; track col.type) {
+            @for (col of taskColumnSummary; track col.value) {
               <div class="task-summary-item">
                 <mat-icon class="task-summary-icon">{{ col.icon }}</mat-icon>
                 <span class="task-summary-count">{{ col.count }}</span>
@@ -220,7 +220,7 @@
         <!-- Column breakdown -->
         @if (tasks.length > 0) {
           <div class="review-columns">
-            @for (col of taskColumnSummary; track col.type) {
+            @for (col of taskColumnSummary; track col.value) {
               @if (col.count > 0) {
                 <div class="review-column">
                   <div class="review-col-header">
@@ -229,7 +229,7 @@
                     <span class="review-col-count">{{ col.count }}</span>
                   </div>
                   <ul class="review-task-list">
-                    @for (task of getTasksForType(col.type); track task.name) {
+                    @for (task of getTasksForType(col.value); track task.name) {
                       <li>{{ task.name }}</li>
                     }
                   </ul>
