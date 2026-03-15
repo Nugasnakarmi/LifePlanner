@@ -1,4 +1,6 @@
+import { IdeaType } from '../enums/idea-type.enum';
+
 export interface ListConfig {
-  key: string;
+  key: keyof typeof IdeaType;
   displayName: string;
 }

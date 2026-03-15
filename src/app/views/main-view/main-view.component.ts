@@ -63,7 +63,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
 
   tasks$: Observable<IdeaTask[]>;
   selectedBoard: Board | null = null;
-  listDragEnabled = false;
+  dragEnabled = false;
 
   private selectedBoardSub: Subscription | undefined;
 
@@ -156,13 +156,13 @@ export class MainViewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/boards']);
   }
 
-  toggleListDrag(): void {
-    this.listDragEnabled = !this.listDragEnabled;
+  toggleDrag(): void {
+    this.dragEnabled = !this.dragEnabled;
   }
 
-  openExpandList(container: string): void {
+  openExpandList(container: keyof typeof IdeaType, displayName: string): void {
     this.addTaskDialog.open(ListDetailComponent, {
-      data: { container, boardId: this.selectedBoard?.id },
+      data: { container, displayName, boardId: this.selectedBoard?.id },
       width: '100vw',
       height: '100vh',
       maxWidth: '100vw',
