@@ -21,6 +21,7 @@ export class TaskComponent {
   @Input() task: any;
   @Input() container: any;
   @Input() index: number;
+  @Input() dragEnabled: boolean = true;
   @Output() taskUpdated = new EventEmitter<void>();
   readonly addTaskDialog = inject(MatDialog);
 

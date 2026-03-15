@@ -1,5 +1,6 @@
 <div
   cdkDrag
+  [cdkDragDisabled]="!dragEnabled"
   class="tasks {{ container }}-tasks flex-row-space-between"
   id="{{ container }}-tasks-{{ index }}"
 >

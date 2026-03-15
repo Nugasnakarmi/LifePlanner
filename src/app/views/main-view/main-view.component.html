@@ -22,15 +22,15 @@
     @if(tasks$ | async; as tasks){
     <div class="board-wrapper">
       <div class="board-columns" cdkDropListGroup>
-        @for(container of containers; track container){
-        <div class="board-column board-column--{{ container }}" cdkDrag [cdkDragDisabled]="!listDragEnabled">
+        @for(config of listConfigs; track config.key){
+        <div class="board-column board-column--{{ config.key }}" cdkDrag [cdkDragDisabled]="!listDragEnabled">
           <div class="title-container flex-row-space-between">
-            <div class="column-title">{{ container }}</div>
+            <div class="column-title">{{ config.displayName }}</div>
             <div class="title-actions">
-              <button class="expand-list-button" (click)="openExpandList(container)" title="Expand list to fullscreen" aria-label="Expand list to fullscreen">
+              <button class="expand-list-button" (click)="openExpandList(config.key)" title="Expand list to fullscreen" aria-label="Expand list to fullscreen">
                 <mat-icon>open_in_full</mat-icon>
               </button>
-              <button class="add-task-button" (click)="openAddTask(container)">
+              <button class="add-task-button" (click)="openAddTask(config.key)">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
@@ -39,16 +39,17 @@
             class="tasks-container example-list"
             cdkDropList
             #todoList="cdkDropList"
-            [id]="container"
-            [cdkDropListData]="containerRefs[container]"
+            [id]="config.key"
+            [cdkDropListData]="containerRefs[config.key]"
             (cdkDropListDropped)="drop($event)"
           >
-            @for(item of containerRefs[container]; track item; let ind =
+            @for(item of containerRefs[config.key]; track item; let ind =
             $index){
             <app-task
               [task]="item"
-              [container]="container"
+              [container]="config.key"
               [index]="ind"
+              [dragEnabled]="listDragEnabled"
             ></app-task>
             }
           </div>

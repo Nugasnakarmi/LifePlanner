@@ -22,6 +22,8 @@ import { AsyncPipe } from '@angular/common';
 import { BoardService } from 'src/app/services/board/board.service';
 import { Board } from 'src/app/interfaces/board.interface';
 import { ListDetailComponent } from '../list-detail/list-detail.component';
+import { ListConfig } from 'src/app/interfaces/list-config.interface';
+import { LIST_CONFIGS } from 'src/app/data/list-configs';
 
 @Component({
   imports: [
@@ -38,7 +40,7 @@ import { ListDetailComponent } from '../list-detail/list-detail.component';
   providers: [AsyncPipe],
 })
 export class MainViewComponent implements OnInit, OnDestroy {
-  containers = ['symptoms', 'ideas', 'goals', 'objectives', 'achievements'];
+  listConfigs: ListConfig[] = LIST_CONFIGS;
 
   ideas: IdeaTask[] = [];
   goals: IdeaTask[] = [];
