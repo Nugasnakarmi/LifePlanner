@@ -27,6 +27,7 @@ export class TaskAPIService {
           completion_status: taskData.completion_status,
           user_id: user.id,
           board_id: taskData.board_id,
+          boards_lists_id: taskData.boards_lists_id,
         })
         .select()
         .single();
@@ -62,13 +63,14 @@ export class TaskAPIService {
     }
   }
 
-  async updateTaskContainer(taskData: IdeaTask): Promise<boolean> {
+  async updateTaskContainer(taskData: Partial<IdeaTask>): Promise<boolean> {
     try {
       let user: User = await this.supabaseService.getUser();
       let { data, error } = await this.supabaseService.supabase
         .from('tasks')
         .update({
           type: taskData.type,
+          boards_lists_id: taskData.boards_lists_id,
         })
         .eq('id', taskData.id);
 
