@@ -1,0 +1,261 @@
+<div class="dialog-container">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="dialog-header-icon">
+      <mat-icon>auto_awesome</mat-icon>
+    </div>
+    <div>
+      <h2 class="dialog-title">Create Your Template</h2>
+      <p class="dialog-subtitle">Build a reusable board template with pre-loaded tasks</p>
+    </div>
+    <button mat-icon-button class="dialog-close-btn" (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Stepper -->
+  <mat-stepper #stepper linear class="template-stepper">
+
+    <!-- Step 1: Template Info -->
+    <mat-step [stepControl]="infoForm" label="Template Info">
+      <form [formGroup]="infoForm" class="step-content">
+        <div class="step-intro">
+          <span class="step-number">01</span>
+          <span class="step-label">Basic Details</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Template Name</mat-label>
+          <input matInput formControlName="name" placeholder="e.g. My Fitness Journey" />
+          <mat-error *ngIf="infoForm.get('name')?.hasError('required')">Name is required</mat-error>
+          <mat-error *ngIf="infoForm.get('name')?.hasError('minlength')">At least 3 characters</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput formControlName="description" rows="3"
+            placeholder="What is this template for?"></textarea>
+        </mat-form-field>
+
+        <!-- Category -->
+        <div class="field-group">
+          <label class="field-label">Category</label>
+          <div class="category-options">
+            @for (cat of categories; track cat.key) {
+              <button type="button" class="category-option"
+                [class.selected]="infoForm.get('category')?.value === cat.key"
+                [style.--cat-color]="cat.color"
+                (click)="infoForm.get('category')?.setValue(cat.key)">
+                <mat-icon>{{ cat.icon }}</mat-icon>
+                <span>{{ cat.label }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Icon Picker -->
+        <div class="field-group">
+          <label class="field-label">Icon</label>
+          <div class="icon-grid">
+            @for (icon of iconOptions; track icon) {
+              <button type="button" class="icon-option"
+                [class.selected]="infoForm.get('icon')?.value === icon"
+                (click)="infoForm.get('icon')?.setValue(icon)"
+                [attr.aria-label]="icon">
+                <mat-icon>{{ icon }}</mat-icon>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Selected preview -->
+        <div class="selected-preview" *ngIf="infoForm.get('icon')?.value && infoForm.get('category')?.value">
+          <div class="preview-icon" [style.color]="selectedCategoryColor">
+            <mat-icon>{{ infoForm.get('icon')?.value }}</mat-icon>
+          </div>
+          <span class="preview-label">{{ infoForm.get('name')?.value || 'Template Name' }}</span>
+          <span class="preview-badge" [style.background]="selectedCategoryColor + '22'" [style.color]="selectedCategoryColor">
+            {{ selectedCategoryLabel }}
+          </span>
+        </div>
+
+        <div class="step-actions">
+          <button mat-raised-button color="primary" matStepperNext [disabled]="infoForm.invalid">
+            Next: Add Tasks <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 2: Tasks -->
+    <mat-step label="Add Tasks">
+      <div class="step-content">
+        <div class="step-intro">
+          <span class="step-number">02</span>
+          <span class="step-label">Pre-loaded Tasks</span>
+        </div>
+
+        <p class="step-description">Add tasks that will be created automatically when someone uses your template. Tasks can be placed in different columns.</p>
+
+        <!-- Task List -->
+        @if (tasks.length > 0) {
+          <div class="task-list">
+            @for (task of tasks; track $index; let i = $index) {
+              <div class="task-item">
+                <div class="task-item-icon">
+                  <mat-icon>{{ getTypeIcon(task.type) }}</mat-icon>
+                </div>
+                <div class="task-item-content">
+                  <div class="task-item-name">{{ task.name }}</div>
+                  <div class="task-item-meta">
+                    <span class="task-type-badge task-type-badge--{{ getTypeName(task.type) }}">
+                      {{ getTypeLabel(task.type) }}
+                    </span>
+                    @if (task.description) {
+                      <span class="task-item-desc">{{ task.description }}</span>
+                    }
+                  </div>
+                </div>
+                <button mat-icon-button class="task-delete-btn" (click)="removeTask(i)" aria-label="Remove task">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Add Task Form -->
+        @if (showAddTaskForm) {
+          <form [formGroup]="addTaskForm" class="add-task-form" (ngSubmit)="submitTask()">
+            <div class="add-task-header">
+              <mat-icon>add_task</mat-icon>
+              <span>New Task</span>
+            </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Task Name</mat-label>
+              <input matInput formControlName="taskName" placeholder="e.g. Daily workout log" />
+              <mat-error *ngIf="addTaskForm.get('taskName')?.hasError('required')">Task name is required</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description (optional)</mat-label>
+              <input matInput formControlName="taskDescription" placeholder="Brief description" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Column</mat-label>
+              <mat-select formControlName="taskType">
+                @for (col of columnTypes; track col.value) {
+                  <mat-option [value]="col.value">
+                    <span class="column-option">
+                      <mat-icon class="column-option-icon">{{ col.icon }}</mat-icon>
+                      {{ col.label }}
+                    </span>
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="add-task-actions">
+              <button mat-stroked-button type="button" (click)="cancelAddTask()">Cancel</button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="addTaskForm.invalid">
+                <mat-icon>add</mat-icon> Add Task
+              </button>
+            </div>
+          </form>
+        } @else {
+          <button class="add-task-trigger" (click)="showAddTaskForm = true">
+            <mat-icon>add_circle_outline</mat-icon>
+            Add a Task
+          </button>
+        }
+
+        <!-- Task count summary -->
+        @if (tasks.length > 0) {
+          <div class="task-summary">
+            @for (col of taskColumnSummary; track col.value) {
+              <div class="task-summary-item">
+                <mat-icon class="task-summary-icon">{{ col.icon }}</mat-icon>
+                <span class="task-summary-count">{{ col.count }}</span>
+                <span class="task-summary-label">{{ col.label }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="step-actions">
+          <button mat-stroked-button matStepperPrevious>
+            <mat-icon>arrow_back</mat-icon> Back
+          </button>
+          <button mat-raised-button color="primary" matStepperNext>
+            Review <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+    <!-- Step 3: Review & Save -->
+    <mat-step label="Review & Save">
+      <div class="step-content">
+        <div class="step-intro">
+          <span class="step-number">03</span>
+          <span class="step-label">Review &amp; Save</span>
+        </div>
+
+        <!-- Preview card -->
+        <div class="preview-card" [style.--cat-color]="selectedCategoryColor">
+          <div class="preview-card-header">
+            <div class="preview-card-icon">
+              <mat-icon>{{ infoForm.get('icon')?.value }}</mat-icon>
+            </div>
+            <span class="preview-card-badge">{{ selectedCategoryLabel }}</span>
+          </div>
+          <div class="preview-card-name">{{ infoForm.get('name')?.value }}</div>
+          @if (infoForm.get('description')?.value) {
+            <div class="preview-card-desc">{{ infoForm.get('description')?.value }}</div>
+          }
+          <div class="preview-card-footer">
+            <span class="preview-task-count">{{ tasks.length }} task{{ tasks.length !== 1 ? 's' : '' }} pre-loaded</span>
+            <mat-icon class="preview-card-arrow">arrow_forward</mat-icon>
+          </div>
+        </div>
+
+        <!-- Column breakdown -->
+        @if (tasks.length > 0) {
+          <div class="review-columns">
+            @for (col of taskColumnSummary; track col.value) {
+              @if (col.count > 0) {
+                <div class="review-column">
+                  <div class="review-col-header">
+                    <mat-icon>{{ col.icon }}</mat-icon>
+                    <span>{{ col.label }}</span>
+                    <span class="review-col-count">{{ col.count }}</span>
+                  </div>
+                  <ul class="review-task-list">
+                    @for (task of getTasksForType(col.value); track task.name) {
+                      <li>{{ task.name }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+            }
+          </div>
+        } @else {
+          <p class="no-tasks-note">No tasks added — you can still save an empty template.</p>
+        }
+
+        <div class="step-actions">
+          <button mat-stroked-button matStepperPrevious>
+            <mat-icon>arrow_back</mat-icon> Back
+          </button>
+          <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
+            <ng-container *ngIf="saving">
+              <mat-icon class="spin">refresh</mat-icon> Saving…
+            </ng-container>
+            <ng-container *ngIf="!saving">
+              <mat-icon>save</mat-icon> Save Template
+            </ng-container>
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+  </mat-stepper>
+</div>

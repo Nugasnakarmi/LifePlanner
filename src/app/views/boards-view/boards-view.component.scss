@@ -329,6 +329,39 @@
   }
 }
 
+.template-category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.category-filter-btn {
+  background: transparent;
+  border: 1px solid rgba(249, 208, 122, 0.2);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 14px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: rgba(249, 208, 122, 0.5);
+    color: rgba(249, 208, 122, 0.9);
+    background: rgba(249, 208, 122, 0.05);
+  }
+
+  &.active {
+    background: rgba(249, 208, 122, 0.15);
+    border-color: #F9D07A;
+    color: #F9D07A;
+  }
+}
+
 .template-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -360,12 +393,46 @@
   }
 }
 
+.template-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .template-card-icon {
   mat-icon {
     color: #F9D07A;
     font-size: 28px;
     width: 28px;
     height: 28px;
+  }
+}
+
+.template-category-badge {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 12px;
+
+  &--health {
+    background: rgba(72, 199, 142, 0.15);
+    color: #48c78e;
+    border: 1px solid rgba(72, 199, 142, 0.3);
+  }
+
+  &--productivity {
+    background: rgba(72, 149, 239, 0.15);
+    color: #4895ef;
+    border: 1px solid rgba(72, 149, 239, 0.3);
+  }
+
+  &--finance {
+    background: rgba(249, 208, 122, 0.15);
+    color: #F9D07A;
+    border: 1px solid rgba(249, 208, 122, 0.3);
   }
 }
 
@@ -410,6 +477,113 @@
     transform: translateX(4px);
     color: #F9D07A;
   }
+}
+
+// Template section header row
+.template-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+// "Create Template" button
+.create-template-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(176, 127, 255, 0.35);
+  border-radius: 8px;
+  color: rgba(176, 127, 255, 0.85);
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    border-color: #b07fff;
+    color: #b07fff;
+    background: rgba(176, 127, 255, 0.08);
+  }
+}
+
+// Section sub-labels (My Templates / Templates)
+.template-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  margin-top: 20px;
+  margin-bottom: -4px;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: rgba(249, 208, 122, 0.5);
+  }
+}
+
+// User template card variant
+.template-card--user {
+  border-color: rgba(176, 127, 255, 0.25);
+  background: rgba(176, 127, 255, 0.05);
+
+  &:hover {
+    background: rgba(176, 127, 255, 0.1);
+    border-color: #b07fff;
+    box-shadow: 0 8px 24px rgba(176, 127, 255, 0.12);
+  }
+
+  .template-card-icon mat-icon {
+    color: #b07fff;
+  }
+}
+
+.template-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.template-delete-btn {
+  color: rgba(255, 255, 255, 0.25) !important;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 !important;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+  }
+
+  &:hover {
+    color: #ff7878 !important;
+  }
+}
+
+// Custom category badge
+.template-category-badge--custom {
+  background: rgba(176, 127, 255, 0.15);
+  color: #b07fff;
+  border: 1px solid rgba(176, 127, 255, 0.3);
 }
 
 :host-context(.light-mode) {
@@ -487,5 +661,50 @@
     .template-card:hover & {
       color: #5C4000;
     }
+  }
+
+  .category-filter-btn {
+    color: rgba(1, 0, 20, 0.6);
+    border-color: rgba(1, 0, 20, 0.15);
+
+    &:hover {
+      color: #5C4000;
+      border-color: rgba(92, 64, 0, 0.4);
+      background: rgba(92, 64, 0, 0.05);
+    }
+
+    &.active {
+      background: rgba(92, 64, 0, 0.1);
+      border-color: #5C4000;
+      color: #5C4000;
+    }
+  }
+
+  .create-template-btn {
+    color: #5a3a9c;
+    border-color: rgba(90, 58, 156, 0.3);
+
+    &:hover {
+      color: #3d2770;
+      border-color: #3d2770;
+      background: rgba(61, 39, 112, 0.05);
+    }
+  }
+
+  .template-section-label {
+    color: rgba(1, 0, 20, 0.35);
+  }
+
+  .template-card--user {
+    background: rgba(90, 58, 156, 0.07);
+    border-color: rgba(90, 58, 156, 0.2);
+
+    .template-card-icon mat-icon {
+      color: #5a3a9c;
+    }
+  }
+
+  .template-delete-btn {
+    color: rgba(1, 0, 20, 0.25) !important;
   }
 }

@@ -31,17 +31,75 @@
   </div>
 
   <div class="template-section">
-    <button class="template-toggle-btn" (click)="toggleTemplates()">
-      <mat-icon>{{ showTemplates ? 'expand_less' : 'expand_more' }}</mat-icon>
-      {{ showTemplates ? 'Hide Templates' : 'Use a Template' }}
-    </button>
+    <div class="template-section-header">
+      <button class="template-toggle-btn" (click)="toggleTemplates()">
+        <mat-icon>{{ showTemplates ? 'expand_less' : 'expand_more' }}</mat-icon>
+        {{ showTemplates ? 'Hide Templates' : 'Use a Template' }}
+      </button>
+      <button class="create-template-btn" (click)="openCreateTemplateDialog()" aria-label="Create a custom reusable board template" matTooltip="Build and save a custom reusable template">
+        <mat-icon>add_circle_outline</mat-icon>
+        Create Template
+      </button>
+    </div>
 
     @if(showTemplates) {
+    <div class="template-category-filters">
+      <button class="category-filter-btn" [class.active]="activeCategory === null" (click)="setActiveCategory(null)">All</button>
+      @for(cat of templateCategories; track cat.key) {
+      <button class="category-filter-btn" [class.active]="activeCategory === cat.key" (click)="setActiveCategory(cat.key)">{{ cat.label }}</button>
+      }
+    </div>
+
+    <!-- Board templates -->
+    @if(boardTemplates$ | async; as boardTemplates) {
+      @if(boardTemplates.length > 0) {
+        <div class="template-section-label">
+          <mat-icon>person</mat-icon>
+          My Templates
+        </div>
+        <div class="template-grid">
+          @for(template of boardTemplates; track template.id) {
+            @if(!activeCategory || template.category === activeCategory) {
+              <div class="template-card template-card--user" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
+                <div class="template-card-header">
+                  <div class="template-card-icon">
+                    <mat-icon>{{ template.icon }}</mat-icon>
+                  </div>
+                  <div class="template-card-header-right">
+                    <span class="template-category-badge template-category-badge--{{ template.category }}">{{ getCategoryLabel(template.category) }}</span>
+                    <button mat-icon-button class="template-delete-btn" (click)="deleteBoardTemplate(template, $event)" [attr.aria-label]="'Delete template ' + template.name" matTooltip="Delete template">
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="template-card-name">{{ template.name }}</div>
+                @if(template.description) {
+                  <div class="template-card-description">{{ template.description }}</div>
+                }
+                <div class="template-card-footer">
+                  <span class="template-task-count">{{ template.tasks.length }} tasks pre-loaded</span>
+                  <mat-icon class="template-arrow">arrow_forward</mat-icon>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+    }
+
+    <!-- System templates -->
+    <div class="template-section-label">
+      <mat-icon>workspace_premium</mat-icon>
+      Templates
+    </div>
     <div class="template-grid">
-      @for(template of templates; track template.id) {
+      @for(template of filteredSystemTemplates; track template.id) {
       <div class="template-card" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
-        <div class="template-card-icon">
-          <mat-icon>healing</mat-icon>
+        <div class="template-card-header">
+          <div class="template-card-icon">
+            <mat-icon>{{ template.icon }}</mat-icon>
+          </div>
+          <span class="template-category-badge template-category-badge--{{ template.category }}">{{ getCategoryLabel(template.category) }}</span>
         </div>
         <div class="template-card-name">{{ template.name }}</div>
         <div class="template-card-description">{{ template.description }}</div>
