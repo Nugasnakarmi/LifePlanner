@@ -15,7 +15,7 @@ export class BoardListApiService {
     try {
       const user: User = await this.supabaseService.getUser();
       const { data, error } = await this.supabaseService.supabase
-        .from('boards_lists')
+        .from('board_lists')
         .select('*')
         .eq('board_id', boardId)
         .eq('user_id', user.id)
@@ -36,7 +36,7 @@ export class BoardListApiService {
     try {
       const user: User = await this.supabaseService.getUser();
       const { data, error } = await this.supabaseService.supabase
-        .from('boards_lists')
+        .from('board_lists')
         .insert({
           board_id: boardId,
           name,
@@ -62,7 +62,7 @@ export class BoardListApiService {
     try {
       const user: User = await this.supabaseService.getUser();
       const { data, error } = await this.supabaseService.supabase
-        .from('boards_lists')
+        .from('board_lists')
         .update({ name })
         .eq('id', listId)
         .eq('user_id', user.id)
@@ -85,7 +85,7 @@ export class BoardListApiService {
     try {
       const user: User = await this.supabaseService.getUser();
       const { error } = await this.supabaseService.supabase
-        .from('boards_lists')
+        .from('board_lists')
         .delete()
         .eq('id', listId)
         .eq('user_id', user.id);
