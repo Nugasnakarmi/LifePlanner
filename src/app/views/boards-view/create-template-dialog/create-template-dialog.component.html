@@ -1,0 +1,261 @@
+<div class="dialog-container">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="dialog-header-icon">
+      <mat-icon>auto_awesome</mat-icon>
+    </div>
+    <div>
+      <h2 class="dialog-title">Create Board Template</h2>
+      <p class="dialog-subtitle">Build a reusable template with lists and pre-loaded tasks</p>
+    </div>
+    <button mat-icon-button class="dialog-close-btn" (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Stepper -->
+  <mat-stepper #stepper linear class="template-stepper">
+
+    <!-- Step 1: Template Info -->
+    <mat-step [stepControl]="infoForm" label="Template Info">
+      <form [formGroup]="infoForm" class="step-content">
+        <div class="step-intro">
+          <span class="step-number">01</span>
+          <span class="step-label">Basic Details</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Template Name</mat-label>
+          <input matInput formControlName="name" placeholder="e.g. My Fitness Journey" />
+          <mat-error *ngIf="infoForm.get('name')?.hasError('required')">Name is required</mat-error>
+          <mat-error *ngIf="infoForm.get('name')?.hasError('minlength')">At least 3 characters</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description (optional)</mat-label>
+          <textarea matInput formControlName="description" rows="3"
+            placeholder="What is this template for?"></textarea>
+        </mat-form-field>
+
+        <div class="step-actions">
+          <button mat-raised-button color="primary" matStepperNext [disabled]="infoForm.invalid">
+            Next: Add Lists <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 2: Lists & Tasks -->
+    <mat-step label="Lists &amp; Tasks">
+      <div class="step-content">
+        <div class="step-intro">
+          <span class="step-number">02</span>
+          <span class="step-label">Board Lists &amp; Tasks</span>
+        </div>
+
+        <p class="step-description">Add lists to your template. Each list maps to a column on the board. Then add tasks inside each list.</p>
+
+        <!-- Existing lists -->
+        @for (list of lists; track list.name; let i = $index) {
+          <div class="list-item">
+            <div class="list-item-header" (click)="toggleList(i)" tabindex="0" (keydown.enter)="toggleList(i)">
+              <div class="list-item-icon">
+                <mat-icon>{{ getColumnType(list.listType).icon }}</mat-icon>
+              </div>
+              <div class="list-item-meta">
+                <span class="list-item-name">{{ list.name }}</span>
+                <span class="list-type-badge">{{ getColumnType(list.listType).label }}</span>
+                <span class="list-task-count">{{ list.tasks.length }} task{{ list.tasks.length !== 1 ? 's' : '' }}</span>
+              </div>
+              <div class="list-item-actions">
+                <mat-icon class="list-expand-icon">{{ expandedListIndex === i ? 'expand_less' : 'expand_more' }}</mat-icon>
+                <button mat-icon-button class="list-delete-btn" (click)="$event.stopPropagation(); removeList(i)" aria-label="Remove list">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            @if (expandedListIndex === i) {
+              <div class="list-tasks">
+                @for (task of list.tasks; track task.name; let ti = $index) {
+                  <div class="task-item">
+                    <mat-icon class="task-item-icon">task_alt</mat-icon>
+                    <div class="task-item-content">
+                      <div class="task-item-name">{{ task.name }}</div>
+                      @if (task.description) {
+                        <div class="task-item-desc">{{ task.description }}</div>
+                      }
+                    </div>
+                    <button mat-icon-button class="task-delete-btn" (click)="removeTask(i, ti)" aria-label="Remove task">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+
+                @if (list.showAddTask) {
+                  <form [formGroup]="addTaskForm" class="add-task-form" (ngSubmit)="submitTask(i)">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Task Name</mat-label>
+                      <input matInput formControlName="taskName" placeholder="e.g. Daily workout log" />
+                      <mat-error *ngIf="addTaskForm.get('taskName')?.hasError('required')">Task name is required</mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Description (optional)</mat-label>
+                      <input matInput formControlName="taskDescription" placeholder="Brief description" />
+                    </mat-form-field>
+                    <div class="add-task-actions">
+                      <button mat-stroked-button type="button" (click)="cancelAddTask(i)">Cancel</button>
+                      <button mat-raised-button color="primary" type="submit" [disabled]="addTaskForm.invalid">
+                        <mat-icon>add</mat-icon> Add Task
+                      </button>
+                    </div>
+                  </form>
+                } @else {
+                  <button class="add-task-trigger" (click)="showTaskForm(i)">
+                    <mat-icon>add_circle_outline</mat-icon>
+                    Add a Task
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Add list form -->
+        @if (showAddListForm) {
+          <form [formGroup]="addListForm" class="add-list-form" (ngSubmit)="submitList()">
+            <div class="add-task-header">
+              <mat-icon>view_column</mat-icon>
+              <span>New List</span>
+            </div>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>List Name</mat-label>
+              <input matInput formControlName="listName" placeholder="e.g. Symptoms" />
+              <mat-error *ngIf="addListForm.get('listName')?.hasError('required')">List name is required</mat-error>
+              <mat-error *ngIf="addListForm.get('listName')?.hasError('minlength')">At least 2 characters</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Column Type</mat-label>
+              <mat-select formControlName="listType">
+                @for (col of columnTypes; track col.value) {
+                  <mat-option [value]="col.value">
+                    <span class="column-option">
+                      <mat-icon class="column-option-icon">{{ col.icon }}</mat-icon>
+                      {{ col.label }}
+                    </span>
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <div class="add-task-actions">
+              <button mat-stroked-button type="button" (click)="cancelAddList()">Cancel</button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="addListForm.invalid">
+                <mat-icon>add</mat-icon> Add List
+              </button>
+            </div>
+          </form>
+        } @else {
+          <button class="add-task-trigger" (click)="showAddListForm = true">
+            <mat-icon>add_circle_outline</mat-icon>
+            Add a List
+          </button>
+        }
+
+        <!-- Summary -->
+        @if (lists.length > 0) {
+          <div class="task-summary">
+            <div class="task-summary-item">
+              <mat-icon class="task-summary-icon">view_column</mat-icon>
+              <span class="task-summary-count">{{ lists.length }}</span>
+              <span class="task-summary-label">List{{ lists.length !== 1 ? 's' : '' }}</span>
+            </div>
+            <div class="task-summary-item">
+              <mat-icon class="task-summary-icon">task_alt</mat-icon>
+              <span class="task-summary-count">{{ totalTaskCount }}</span>
+              <span class="task-summary-label">Task{{ totalTaskCount !== 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+        }
+
+        <div class="step-actions">
+          <button mat-stroked-button matStepperPrevious>
+            <mat-icon>arrow_back</mat-icon> Back
+          </button>
+          <button mat-raised-button color="primary" matStepperNext>
+            Review <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+    <!-- Step 3: Review & Save -->
+    <mat-step label="Review &amp; Save">
+      <div class="step-content">
+        <div class="step-intro">
+          <span class="step-number">03</span>
+          <span class="step-label">Review &amp; Save</span>
+        </div>
+
+        <!-- Preview card -->
+        <div class="preview-card">
+          <div class="preview-card-header">
+            <div class="preview-card-icon">
+              <mat-icon>description</mat-icon>
+            </div>
+            <span class="preview-card-badge">{{ lists.length }} list{{ lists.length !== 1 ? 's' : '' }}</span>
+          </div>
+          <div class="preview-card-name">{{ infoForm.get('name')?.value }}</div>
+          @if (infoForm.get('description')?.value) {
+            <div class="preview-card-desc">{{ infoForm.get('description')?.value }}</div>
+          }
+          <div class="preview-card-footer">
+            <span class="preview-task-count">{{ totalTaskCount }} task{{ totalTaskCount !== 1 ? 's' : '' }} pre-loaded</span>
+            <mat-icon class="preview-card-arrow">arrow_forward</mat-icon>
+          </div>
+        </div>
+
+        <!-- List breakdown -->
+        @if (lists.length > 0) {
+          <div class="review-columns">
+            @for (list of lists; track list.name) {
+              <div class="review-column">
+                <div class="review-col-header">
+                  <mat-icon>{{ getColumnType(list.listType).icon }}</mat-icon>
+                  <span>{{ list.name }}</span>
+                  <span class="review-col-badge">{{ getColumnType(list.listType).label }}</span>
+                  <span class="review-col-count">{{ list.tasks.length }}</span>
+                </div>
+                @if (list.tasks.length > 0) {
+                  <ul class="review-task-list">
+                    @for (task of list.tasks; track task.name) {
+                      <li>{{ task.name }}</li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="no-tasks-note">No tasks in this list.</p>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="no-tasks-note">No lists added — you can still save an empty template.</p>
+        }
+
+        <div class="step-actions">
+          <button mat-stroked-button matStepperPrevious>
+            <mat-icon>arrow_back</mat-icon> Back
+          </button>
+          <button mat-raised-button color="primary" (click)="save()" [disabled]="saving">
+            <ng-container *ngIf="saving">
+              <mat-icon class="spin">refresh</mat-icon> Saving…
+            </ng-container>
+            <ng-container *ngIf="!saving">
+              <mat-icon>save</mat-icon> Save Template
+            </ng-container>
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+  </mat-stepper>
+</div>

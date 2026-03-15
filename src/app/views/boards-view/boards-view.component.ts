@@ -6,15 +6,18 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, map, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
-import { BOARD_TEMPLATES } from 'src/app/data/board-templates';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
+import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
+import { CreateTemplateDialogComponent } from './create-template-dialog/create-template-dialog.component';
 
 @Component({
   selector: 'app-boards-view',
@@ -22,8 +25,10 @@ import { TaskService } from 'src/app/services/task/task.service';
   imports: [
     AsyncPipe,
     MatButtonModule,
+    MatDialogModule,
     MatIconModule,
     MatInputModule,
+    MatTooltipModule,
     ReactiveFormsModule,
   ],
   templateUrl: './boards-view.component.html',
@@ -32,13 +37,18 @@ import { TaskService } from 'src/app/services/task/task.service';
 export class BoardsViewComponent implements OnInit {
   boardService = inject(BoardService);
   taskService = inject(TaskService);
+  boardTemplateService = inject(BoardTemplateService);
   router = inject(Router);
+  dialog = inject(MatDialog);
 
   boards$: Observable<Board[]>;
+  boardTemplates$: Observable<BoardTemplate[]>;
+  systemTemplates$: Observable<BoardTemplate[]>;
+  myTemplates$: Observable<BoardTemplate[]>;
+
   showNewBoardForm = false;
   showTemplates = false;
   editingBoardId: number | null = null;
-  templates: BoardTemplate[] = BOARD_TEMPLATES;
 
   newBoardNameControl = new UntypedFormControl('', [
     Validators.required,
@@ -53,6 +63,14 @@ export class BoardsViewComponent implements OnInit {
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
     this.boards$ = this.boardService.boards$;
+    this.boardTemplates$ = this.boardTemplateService.templates$;
+    this.systemTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isSystem)));
+    this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem)));
+    this.boardTemplateService.loadTemplates();
+  }
+
+  totalTaskCount(template: BoardTemplate): number {
+    return (template.lists ?? []).reduce((sum, l) => sum + l.tasks.length, 0);
   }
 
   selectBoard(board: Board): void {
@@ -87,6 +105,29 @@ export class BoardsViewComponent implements OnInit {
     this.boardService.createBoardFromTemplate(template);
     this.showNewBoardForm = false;
     this.showTemplates = false;
+  }
+
+  openCreateTemplateDialog(): void {
+    const ref = this.dialog.open(CreateTemplateDialogComponent, {
+      panelClass: 'create-template-panel',
+      disableClose: false,
+    });
+    ref.afterClosed().subscribe((saved) => {
+      if (saved) {
+        this.boardTemplateService.loadTemplates();
+      }
+    });
+  }
+
+  deleteBoardTemplate(template: BoardTemplate, event: Event): void {
+    event.stopPropagation();
+    if (!template.dbId) return;
+    const confirmed = window.confirm(
+      `Delete the template "${template.name}"? This cannot be undone.`
+    );
+    if (confirmed) {
+      this.boardTemplateService.deleteTemplate(template.dbId);
+    }
   }
 
   startEditBoard(board: Board, event: Event): void {
@@ -126,4 +167,5 @@ export class BoardsViewComponent implements OnInit {
     this.boardService.deleteBoard(board.id);
   }
 }
+
 
