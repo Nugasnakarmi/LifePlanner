@@ -13,10 +13,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
-import { BoardTemplate, BoardTemplateTask } from 'src/app/interfaces/board-template.interface';
+import {
+  BoardTemplate,
+  BoardTemplateList,
+  BoardTemplateTask,
+} from 'src/app/interfaces/board-template.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
-
 
 export interface ColumnType {
   value: IdeaType;
@@ -49,18 +52,16 @@ export class CreateTemplateDialogComponent implements OnInit {
   private boardTemplateService = inject(BoardTemplateService);
 
   saving = false;
-  showAddTaskForm = false;
-  tasks: BoardTemplateTask[] = [];
+
+  /** Lists accumulate as the user adds them in step 2. */
+  lists: Array<BoardTemplateList & { showAddTask: boolean }> = [];
+  showAddListForm = false;
+  /** Index of the list currently expanded to show/add tasks. */
+  expandedListIndex: number | null = null;
 
   infoForm!: FormGroup;
+  addListForm!: FormGroup;
   addTaskForm!: FormGroup;
-
-  categories = [
-    { key: 'health', label: 'Health', icon: 'favorite', color: '#48c78e' },
-    { key: 'productivity', label: 'Productivity', icon: 'rocket_launch', color: '#4895ef' },
-    { key: 'finance', label: 'Finance', icon: 'savings', color: '#F9D07A' },
-    { key: 'custom', label: 'Custom', icon: 'star', color: '#b07fff' },
-  ];
 
   columnTypes: ColumnType[] = [
     { value: IdeaType.goals, label: 'Goals', icon: 'flag' },
@@ -70,85 +71,107 @@ export class CreateTemplateDialogComponent implements OnInit {
     { value: IdeaType.symptoms, label: 'Symptoms / Notes', icon: 'sticky_note_2' },
   ];
 
-  iconOptions = [
-    'healing', 'self_improvement', 'fitness_center', 'medical_services',
-    'account_balance_wallet', 'work', 'school', 'checklist',
-    'star', 'favorite', 'home', 'psychology',
-    'eco', 'spa', 'restaurant', 'directions_run',
-    'business_center', 'trending_up', 'savings', 'volunteer_activism',
-    'book', 'science', 'travel_explore', 'lightbulb',
-    'rocket_launch', 'workspace_premium', 'diversity_3', 'sports_gymnastics',
-    'palette', 'music_note', 'language', 'wb_sunny',
-  ];
-
-  get selectedCategoryColor(): string {
-    const cat = this.infoForm?.get('category')?.value;
-    return this.categories.find((c) => c.key === cat)?.color ?? '#F9D07A';
-  }
-
-  get selectedCategoryLabel(): string {
-    const cat = this.infoForm?.get('category')?.value;
-    return this.categories.find((c) => c.key === cat)?.label ?? '';
-  }
-
-  get taskColumnSummary() {
-    return this.columnTypes.map((col) => ({
-      ...col,
-      count: this.tasks.filter((t) => t.type === col.value).length,
-    }));
+  get totalTaskCount(): number {
+    return this.lists.reduce((sum, l) => sum + l.tasks.length, 0);
   }
 
   ngOnInit(): void {
     this.infoForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      icon: ['star', Validators.required],
-      category: ['custom', Validators.required],
+    });
+
+    this.addListForm = this.fb.group({
+      listName: ['', [Validators.required, Validators.minLength(2)]],
+      listType: [IdeaType.goals, Validators.required],
     });
 
     this.addTaskForm = this.fb.group({
       taskName: ['', Validators.required],
       taskDescription: [''],
-      taskType: [IdeaType.goals, Validators.required],
     });
   }
 
-  getTypeIcon(type: IdeaType): string {
-    return this.columnTypes.find((c) => c.value === type)?.icon ?? 'task';
+  getColumnType(type: IdeaType): ColumnType {
+    return this.columnTypes.find((c) => c.value === type) ?? this.columnTypes[0];
   }
 
-  getTypeName(type: IdeaType): string {
-    return IdeaType[type] ?? 'custom';
+  // ── List management ───────────────────────────────────────────────────────
+
+  submitList(): void {
+    if (this.addListForm.invalid) return;
+    const v = this.addListForm.value;
+    const trimmedName = v.listName?.trim();
+    if (!trimmedName) {
+      this.addListForm.get('listName')?.setErrors({ whitespace: true });
+      return;
+    }
+    this.lists.push({
+      name: trimmedName,
+      listType: v.listType,
+      position: this.lists.length,
+      tasks: [],
+      showAddTask: false,
+    });
+    this.addListForm.reset({ listType: IdeaType.goals });
+    this.showAddListForm = false;
+    this.expandedListIndex = this.lists.length - 1;
   }
 
-  getTypeLabel(type: IdeaType): string {
-    return this.columnTypes.find((c) => c.value === type)?.label ?? 'Task';
+  cancelAddList(): void {
+    this.addListForm.reset({ listType: IdeaType.goals });
+    this.showAddListForm = false;
   }
 
-  getTasksForType(type: IdeaType): BoardTemplateTask[] {
-    return this.tasks.filter((t) => t.type === type);
+  removeList(index: number): void {
+    this.lists.splice(index, 1);
+    if (this.expandedListIndex === index) {
+      this.expandedListIndex = null;
+    } else if (this.expandedListIndex !== null && this.expandedListIndex > index) {
+      this.expandedListIndex--;
+    }
   }
 
-  submitTask(): void {
+  toggleList(index: number): void {
+    this.expandedListIndex = this.expandedListIndex === index ? null : index;
+  }
+
+  // ── Task management ───────────────────────────────────────────────────────
+
+  showTaskForm(listIndex: number): void {
+    this.expandedListIndex = listIndex;
+    this.lists[listIndex].showAddTask = true;
+    this.addTaskForm.reset();
+  }
+
+  cancelAddTask(listIndex: number): void {
+    this.lists[listIndex].showAddTask = false;
+    this.addTaskForm.reset();
+  }
+
+  submitTask(listIndex: number): void {
     if (this.addTaskForm.invalid) return;
     const v = this.addTaskForm.value;
-    this.tasks.push({
-      name: v.taskName.trim(),
+    const trimmedName = v.taskName?.trim();
+    if (!trimmedName) {
+      this.addTaskForm.get('taskName')?.setErrors({ whitespace: true });
+      return;
+    }
+    const task: BoardTemplateTask = {
+      name: trimmedName,
       description: v.taskDescription?.trim() ?? '',
-      type: v.taskType,
-    });
-    this.addTaskForm.reset({ taskType: IdeaType.goals });
-    this.showAddTaskForm = false;
+      position: this.lists[listIndex].tasks.length,
+    };
+    this.lists[listIndex].tasks.push(task);
+    this.lists[listIndex].showAddTask = false;
+    this.addTaskForm.reset();
   }
 
-  cancelAddTask(): void {
-    this.addTaskForm.reset({ taskType: IdeaType.goals });
-    this.showAddTaskForm = false;
+  removeTask(listIndex: number, taskIndex: number): void {
+    this.lists[listIndex].tasks.splice(taskIndex, 1);
   }
 
-  removeTask(index: number): void {
-    this.tasks.splice(index, 1);
-  }
+  // ── Save ──────────────────────────────────────────────────────────────────
 
   async save(): Promise<void> {
     if (this.infoForm.invalid || this.saving) return;
@@ -159,9 +182,12 @@ export class CreateTemplateDialogComponent implements OnInit {
       id: '',
       name: v.name.trim(),
       description: v.description?.trim() ?? '',
-      icon: v.icon,
-      category: v.category,
-      tasks: [...this.tasks],
+      lists: this.lists.map((l, i) => ({
+        name: l.name,
+        listType: l.listType,
+        position: i,
+        tasks: l.tasks,
+      })),
       isBoardTemplate: true,
     };
 
@@ -177,3 +203,4 @@ export class CreateTemplateDialogComponent implements OnInit {
     this.dialogRef.close(false);
   }
 }
+

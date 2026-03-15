@@ -11,10 +11,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, map, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
-import { BOARD_TEMPLATES } from 'src/app/data/board-templates';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
@@ -44,19 +43,12 @@ export class BoardsViewComponent implements OnInit {
 
   boards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
+  systemTemplates$: Observable<BoardTemplate[]>;
+  myTemplates$: Observable<BoardTemplate[]>;
 
   showNewBoardForm = false;
   showTemplates = false;
   editingBoardId: number | null = null;
-  systemTemplates: BoardTemplate[] = BOARD_TEMPLATES;
-  activeCategory: string | null = null;
-
-  templateCategories: { key: string; label: string }[] = [
-    { key: 'health', label: 'Health' },
-    { key: 'productivity', label: 'Productivity' },
-    { key: 'finance', label: 'Finance' },
-    { key: 'custom', label: 'Custom' },
-  ];
 
   newBoardNameControl = new UntypedFormControl('', [
     Validators.required,
@@ -72,23 +64,13 @@ export class BoardsViewComponent implements OnInit {
     this.taskService.landingPageInitialized();
     this.boards$ = this.boardService.boards$;
     this.boardTemplates$ = this.boardTemplateService.templates$;
+    this.systemTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isSystem)));
+    this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem)));
     this.boardTemplateService.loadTemplates();
   }
 
-  get filteredSystemTemplates(): BoardTemplate[] {
-    if (!this.activeCategory) return this.systemTemplates;
-    return this.systemTemplates.filter((t) => t.category === this.activeCategory);
-  }
-
-  getCategoryLabel(category: string): string {
-    return (
-      this.templateCategories.find((c) => c.key === category)?.label ??
-      category.charAt(0).toUpperCase() + category.slice(1)
-    );
-  }
-
-  setActiveCategory(category: string | null): void {
-    this.activeCategory = category;
+  totalTaskCount(template: BoardTemplate): number {
+    return (template.lists ?? []).reduce((sum, l) => sum + l.tasks.length, 0);
   }
 
   selectBoard(board: Board): void {
@@ -101,15 +83,11 @@ export class BoardsViewComponent implements OnInit {
     if (!this.showNewBoardForm) {
       this.newBoardNameControl.reset();
       this.showTemplates = false;
-      this.activeCategory = null;
     }
   }
 
   toggleTemplates(): void {
     this.showTemplates = !this.showTemplates;
-    if (!this.showTemplates) {
-      this.activeCategory = null;
-    }
   }
 
   createBoard(): void {

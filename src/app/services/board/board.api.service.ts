@@ -102,21 +102,26 @@ export class BoardAPIService {
 
       const board = boardData as Board;
 
-      const taskRows = template.tasks.map((task) => ({
-        name: task.name,
-        description: task.description,
-        type: task.type,
-        completion_status: 0,
-        user_id: user.id,
-        board_id: board.id,
-      }));
+      // Flatten tasks from all lists; each list's listType maps to the task's type column
+      const taskRows = (template.lists ?? []).flatMap((list) =>
+        list.tasks.map((task) => ({
+          name: task.name,
+          description: task.description,
+          type: list.listType,
+          completion_status: 0,
+          user_id: user.id,
+          board_id: board.id,
+        }))
+      );
 
-      const { error: tasksError } = await this.supabaseService.supabase
-        .from('tasks')
-        .insert(taskRows);
+      if (taskRows.length > 0) {
+        const { error: tasksError } = await this.supabaseService.supabase
+          .from('tasks')
+          .insert(taskRows);
 
-      if (tasksError) {
-        throw tasksError;
+        if (tasksError) {
+          throw tasksError;
+        }
       }
 
       this.toastRService.success(`Board "${template.name}" created from template`);

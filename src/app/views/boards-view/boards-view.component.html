@@ -43,45 +43,37 @@
     </div>
 
     @if(showTemplates) {
-    <div class="template-category-filters">
-      <button class="category-filter-btn" [class.active]="activeCategory === null" (click)="setActiveCategory(null)">All</button>
-      @for(cat of templateCategories; track cat.key) {
-      <button class="category-filter-btn" [class.active]="activeCategory === cat.key" (click)="setActiveCategory(cat.key)">{{ cat.label }}</button>
-      }
-    </div>
 
     <!-- Board templates -->
-    @if(boardTemplates$ | async; as boardTemplates) {
-      @if(boardTemplates.length > 0) {
+    @if(myTemplates$ | async; as myTemplates) {
+      @if(myTemplates.length > 0) {
         <div class="template-section-label">
           <mat-icon>person</mat-icon>
           My Templates
         </div>
         <div class="template-grid">
-          @for(template of boardTemplates; track template.id) {
-            @if(!activeCategory || template.category === activeCategory) {
-              <div class="template-card template-card--user" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
-                <div class="template-card-header">
-                  <div class="template-card-icon">
-                    <mat-icon>{{ template.icon }}</mat-icon>
-                  </div>
-                  <div class="template-card-header-right">
-                    <span class="template-category-badge template-category-badge--{{ template.category }}">{{ getCategoryLabel(template.category) }}</span>
-                    <button mat-icon-button class="template-delete-btn" (click)="deleteBoardTemplate(template, $event)" [attr.aria-label]="'Delete template ' + template.name" matTooltip="Delete template">
-                      <mat-icon>delete_outline</mat-icon>
-                    </button>
-                  </div>
+          @for(template of myTemplates; track template.id) {
+            <div class="template-card template-card--user" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
+              <div class="template-card-header">
+                <div class="template-card-icon">
+                  <mat-icon>description</mat-icon>
                 </div>
-                <div class="template-card-name">{{ template.name }}</div>
-                @if(template.description) {
-                  <div class="template-card-description">{{ template.description }}</div>
-                }
-                <div class="template-card-footer">
-                  <span class="template-task-count">{{ template.tasks.length }} tasks pre-loaded</span>
-                  <mat-icon class="template-arrow">arrow_forward</mat-icon>
+                <div class="template-card-header-right">
+                  <span class="template-list-count">{{ template.lists.length }} list{{ template.lists.length !== 1 ? 's' : '' }}</span>
+                  <button mat-icon-button class="template-delete-btn" (click)="deleteBoardTemplate(template, $event)" [attr.aria-label]="'Delete template ' + template.name" matTooltip="Delete template">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
                 </div>
               </div>
-            }
+              <div class="template-card-name">{{ template.name }}</div>
+              @if(template.description) {
+                <div class="template-card-description">{{ template.description }}</div>
+              }
+              <div class="template-card-footer">
+                <span class="template-task-count">{{ totalTaskCount(template) }} task{{ totalTaskCount(template) !== 1 ? 's' : '' }} pre-loaded</span>
+                <mat-icon class="template-arrow">arrow_forward</mat-icon>
+              </div>
+            </div>
           }
         </div>
       }
@@ -92,24 +84,30 @@
       <mat-icon>workspace_premium</mat-icon>
       Templates
     </div>
-    <div class="template-grid">
-      @for(template of filteredSystemTemplates; track template.id) {
-      <div class="template-card" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
-        <div class="template-card-header">
-          <div class="template-card-icon">
-            <mat-icon>{{ template.icon }}</mat-icon>
+    @if(systemTemplates$ | async; as systemTemplates) {
+      @if(systemTemplates.length > 0) {
+        <div class="template-grid">
+          @for(template of systemTemplates; track template.id) {
+          <div class="template-card" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
+            <div class="template-card-header">
+              <div class="template-card-icon">
+                <mat-icon>workspace_premium</mat-icon>
+              </div>
+              <span class="template-list-count">{{ template.lists.length }} list{{ template.lists.length !== 1 ? 's' : '' }}</span>
+            </div>
+            <div class="template-card-name">{{ template.name }}</div>
+            <div class="template-card-description">{{ template.description }}</div>
+            <div class="template-card-footer">
+              <span class="template-task-count">{{ totalTaskCount(template) }} task{{ totalTaskCount(template) !== 1 ? 's' : '' }} pre-loaded</span>
+              <mat-icon class="template-arrow">arrow_forward</mat-icon>
+            </div>
           </div>
-          <span class="template-category-badge template-category-badge--{{ template.category }}">{{ getCategoryLabel(template.category) }}</span>
+          }
         </div>
-        <div class="template-card-name">{{ template.name }}</div>
-        <div class="template-card-description">{{ template.description }}</div>
-        <div class="template-card-footer">
-          <span class="template-task-count">{{ template.tasks.length }} tasks pre-loaded</span>
-          <mat-icon class="template-arrow">arrow_forward</mat-icon>
-        </div>
-      </div>
+      } @else {
+        <p class="no-boards-message">No system templates available.</p>
       }
-    </div>
+    }
     }
   </div>
   }

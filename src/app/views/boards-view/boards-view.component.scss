@@ -708,3 +708,14 @@
     color: rgba(1, 0, 20, 0.25) !important;
   }
 }
+
+// Template list count badge (replaces category badge since category is not in DB)
+.template-list-count {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  background: rgba(249, 208, 122, 0.12);
+  color: #F9D07A;
+  border-radius: 4px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
