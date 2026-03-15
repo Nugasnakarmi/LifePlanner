@@ -67,6 +67,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.listsSub = this.boardListService.lists$.subscribe((lists) => {
       this.boardLists = lists;
+      this.resetContainerData();
       this.getTasks();
     });
 

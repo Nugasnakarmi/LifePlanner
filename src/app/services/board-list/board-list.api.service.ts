@@ -60,10 +60,12 @@ export class BoardListApiService {
 
   async updateListName(listId: number, name: string): Promise<BoardList | null> {
     try {
+      const user: User = await this.supabaseService.getUser();
       const { data, error } = await this.supabaseService.supabase
         .from('boards_lists')
         .update({ name })
         .eq('id', listId)
+        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -81,10 +83,12 @@ export class BoardListApiService {
 
   async deleteList(listId: number): Promise<boolean> {
     try {
+      const user: User = await this.supabaseService.getUser();
       const { error } = await this.supabaseService.supabase
         .from('boards_lists')
         .delete()
-        .eq('id', listId);
+        .eq('id', listId)
+        .eq('user_id', user.id);
 
       if (error) {
         throw error;

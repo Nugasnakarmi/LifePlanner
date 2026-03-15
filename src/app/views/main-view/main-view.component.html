@@ -55,10 +55,10 @@
             cdkDropList
             #todoList="cdkDropList"
             [id]="'' + list.position"
-            [cdkDropListData]="containerRefs[list.position]"
+            [cdkDropListData]="containerRefs[list.position] ?? []"
             (cdkDropListDropped)="drop($event)"
           >
-            @for(item of containerRefs[list.position]; track item; let ind =
+            @for(item of containerRefs[list.position] ?? []; track item; let ind =
             $index){
             <app-task
               [task]="item"
