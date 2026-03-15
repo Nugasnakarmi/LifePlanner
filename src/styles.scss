@@ -129,6 +129,34 @@ body {
 .app-navbar {
   background-color: #010014 !important;
   border-bottom: 1px solid rgba(249, 208, 122, 0.1);
+
+  // Dark mode: mobile expanded menu follows the dark theme
+  @media screen and (max-width: 1023px) {
+    .navbar-menu.is-active {
+      background-color: #010014;
+      box-shadow: 0 4px 12px rgba(249, 208, 122, 0.08);
+
+      // Ensure all navbar items use white text in the dark dropdown
+      .navbar-item,
+      .navbar-link {
+        color: #fff;
+
+        &:hover,
+        &:focus-within {
+          background-color: rgba(249, 208, 122, 0.08);
+          color: #F9D07A;
+        }
+
+        // Target focusable children (buttons, anchors) for keyboard focus
+        a:focus-visible,
+        button:focus-visible {
+          outline: 2px solid #F9D07A;
+          outline-offset: 2px;
+          border-radius: 4px;
+        }
+      }
+    }
+  }
 }
 
 // Burger bar lines: white on dark navbar
@@ -162,6 +190,26 @@ html.light-mode {
       .navbar-menu.is-active {
         background-color: #ffffff;
         box-shadow: 0 4px 12px rgba(1, 0, 20, 0.08);
+
+        // Ensure all navbar items use dark text in the light dropdown
+        .navbar-item,
+        .navbar-link {
+          color: #010014;
+
+          &:hover,
+          &:focus-within {
+            background-color: rgba(1, 0, 20, 0.05);
+            color: #5C4000;
+          }
+
+          // Target focusable children (buttons, anchors) for keyboard focus
+          a:focus-visible,
+          button:focus-visible {
+            outline: 2px solid #5C4000;
+            outline-offset: 2px;
+            border-radius: 4px;
+          }
+        }
       }
     }
   }

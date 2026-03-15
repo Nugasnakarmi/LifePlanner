@@ -227,4 +227,13 @@ $icon-edit:   #60a5fa;
   .delete-icon  { color: #dc2626; }
   .expand-icon  { color: #16a34a; }
   .edit-icon    { color: #1d4ed8; }
+
+  .delete-button,
+  .expand-button,
+  .edit-button {
+    &:hover,
+    &:focus-visible {
+      background: rgba(1, 0, 20, 0.07);
+    }
+  }
 }
