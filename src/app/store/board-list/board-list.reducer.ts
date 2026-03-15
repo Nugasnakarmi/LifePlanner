@@ -19,7 +19,7 @@ export const boardListsReducer = createReducer(
     ...state,
     loading: false,
   })),
-  on(boardListActions.clearBoardLists, (state) => ({ ...state, lists: [] })),
+  on(boardListActions.clearBoardLists, (state) => ({ ...state, lists: [], loading: false })),
   on(boardListActions.addBoardListSuccess, (state, { list }) => ({
     ...state,
     lists: [...state.lists, list],

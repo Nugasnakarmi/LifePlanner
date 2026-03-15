@@ -29,6 +29,7 @@
             <input
               [formControl]="editListNameControl"
               class="list-name-input"
+              [attr.aria-label]="'Rename list: ' + list.name"
               (blur)="finishEditListName(list)"
               (keydown)="handleEditListNameKey($event, list)"
               autofocus
@@ -45,7 +46,7 @@
               <button class="expand-list-button" (click)="openExpandList(list)" title="Expand list to fullscreen" aria-label="Expand list to fullscreen">
                 <mat-icon>open_in_full</mat-icon>
               </button>
-              <button class="add-task-button" (click)="openAddTask(list)">
+              <button class="add-task-button" (click)="openAddTask(list)" title="Add task" aria-label="Add task">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
@@ -83,10 +84,10 @@
               autofocus
             />
             <div class="add-list-actions">
-              <button class="add-list-confirm" (click)="addNewList()" [disabled]="newListNameControl.invalid" title="Add list">
+              <button class="add-list-confirm" (click)="addNewList()" [disabled]="newListNameControl.invalid" title="Confirm add list" aria-label="Confirm add list">
                 <mat-icon>check</mat-icon>
               </button>
-              <button class="add-list-cancel" (click)="toggleAddListForm()" title="Cancel">
+              <button class="add-list-cancel" (click)="toggleAddListForm()" title="Cancel" aria-label="Cancel add list">
                 <mat-icon>close</mat-icon>
               </button>
             </div>

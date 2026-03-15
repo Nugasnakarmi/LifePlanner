@@ -63,7 +63,7 @@ export class TaskAPIService {
     }
   }
 
-  async updateTaskContainer(taskData: IdeaTask): Promise<boolean> {
+  async updateTaskContainer(taskData: Partial<IdeaTask>): Promise<boolean> {
     try {
       let user: User = await this.supabaseService.getUser();
       let { data, error } = await this.supabaseService.supabase

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { mergeMap, withLatestFrom } from 'rxjs';
+import { concatMap, mergeMap, switchMap, withLatestFrom } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { BoardListApiService } from 'src/app/services/board-list/board-list.api.service';
 import * as boardListActions from './board-list.actions';
@@ -14,7 +14,7 @@ export class BoardListEffects {
   loadBoardLists$ = createEffect(() =>
     this.actions$.pipe(
       ofType(boardListActions.loadBoardLists),
-      mergeMap(({ boardId }) =>
+      switchMap(({ boardId }) =>
         this.boardListApiService
           .getListsByBoardId(boardId)
           .then((lists) => boardListActions.loadBoardListsSuccess({ lists }))
@@ -27,7 +27,7 @@ export class BoardListEffects {
     this.actions$.pipe(
       ofType(boardListActions.addBoardList),
       withLatestFrom(this.store.select(selectBoardLists)),
-      mergeMap(([{ boardId, name }, currentLists]) => {
+      concatMap(([{ boardId, name }, currentLists]) => {
         const nextPosition =
           currentLists.length > 0
             ? Math.max(...currentLists.map((l) => l.position)) + 1

@@ -41,7 +41,7 @@ import { BoardListService } from 'src/app/services/board-list/board-list.service
 })
 export class MainViewComponent implements OnInit, OnDestroy {
   boardLists: BoardList[] = [];
-  containerRefs: { [position: number]: IdeaTask[] } = {};
+  containerRefs: Record<number, IdeaTask[]> = {};
 
   router = inject(Router);
   taskService = inject(TaskService);
@@ -140,12 +140,13 @@ export class MainViewComponent implements OnInit, OnDestroy {
       const boardListId = Number(event.container.id);
       if (isNaN(boardListId)) return;
       const targetList = this.boardLists.find((l) => l.id === boardListId);
+      if (!targetList) return;
       this.taskAPIService
         .updateTaskContainer({
           id: data.id,
-          ...(targetList ? { type: targetList.position } : {}),
+          type: targetList.position,
           boards_lists_id: boardListId,
-        } as IdeaTask);
+        });
     }
   }
 
