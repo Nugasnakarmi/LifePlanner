@@ -142,9 +142,17 @@ body {
         color: #fff;
 
         &:hover,
-        &:focus {
+        &:focus-within {
           background-color: rgba(249, 208, 122, 0.08);
           color: #F9D07A;
+        }
+
+        // Target focusable children (buttons, anchors) for keyboard focus
+        a:focus-visible,
+        button:focus-visible {
+          outline: 2px solid #F9D07A;
+          outline-offset: 2px;
+          border-radius: 4px;
         }
       }
     }
@@ -189,9 +197,17 @@ html.light-mode {
           color: #010014;
 
           &:hover,
-          &:focus {
+          &:focus-within {
             background-color: rgba(1, 0, 20, 0.05);
             color: #5C4000;
+          }
+
+          // Target focusable children (buttons, anchors) for keyboard focus
+          a:focus-visible,
+          button:focus-visible {
+            outline: 2px solid #5C4000;
+            outline-offset: 2px;
+            border-radius: 4px;
           }
         }
       }
