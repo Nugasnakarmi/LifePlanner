@@ -31,7 +31,7 @@ describe('ListDetailComponent', () => {
       providers: [
         {
           provide: MAT_DIALOG_DATA,
-          useValue: { container: 'ideas', boardId: 10 },
+          useValue: { position: IdeaType.ideas, displayName: 'Ideas', boardId: 10 },
         },
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: TaskService, useValue: taskServiceSpy },

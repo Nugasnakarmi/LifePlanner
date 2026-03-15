@@ -13,7 +13,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { AddTaskComponent } from '../add-task/add-task.component';
-import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskComponent } from '../task/task.component';
@@ -136,8 +135,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
         .updateTaskContainer({
           id: data.id,
           type: newType,
-        } as IdeaTask)
-        .then(() => {});
+        } as IdeaTask);
     }
   }
 

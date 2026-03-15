@@ -27,7 +27,7 @@ export class BoardListApiService {
 
       return data ?? [];
     } catch (error) {
-      this.toastRService.error(`Failed to load lists: ${error.message}`);
+      this.toastRService.error(`Failed to load lists: ${error?.message ?? error}`);
       return [];
     }
   }
@@ -53,7 +53,7 @@ export class BoardListApiService {
       this.toastRService.success(`List "${name}" added successfully`);
       return data as BoardList;
     } catch (error) {
-      this.toastRService.error(`Failed to add list: ${error.message}`);
+      this.toastRService.error(`Failed to add list: ${error?.message ?? error}`);
       return null;
     }
   }
@@ -74,7 +74,7 @@ export class BoardListApiService {
       this.toastRService.success(`List renamed to "${name}"`);
       return data as BoardList;
     } catch (error) {
-      this.toastRService.error(`Failed to rename list: ${error.message}`);
+      this.toastRService.error(`Failed to rename list: ${error?.message ?? error}`);
       return null;
     }
   }
@@ -93,7 +93,7 @@ export class BoardListApiService {
       this.toastRService.success('List deleted successfully');
       return true;
     } catch (error) {
-      this.toastRService.error(`Failed to delete list: ${error.message}`);
+      this.toastRService.error(`Failed to delete list: ${error?.message ?? error}`);
       return false;
     }
   }
