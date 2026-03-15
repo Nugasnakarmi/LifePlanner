@@ -50,15 +50,15 @@
       }
     </div>
 
-    <!-- User templates -->
-    @if(userTemplates$ | async; as userTemplates) {
-      @if(userTemplates.length > 0) {
+    <!-- Board templates -->
+    @if(boardTemplates$ | async; as boardTemplates) {
+      @if(boardTemplates.length > 0) {
         <div class="template-section-label">
           <mat-icon>person</mat-icon>
           My Templates
         </div>
         <div class="template-grid">
-          @for(template of userTemplates; track template.id) {
+          @for(template of boardTemplates; track template.id) {
             @if(!activeCategory || template.category === activeCategory) {
               <div class="template-card template-card--user" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
                 <div class="template-card-header">
@@ -67,7 +67,7 @@
                   </div>
                   <div class="template-card-header-right">
                     <span class="template-category-badge template-category-badge--{{ template.category }}">{{ getCategoryLabel(template.category) }}</span>
-                    <button mat-icon-button class="template-delete-btn" (click)="deleteUserTemplate(template, $event)" [attr.aria-label]="'Delete template ' + template.name" matTooltip="Delete template">
+                    <button mat-icon-button class="template-delete-btn" (click)="deleteBoardTemplate(template, $event)" [attr.aria-label]="'Delete template ' + template.name" matTooltip="Delete template">
                       <mat-icon>delete_outline</mat-icon>
                     </button>
                   </div>

@@ -5,11 +5,11 @@ import { BoardTemplate, BoardTemplateTask } from 'src/app/interfaces/board-templ
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable({ providedIn: 'root' })
-export class UserTemplateApiService {
+export class BoardTemplateApiService {
   private supabaseService = inject(SupabaseService);
   private toastr = inject(ToastrService);
 
-  async getUserTemplates(): Promise<BoardTemplate[]> {
+  async getBoardTemplates(): Promise<BoardTemplate[]> {
     try {
       const user: User = await this.supabaseService.getUser();
       const { data: rows, error } = await this.supabaseService.supabase
@@ -26,13 +26,13 @@ export class UserTemplateApiService {
       }
 
       return (rows ?? []).map((row: any) => ({
-        id: `user-${row.id}`,
+        id: `board-${row.id}`,
         dbId: row.id as number,
         name: row.name,
         description: row.description ?? '',
         icon: row.icon,
         category: row.category,
-        isUserTemplate: true,
+        isBoardTemplate: true,
         tasks: ((row.board_template_tasks ?? []) as any[])
           .sort((a: any, b: any) => a.sort_order - b.sort_order)
           .map((t: any): BoardTemplateTask => ({
@@ -88,7 +88,7 @@ export class UserTemplateApiService {
       }
 
       this.toastr.success(`Template "${template.name}" saved`);
-      return { ...template, id: `user-${templateId}`, dbId: templateId, isUserTemplate: true };
+      return { ...template, id: `board-${templateId}`, dbId: templateId, isBoardTemplate: true };
     } catch (error: any) {
       this.toastr.error(`Failed to save template: ${error?.message ?? error}`);
       return null;

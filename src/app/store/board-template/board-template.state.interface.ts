@@ -1,6 +1,6 @@
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 
-export interface UserTemplateState {
+export interface BoardTemplateState {
   templates: BoardTemplate[];
   loading: boolean;
   saving: boolean;

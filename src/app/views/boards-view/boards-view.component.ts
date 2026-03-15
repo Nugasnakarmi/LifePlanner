@@ -17,7 +17,7 @@ import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { BOARD_TEMPLATES } from 'src/app/data/board-templates';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
-import { UserTemplateService } from 'src/app/services/user-template/user-template.service';
+import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
 import { CreateTemplateDialogComponent } from './create-template-dialog/create-template-dialog.component';
 
 @Component({
@@ -38,12 +38,12 @@ import { CreateTemplateDialogComponent } from './create-template-dialog/create-t
 export class BoardsViewComponent implements OnInit {
   boardService = inject(BoardService);
   taskService = inject(TaskService);
-  userTemplateService = inject(UserTemplateService);
+  boardTemplateService = inject(BoardTemplateService);
   router = inject(Router);
   dialog = inject(MatDialog);
 
   boards$: Observable<Board[]>;
-  userTemplates$: Observable<BoardTemplate[]>;
+  boardTemplates$: Observable<BoardTemplate[]>;
 
   showNewBoardForm = false;
   showTemplates = false;
@@ -71,8 +71,8 @@ export class BoardsViewComponent implements OnInit {
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
     this.boards$ = this.boardService.boards$;
-    this.userTemplates$ = this.userTemplateService.templates$;
-    this.userTemplateService.loadTemplates();
+    this.boardTemplates$ = this.boardTemplateService.templates$;
+    this.boardTemplateService.loadTemplates();
   }
 
   get filteredSystemTemplates(): BoardTemplate[] {
@@ -136,19 +136,19 @@ export class BoardsViewComponent implements OnInit {
     });
     ref.afterClosed().subscribe((saved) => {
       if (saved) {
-        this.userTemplateService.loadTemplates();
+        this.boardTemplateService.loadTemplates();
       }
     });
   }
 
-  deleteUserTemplate(template: BoardTemplate, event: Event): void {
+  deleteBoardTemplate(template: BoardTemplate, event: Event): void {
     event.stopPropagation();
     if (!template.dbId) return;
     const confirmed = window.confirm(
       `Delete the template "${template.name}"? This cannot be undone.`
     );
     if (confirmed) {
-      this.userTemplateService.deleteTemplate(template.dbId);
+      this.boardTemplateService.deleteTemplate(template.dbId);
     }
   }
 

@@ -15,7 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { BoardTemplate, BoardTemplateTask } from 'src/app/interfaces/board-template.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
-import { UserTemplateService } from 'src/app/services/user-template/user-template.service';
+import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
 
 
 export interface ColumnType {
@@ -46,7 +46,7 @@ const CLOSE_AFTER_SAVE_DELAY_MS = 600;
 export class CreateTemplateDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<CreateTemplateDialogComponent>);
-  private userTemplateService = inject(UserTemplateService);
+  private boardTemplateService = inject(BoardTemplateService);
 
   saving = false;
   showAddTaskForm = false;
@@ -162,10 +162,10 @@ export class CreateTemplateDialogComponent implements OnInit {
       icon: v.icon,
       category: v.category,
       tasks: [...this.tasks],
-      isUserTemplate: true,
+      isBoardTemplate: true,
     };
 
-    this.userTemplateService.saveTemplate(template);
+    this.boardTemplateService.saveTemplate(template);
 
     // Wait briefly so the success toast fires, then close
     await new Promise((r) => setTimeout(r, CLOSE_AFTER_SAVE_DELAY_MS));
