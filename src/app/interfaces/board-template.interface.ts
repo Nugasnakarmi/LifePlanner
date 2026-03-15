@@ -10,5 +10,7 @@ export interface BoardTemplate {
   id: string;
   name: string;
   description: string;
+  icon: string;
+  category: string;
   tasks: BoardTemplateTask[];
 }

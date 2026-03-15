@@ -39,6 +39,27 @@ export class BoardsViewComponent implements OnInit {
   showTemplates = false;
   editingBoardId: number | null = null;
   templates: BoardTemplate[] = BOARD_TEMPLATES;
+  activeCategory: string | null = null;
+
+  templateCategories: { key: string; label: string }[] = [
+    { key: 'health', label: 'Health' },
+    { key: 'productivity', label: 'Productivity' },
+    { key: 'finance', label: 'Finance' },
+  ];
+
+  get filteredTemplates(): BoardTemplate[] {
+    if (!this.activeCategory) {
+      return this.templates;
+    }
+    return this.templates.filter((t) => t.category === this.activeCategory);
+  }
+
+  getCategoryLabel(category: string): string {
+    return (
+      this.templateCategories.find((c) => c.key === category)?.label ??
+      category.charAt(0).toUpperCase() + category.slice(1)
+    );
+  }
 
   newBoardNameControl = new UntypedFormControl('', [
     Validators.required,
@@ -70,6 +91,13 @@ export class BoardsViewComponent implements OnInit {
 
   toggleTemplates(): void {
     this.showTemplates = !this.showTemplates;
+    if (!this.showTemplates) {
+      this.activeCategory = null;
+    }
+  }
+
+  setActiveCategory(category: string | null): void {
+    this.activeCategory = category;
   }
 
   createBoard(): void {

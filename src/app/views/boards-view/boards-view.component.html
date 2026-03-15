@@ -37,11 +37,20 @@
     </button>
 
     @if(showTemplates) {
+    <div class="template-category-filters">
+      <button class="category-filter-btn" [class.active]="activeCategory === null" (click)="setActiveCategory(null)">All</button>
+      @for(cat of templateCategories; track cat.key) {
+      <button class="category-filter-btn" [class.active]="activeCategory === cat.key" (click)="setActiveCategory(cat.key)">{{ cat.label }}</button>
+      }
+    </div>
     <div class="template-grid">
-      @for(template of templates; track template.id) {
+      @for(template of filteredTemplates; track template.id) {
       <div class="template-card" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
-        <div class="template-card-icon">
-          <mat-icon>healing</mat-icon>
+        <div class="template-card-header">
+          <div class="template-card-icon">
+            <mat-icon>{{ template.icon }}</mat-icon>
+          </div>
+          <span class="template-category-badge template-category-badge--{{ template.category }}">{{ getCategoryLabel(template.category) }}</span>
         </div>
         <div class="template-card-name">{{ template.name }}</div>
         <div class="template-card-description">{{ template.description }}</div>

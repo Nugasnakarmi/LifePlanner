@@ -329,6 +329,39 @@
   }
 }
 
+.template-category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.category-filter-btn {
+  background: transparent;
+  border: 1px solid rgba(249, 208, 122, 0.2);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 14px;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: rgba(249, 208, 122, 0.5);
+    color: rgba(249, 208, 122, 0.9);
+    background: rgba(249, 208, 122, 0.05);
+  }
+
+  &.active {
+    background: rgba(249, 208, 122, 0.15);
+    border-color: #F9D07A;
+    color: #F9D07A;
+  }
+}
+
 .template-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -360,12 +393,46 @@
   }
 }
 
+.template-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .template-card-icon {
   mat-icon {
     color: #F9D07A;
     font-size: 28px;
     width: 28px;
     height: 28px;
+  }
+}
+
+.template-category-badge {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 12px;
+
+  &--health {
+    background: rgba(72, 199, 142, 0.15);
+    color: #48c78e;
+    border: 1px solid rgba(72, 199, 142, 0.3);
+  }
+
+  &--productivity {
+    background: rgba(72, 149, 239, 0.15);
+    color: #4895ef;
+    border: 1px solid rgba(72, 149, 239, 0.3);
+  }
+
+  &--finance {
+    background: rgba(249, 208, 122, 0.15);
+    color: #F9D07A;
+    border: 1px solid rgba(249, 208, 122, 0.3);
   }
 }
 
@@ -485,6 +552,23 @@
     color: #7A5900;
 
     .template-card:hover & {
+      color: #5C4000;
+    }
+  }
+
+  .category-filter-btn {
+    color: rgba(1, 0, 20, 0.6);
+    border-color: rgba(1, 0, 20, 0.15);
+
+    &:hover {
+      color: #5C4000;
+      border-color: rgba(92, 64, 0, 0.4);
+      background: rgba(92, 64, 0, 0.05);
+    }
+
+    &.active {
+      background: rgba(92, 64, 0, 0.1);
+      border-color: #5C4000;
       color: #5C4000;
     }
   }
