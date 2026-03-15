@@ -1,17 +1,17 @@
 <div class="new-board-menu">
   <button mat-button (click)="newBoardMenuToggle.emit()">New Board</button>
-  @if(showNewBoardMenu){
+  @if(showNewBoardMenu()){
   <div class="new-board-menu">
     <input
       matInput
-      [formControl]="newBoardNameControl"
+      [formControl]="newBoardNameControl()"
       placeholder="Board name"
     />
     <button
       mat-raised-button
       color="primary"
       (click)="createNewBoard.emit()"
-      [disabled]="newBoardNameControl.invalid"
+      [disabled]="newBoardNameControl().invalid"
     >
       Create
     </button>

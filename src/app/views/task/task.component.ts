@@ -1,5 +1,5 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
@@ -18,11 +18,11 @@ import { TaskService } from 'src/app/services/task/task.service';
 export class TaskComponent {
   taskService = inject(TaskService);
   taskAPIService = inject(TaskAPIService);
-  @Input() task: any;
-  @Input() container: any;
-  @Input() index: number;
-  @Input() dragEnabled: boolean = true;
-  @Output() taskUpdated = new EventEmitter<void>();
+  task = input<IdeaTask>();
+  container = input<string>();
+  index = input<number>(0);
+  dragEnabled = input<boolean>(true);
+  taskUpdated = output<void>();
   readonly addTaskDialog = inject(MatDialog);
 
   deleteTask(taskId: number): void {
@@ -40,7 +40,7 @@ export class TaskComponent {
 
   onExpandTask(task: IdeaTask): void {
     this.addTaskDialog.open(TaskDetailComponent, {
-      data: { task: task, container: this.container },
+      data: { task: task, container: this.container() },
       width: '100vw',
       height: '100vh',
       maxWidth: '100vw',

@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
@@ -29,8 +29,8 @@ import { CdkDragPlaceholder } from '@angular/cdk/drag-drop';
   styleUrls: ['./board.component.scss'],
 })
 export class BoardComponent implements OnInit {
-  @Input() drop: any;
-  @Input() boardName: string = 'Board';
+  drop = input<any>();
+  boardName = input<string>('Board');
   editingName = false;
   boardService = inject(BoardService);
   dialogService = inject(DialogService);
@@ -48,7 +48,7 @@ export class BoardComponent implements OnInit {
   ]);
 
   ngOnInit() {
-    this.boardNameControl = new UntypedFormControl(this.boardName, [
+    this.boardNameControl = new UntypedFormControl(this.boardName(), [
       Validators.required,
       Validators.minLength(3),
     ]);

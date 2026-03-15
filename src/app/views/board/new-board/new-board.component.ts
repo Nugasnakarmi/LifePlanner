@@ -1,11 +1,8 @@
 import {
   Component,
-  Input,
-  Output,
-  EventEmitter,
-  OnChanges,
-  inject,
-  ChangeDetectorRef,
+  effect,
+  input,
+  output,
 } from '@angular/core';
 import {
   UntypedFormControl,
@@ -22,19 +19,17 @@ import { MatInputModule } from '@angular/material/input';
   templateUrl: './new-board.component.html',
   styleUrls: ['./new-board.component.scss'],
 })
-export class LifeplannerTitleMenuComponent implements OnChanges {
-  @Input() showNewBoardMenu = false;
-  @Input() newBoardNameControl = new UntypedFormControl('', [
-    Validators.required,
-    Validators.minLength(3),
-  ]);
-  @Output() newBoardMenuToggle = new EventEmitter<void>();
-  @Output() createNewBoard = new EventEmitter<void>();
+export class LifeplannerTitleMenuComponent {
+  showNewBoardMenu = input<boolean>(false);
+  newBoardNameControl = input<UntypedFormControl>(
+    new UntypedFormControl('', [Validators.required, Validators.minLength(3)])
+  );
+  newBoardMenuToggle = output<void>();
+  createNewBoard = output<void>();
 
-  private changeDetectorRef = inject(ChangeDetectorRef);
-
-  ngOnChanges() {
-    console.log('showNewBoardMenu changed:', this.showNewBoardMenu);
-    this.changeDetectorRef.detectChanges();
+  constructor() {
+    effect(() => {
+      console.log('showNewBoardMenu changed:', this.showNewBoardMenu());
+    });
   }
 }
