@@ -26,5 +26,8 @@ jobs:
         with:
           version: latest
 
+      - name: Link Supabase project
+        run: supabase link --project-ref $PROJECT_ID
+
       - name: Run migrations
-        run: supabase db push --project-ref $PROJECT_ID
+        run: supabase db push
