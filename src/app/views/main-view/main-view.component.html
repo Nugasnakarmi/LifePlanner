@@ -45,7 +45,7 @@
               <button class="expand-list-button" (click)="openExpandList(list)" title="Expand list to fullscreen" aria-label="Expand list to fullscreen">
                 <mat-icon>open_in_full</mat-icon>
               </button>
-              <button class="add-task-button" (click)="openAddTask(list.position)">
+              <button class="add-task-button" (click)="openAddTask(list)">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
@@ -54,11 +54,11 @@
             class="tasks-container example-list"
             cdkDropList
             #todoList="cdkDropList"
-            [id]="'' + list.position"
-            [cdkDropListData]="containerRefs[list.position] ?? []"
+            [id]="'' + list.id"
+            [cdkDropListData]="containerRefs[list.id] ?? []"
             (cdkDropListDropped)="drop($event)"
           >
-            @for(item of containerRefs[list.position] ?? []; track item; let ind =
+            @for(item of containerRefs[list.id] ?? []; track item; let ind =
             $index){
             <app-task
               [task]="item"

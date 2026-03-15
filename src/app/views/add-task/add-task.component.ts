@@ -36,7 +36,7 @@ export class AddTaskComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { taskType: IdeaType; mode?: TaskMode; task?: IdeaTask; boardId?: number }
+    public data: { taskType: IdeaType; boardListId?: number; mode?: TaskMode; task?: IdeaTask; boardId?: number }
   ) {}
 
   ngOnInit(): void {
@@ -95,6 +95,7 @@ export class AddTaskComponent implements OnInit {
       completion_status: 0,
       user_id: null,
       board_id: this.data.boardId,
+      boards_lists_id: this.data.boardListId,
     };
     this.taskService.taskWasAdded(task);
     this.addTaskDialogRef.close();

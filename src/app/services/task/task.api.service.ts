@@ -27,6 +27,7 @@ export class TaskAPIService {
           completion_status: taskData.completion_status,
           user_id: user.id,
           board_id: taskData.board_id,
+          boards_lists_id: taskData.boards_lists_id,
         })
         .select()
         .single();
@@ -69,6 +70,7 @@ export class TaskAPIService {
         .from('tasks')
         .update({
           type: taskData.type,
+          boards_lists_id: taskData.boards_lists_id,
         })
         .eq('id', taskData.id);
 

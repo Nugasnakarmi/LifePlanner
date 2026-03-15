@@ -98,8 +98,15 @@ export class MainViewComponent implements OnInit, OnDestroy {
           ? tasks.filter((t) => t.board_id === this.selectedBoard.id)
           : tasks;
         filteredTasks.forEach((element) => {
-          if (element && this.containerRefs[element.type] !== undefined) {
-            this.containerRefs[element.type].push(element);
+          if (!element) return;
+          if (element.boards_lists_id !== undefined && this.containerRefs[element.boards_lists_id] !== undefined) {
+            this.containerRefs[element.boards_lists_id].push(element);
+          } else if (element.type !== undefined) {
+            // Fallback for legacy tasks without boards_lists_id: match by position
+            const legacyList = this.boardLists.find((l) => l.position === element.type);
+            if (legacyList && this.containerRefs[legacyList.id] !== undefined) {
+              this.containerRefs[legacyList.id].push(element);
+            }
           }
         });
       })
@@ -109,7 +116,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
   resetContainerData(): void {
     this.containerRefs = {};
     this.boardLists.forEach((list) => {
-      this.containerRefs[list.position] = [];
+      this.containerRefs[list.id] = [];
     });
   }
 
@@ -130,21 +137,23 @@ export class MainViewComponent implements OnInit, OnDestroy {
       const data: IdeaTask = event.container.data[
         event.currentIndex
       ] as unknown as IdeaTask;
-      const newType = Number(event.container.id);
-      if (isNaN(newType)) return;
+      const boardListId = Number(event.container.id);
+      if (isNaN(boardListId)) return;
+      const targetList = this.boardLists.find((l) => l.id === boardListId);
       this.taskAPIService
         .updateTaskContainer({
           id: data.id,
-          type: newType,
+          ...(targetList ? { type: targetList.position } : {}),
+          boards_lists_id: boardListId,
         } as IdeaTask);
     }
   }
 
   updateUserDetails(userDetails: any) {}
 
-  openAddTask(position: number): void {
+  openAddTask(list: BoardList): void {
     const dialogRef = this.addTaskDialog.open(AddTaskComponent, {
-      data: { taskType: position, boardId: this.selectedBoard?.id },
+      data: { taskType: list.position, boardListId: list.id, boardId: this.selectedBoard?.id },
     });
     dialogRef.afterClosed().subscribe(() => {
       this.getTasks();
@@ -161,7 +170,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
 
   openExpandList(list: BoardList): void {
     this.addTaskDialog.open(ListDetailComponent, {
-      data: { position: list.position, displayName: list.name, boardId: this.selectedBoard?.id },
+      data: { position: list.position, boardListId: list.id, displayName: list.name, boardId: this.selectedBoard?.id },
       width: '100vw',
       height: '100vh',
       maxWidth: '100vw',

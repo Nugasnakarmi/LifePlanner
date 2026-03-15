@@ -27,7 +27,7 @@ export class ListDetailComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { position: number; displayName: string; boardId?: number }
+    public data: { position: number; boardListId?: number; displayName: string; boardId?: number }
   ) {}
 
   ngOnInit(): void {
@@ -36,6 +36,9 @@ export class ListDetailComponent implements OnInit {
         const filtered = this.data.boardId
           ? tasks.filter((t) => t.board_id === this.data.boardId)
           : tasks;
+        if (this.data.boardListId !== undefined) {
+          return filtered.filter((t) => t.boards_lists_id === this.data.boardListId);
+        }
         return filtered.filter((t) => t.type === this.data.position);
       })
     );
@@ -49,6 +52,7 @@ export class ListDetailComponent implements OnInit {
     this.dialog.open(AddTaskComponent, {
       data: {
         taskType: this.data.position,
+        boardListId: this.data.boardListId,
         boardId: this.data.boardId,
       },
     });

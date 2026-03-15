@@ -15,8 +15,8 @@ describe('ListDetailComponent', () => {
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
   const mockTasks: IdeaTask[] = [
-    { id: 1, name: 'Task One', description: 'Desc one', type: IdeaType.ideas, board_id: 10 },
-    { id: 2, name: 'Task Two', description: '', type: IdeaType.ideas, board_id: 10 },
+    { id: 1, name: 'Task One', description: 'Desc one', type: IdeaType.ideas, board_id: 10, boards_lists_id: 5 },
+    { id: 2, name: 'Task Two', description: '', type: IdeaType.ideas, board_id: 10, boards_lists_id: 5 },
   ];
 
   beforeEach(async () => {
@@ -31,7 +31,7 @@ describe('ListDetailComponent', () => {
       providers: [
         {
           provide: MAT_DIALOG_DATA,
-          useValue: { position: IdeaType.ideas, displayName: 'Ideas', boardId: 10 },
+          useValue: { position: IdeaType.ideas, boardListId: 5, displayName: 'Ideas', boardId: 10 },
         },
         { provide: MatDialogRef, useValue: dialogRefSpy },
         { provide: TaskService, useValue: taskServiceSpy },
