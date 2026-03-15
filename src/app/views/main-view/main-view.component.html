@@ -22,15 +22,30 @@
     @if(tasks$ | async; as tasks){
     <div class="board-wrapper">
       <div class="board-columns" cdkDropListGroup>
-        @for(config of listConfigs; track config.key){
-        <div class="board-column board-column--{{ config.key }}" cdkDrag [cdkDragDisabled]="!dragEnabled">
+        @for(list of boardLists; track list.id){
+        <div class="board-column" cdkDrag [cdkDragDisabled]="!dragEnabled">
           <div class="title-container flex-row-space-between">
-            <div class="column-title">{{ config.displayName }}</div>
+            @if(editingListId === list.id) {
+            <input
+              [formControl]="editListNameControl"
+              class="list-name-input"
+              (blur)="finishEditListName(list)"
+              (keydown)="handleEditListNameKey($event, list)"
+              autofocus
+            />
+            } @else {
+            <div class="column-title" (dblclick)="startEditListName(list)">
+              {{ list.name }}
+              <button class="edit-list-name-button" (click)="startEditListName(list)" title="Edit list name" aria-label="Edit list name">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+            }
             <div class="title-actions">
-              <button class="expand-list-button" (click)="openExpandList(config.key, config.displayName)" title="Expand list to fullscreen" aria-label="Expand list to fullscreen">
+              <button class="expand-list-button" (click)="openExpandList(list)" title="Expand list to fullscreen" aria-label="Expand list to fullscreen">
                 <mat-icon>open_in_full</mat-icon>
               </button>
-              <button class="add-task-button" (click)="openAddTask(config.key)">
+              <button class="add-task-button" (click)="openAddTask(list.position)">
                 <mat-icon>add</mat-icon>
               </button>
             </div>
@@ -39,15 +54,15 @@
             class="tasks-container example-list"
             cdkDropList
             #todoList="cdkDropList"
-            [id]="config.key"
-            [cdkDropListData]="containerRefs[config.key]"
+            [id]="'' + list.position"
+            [cdkDropListData]="containerRefs[list.position]"
             (cdkDropListDropped)="drop($event)"
           >
-            @for(item of containerRefs[config.key]; track item; let ind =
+            @for(item of containerRefs[list.position]; track item; let ind =
             $index){
             <app-task
               [task]="item"
-              [container]="config.key"
+              [container]="list.name"
               [index]="ind"
               [dragEnabled]="dragEnabled"
             ></app-task>
@@ -55,6 +70,34 @@
           </div>
         </div>
         }
+
+        <!-- Add new list column -->
+        <div class="board-column add-list-column">
+          @if(showAddListForm) {
+          <div class="add-list-form">
+            <input
+              [formControl]="newListNameControl"
+              class="list-name-input"
+              placeholder="List name..."
+              (keydown)="handleAddListKey($event)"
+              autofocus
+            />
+            <div class="add-list-actions">
+              <button class="add-list-confirm" (click)="addNewList()" [disabled]="newListNameControl.invalid" title="Add list">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button class="add-list-cancel" (click)="toggleAddListForm()" title="Cancel">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+          } @else {
+          <button class="add-list-button" (click)="toggleAddListForm()" title="Add a new list">
+            <mat-icon>add</mat-icon>
+            <span>Add List</span>
+          </button>
+          }
+        </div>
       </div>
     </div>
     }
