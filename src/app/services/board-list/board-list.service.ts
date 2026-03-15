@@ -1,53 +1,37 @@
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
-import { BoardListApiService } from './board-list.api.service';
+import * as boardListActions from 'src/app/store/board-list/board-list.actions';
+import { selectBoardLists } from 'src/app/store/board-list/board-list.selector';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BoardListService {
-  private boardListApiService = inject(BoardListApiService);
+  private store = inject(Store);
 
-  private listsSubject = new BehaviorSubject<BoardList[]>([]);
-  lists$: Observable<BoardList[]> = this.listsSubject.asObservable();
+  lists$: Observable<BoardList[]> = this.store.select(selectBoardLists);
 
-  async loadLists(boardId: number): Promise<void> {
-    const lists = await this.boardListApiService.getListsByBoardId(boardId);
-    this.listsSubject.next(lists);
+  loadLists(boardId: number): void {
+    this.store.dispatch(boardListActions.loadBoardLists({ boardId }));
   }
 
-  async addList(boardId: number, name: string): Promise<void> {
-    const currentLists = this.listsSubject.getValue();
-    const nextPosition = currentLists.length > 0
-      ? Math.max(...currentLists.map((l) => l.position)) + 1
-      : 0;
-
-    const newList = await this.boardListApiService.addList(boardId, name, nextPosition);
-    if (newList) {
-      this.listsSubject.next([...currentLists, newList]);
-    }
+  addList(boardId: number, name: string): void {
+    this.store.dispatch(boardListActions.addBoardList({ boardId, name }));
   }
 
-  async editListName(listId: number, name: string): Promise<void> {
-    const updated = await this.boardListApiService.updateListName(listId, name);
-    if (updated) {
-      const currentLists = this.listsSubject.getValue();
-      this.listsSubject.next(
-        currentLists.map((l) => (l.id === listId ? { ...l, name: updated.name } : l))
-      );
-    }
+  editListName(listId: number, name: string): void {
+    this.store.dispatch(boardListActions.renameBoardList({ listId, name }));
   }
 
-  async deleteList(listId: number): Promise<void> {
-    const success = await this.boardListApiService.deleteList(listId);
-    if (success) {
-      const currentLists = this.listsSubject.getValue();
-      this.listsSubject.next(currentLists.filter((l) => l.id !== listId));
-    }
+  deleteList(listId: number): void {
+    this.store.dispatch(boardListActions.deleteBoardList({ listId }));
   }
 
   clearLists(): void {
-    this.listsSubject.next([]);
+    this.store.dispatch(boardListActions.clearBoardLists());
   }
 }
+
+
