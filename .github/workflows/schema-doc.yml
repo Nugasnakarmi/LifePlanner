@@ -1,0 +1,246 @@
+name: Generate Schema Documentation
+
+on:
+  workflow_run:
+    workflows:
+      - "Supabase Migrations"
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  generate-schema-doc:
+    runs-on: ubuntu-latest
+    # For workflow_run: only proceed when the upstream migrations job succeeded.
+    # workflow_dispatch has no conclusion context, so allow it unconditionally.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: write
+
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PROJECT_ID: vcnvdgoqpadvxyglbjsx
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Supabase project
+        run: supabase link --project-ref $PROJECT_ID
+
+      - name: Dump database schema
+        run: supabase db dump --schema public -f /tmp/schema.sql
+
+      - name: Generate schema documentation
+        run: |
+          cat > /tmp/gen_schema.py << 'PYEOF'
+          import re
+          import hashlib
+
+          with open('/tmp/schema.sql', 'r') as f:
+              sql = f.read()
+
+          schema_hash = hashlib.sha256(sql.encode()).hexdigest()[:8]
+
+          # ── helpers ─────────────────────────────────────────────────────────
+
+          def find_primary_keys(sql):
+              """Return {table: set(pk_columns)} from ALTER TABLE … PRIMARY KEY stmts."""
+              pks = {}
+              pat = re.compile(
+                  r'ALTER TABLE ONLY (?:public\.)?(\w+)[^;]*?'
+                  r'ADD CONSTRAINT \w+ PRIMARY KEY \(([^)]+)\)',
+                  re.IGNORECASE,
+              )
+              for m in pat.finditer(sql):
+                  pks[m.group(1)] = {c.strip() for c in m.group(2).split(',')}
+              return pks
+
+          def find_foreign_keys(sql):
+              """Return {table: {column: description}} from FOREIGN KEY stmts."""
+              fks = {}
+              pat = re.compile(
+                  r'ALTER TABLE ONLY (?:public\.)?(\w+)[^;]*?'
+                  r'ADD CONSTRAINT \w+ FOREIGN KEY \(([^)]+)\)\s+'
+                  r'REFERENCES\s+([\w.]+)\s*\(([^)]+)\)([^;]*)',
+                  re.IGNORECASE,
+              )
+              for m in pat.finditer(sql):
+                  table   = m.group(1)
+                  cols    = [c.strip() for c in m.group(2).split(',')]
+                  ref     = f'{m.group(3)}({m.group(4).strip()})'
+                  tail    = m.group(5)
+                  od      = re.search(r'ON DELETE (\w+(?:\s+\w+)?)', tail, re.IGNORECASE)
+                  suffix  = f' ON DELETE {od.group(1).upper()}' if od else ''
+                  fks.setdefault(table, {})
+                  for col in cols:
+                      fks[table][col] = f'FK → `{ref}`{suffix}'
+              return fks
+
+          def find_identity_columns(sql):
+              """Return {table: {column: label}} for GENERATED AS IDENTITY columns."""
+              ids = {}
+              pat = re.compile(
+                  r'ALTER TABLE ONLY (?:public\.)?(\w+)[^;]*?'
+                  r'ALTER COLUMN (\w+) ADD GENERATED (\w+(?:\s+\w+)?) AS IDENTITY',
+                  re.IGNORECASE,
+              )
+              for m in pat.finditer(sql):
+                  ids.setdefault(m.group(1), {})[m.group(2)] = (
+                      f'GENERATED {m.group(3).upper()} AS IDENTITY'
+                  )
+              return ids
+
+          def find_rls(sql):
+              """Return (set_of_rls_tables, {table: [policy_descriptions]})."""
+              rls_tables = set(
+                  m.group(1)
+                  for m in re.finditer(
+                      r'ALTER TABLE (?:public\.)?(\w+)\s+ENABLE ROW LEVEL SECURITY',
+                      sql, re.IGNORECASE,
+                  )
+              )
+              policies = {}
+              for m in re.finditer(
+                  r'CREATE POLICY "([^"]+)"\s+ON (?:public\.)?(\w+)\s+FOR (\w+)',
+                  sql, re.IGNORECASE,
+              ):
+                  policies.setdefault(m.group(2), []).append(
+                      f'{m.group(3).upper()}: {m.group(1)}'
+                  )
+              return rls_tables, policies
+
+          def parse_column(raw_line):
+              """Parse one column definition line; return dict or None."""
+              tokens = raw_line.strip().rstrip(',').split()
+              if not tokens:
+                  return None
+              col_name = tokens[0]
+              if col_name.upper() in ('CONSTRAINT', 'PRIMARY', 'FOREIGN', 'UNIQUE', 'CHECK', 'REFERENCES', 'KEY'):
+                  return None
+
+              default_idx = not_null_idx = None
+              i = 0
+              while i < len(tokens):
+                  tok = tokens[i].upper()
+                  if tok == 'DEFAULT' and default_idx is None:
+                      default_idx = i
+                  elif tok == 'NOT' and i + 1 < len(tokens) and tokens[i + 1].upper() == 'NULL':
+                      not_null_idx = i
+                  i += 1
+
+              type_end = min(
+                  default_idx    if default_idx    is not None else len(tokens),
+                  not_null_idx   if not_null_idx   is not None else len(tokens),
+              )
+              col_type  = ' '.join(tokens[1:type_end]) or '—'
+              nullable  = not_null_idx is None
+              default_v = None
+              if default_idx is not None:
+                  d_end     = not_null_idx if not_null_idx is not None else len(tokens)
+                  default_v = ' '.join(tokens[default_idx + 1:d_end])
+
+              return {'name': col_name, 'type': col_type,
+                      'nullable': nullable, 'default': default_v}
+
+          def parse_tables(sql):
+              """Return {table_name: [column_dicts]} from CREATE TABLE stmts."""
+              tables = {}
+              pat = re.compile(
+                  r'CREATE TABLE (?:public\.)?(\w+)\s*\((.*?)\);',
+                  re.DOTALL | re.IGNORECASE,
+              )
+              for m in pat.finditer(sql):
+                  cols = [parse_column(ln) for ln in m.group(2).splitlines()]
+                  tables[m.group(1)] = [c for c in cols if c]
+              return tables
+
+          # ── gather metadata ──────────────────────────────────────────────────
+
+          tables               = parse_tables(sql)
+          pks                  = find_primary_keys(sql)
+          fks                  = find_foreign_keys(sql)
+          identities           = find_identity_columns(sql)
+          rls_tables, policies = find_rls(sql)
+
+          # ── build markdown ───────────────────────────────────────────────────
+
+          out = []
+
+          out.append('# Database Schema Documentation\n\n')
+          out.append(f'> Auto-generated by GitHub Actions.  \n')
+          out.append(f'> Source: Supabase `public` schema via `supabase db dump` (schema hash: `{schema_hash}`).\n\n')
+
+          out.append('## Tables\n\n')
+          for tname in sorted(tables):
+              out.append(f'- [`{tname}`](#{tname})\n')
+          out.append('\n---\n\n')
+
+          for tname in sorted(tables):
+              cols     = tables[tname]
+              pk_cols  = pks.get(tname, set())
+              fk_cols  = fks.get(tname, {})
+              id_cols  = identities.get(tname, {})
+              has_rls  = tname in rls_tables
+
+              out.append(f'## `{tname}`\n\n')
+              if has_rls:
+                  out.append('🔒 **Row Level Security enabled**\n\n')
+
+              out.append('| Column | Type | Nullable | Default | Notes |\n')
+              out.append('|--------|------|:--------:|---------|-------|\n')
+
+              for col in cols:
+                  cname   = col['name']
+                  ctype   = f'`{col["type"]}`'
+                  nul     = '✅' if col['nullable'] else '❌'
+                  default = f'`{col["default"]}`' if col['default'] else '—'
+                  notes   = []
+                  if cname in pk_cols:
+                      notes.append('🔑 PK')
+                  if cname in id_cols:
+                      notes.append(id_cols[cname])
+                  if cname in fk_cols:
+                      notes.append(fk_cols[cname])
+                  out.append(
+                      f'| `{cname}` | {ctype} | {nul} | {default}'
+                      f' | {", ".join(notes) or "—"} |\n'
+                  )
+
+              out.append('\n')
+
+              if tname in policies:
+                  out.append('### RLS Policies\n\n')
+                  for policy in sorted(policies[tname]):
+                      out.append(f'- {policy}\n')
+                  out.append('\n')
+
+              out.append('---\n\n')
+
+          with open('schema_doc.md', 'w') as f:
+              f.writelines(out)
+
+          print(f'schema_doc.md written ({len(tables)} table(s)).')
+          PYEOF
+          python3 /tmp/gen_schema.py
+
+      - name: Commit schema documentation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add schema_doc.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "docs: regenerate schema_doc.md [skip ci]"
+            git push || { echo "::error::Failed to push schema_doc.md"; exit 1; }
+          fi
