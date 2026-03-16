@@ -279,17 +279,20 @@ html.light-mode {
     border-radius: 16px !important;
     padding: 0 !important;
     overflow: hidden;
+    max-height: 90vh !important;
   }
 
   .mdc-dialog__surface {
     border-radius: 16px !important;
     background: #010014 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
   }
 }
 
 html.light-mode .create-template-panel {
   .mdc-dialog__surface {
-    background: #1a0f3a !important;
+    background: #ffffff !important;
   }
 }
 

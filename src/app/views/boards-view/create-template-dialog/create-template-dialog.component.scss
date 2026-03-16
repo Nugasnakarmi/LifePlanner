@@ -811,3 +811,277 @@
   padding: 2px 6px;
   margin-left: 4px;
 }
+
+// ── Light mode overrides ──────────────────────────────────────────────────────
+:host-context(.light-mode) {
+  .dialog-container {
+    background: #ffffff;
+    color: #010014;
+  }
+
+  .dialog-header {
+    border-bottom-color: rgba(92, 64, 0, 0.15);
+  }
+
+  .dialog-header-icon {
+    background: rgba(92, 64, 0, 0.08);
+    border-color: rgba(92, 64, 0, 0.2);
+
+    mat-icon {
+      color: #5C4000;
+    }
+  }
+
+  .dialog-title {
+    background: -webkit-linear-gradient(#5C4000, #8B6200);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .dialog-subtitle {
+    color: rgba(1, 0, 20, 0.5);
+  }
+
+  .dialog-close-btn {
+    color: rgba(1, 0, 20, 0.4) !important;
+
+    &:hover {
+      color: #010014 !important;
+    }
+  }
+
+  .template-stepper {
+    ::ng-deep {
+      .mat-horizontal-stepper-header-container {
+        background: rgba(92, 64, 0, 0.03);
+        border-bottom-color: rgba(92, 64, 0, 0.08);
+      }
+
+      .mat-step-label,
+      .mat-step-label-selected {
+        color: rgba(1, 0, 20, 0.5);
+      }
+
+      .mat-step-label-selected {
+        color: #5C4000;
+      }
+
+      .mat-step-icon {
+        background: rgba(92, 64, 0, 0.1);
+        color: #5C4000;
+        border-color: rgba(92, 64, 0, 0.25);
+      }
+
+      .mat-step-icon-selected,
+      .mat-step-icon-state-edit,
+      .mat-step-icon-state-done {
+        background: #5C4000 !important;
+        color: #ffffff !important;
+        border-color: #5C4000 !important;
+      }
+
+      .mat-stepper-horizontal-line {
+        border-top-color: rgba(92, 64, 0, 0.12);
+      }
+    }
+  }
+
+  .step-content {
+    scrollbar-color: rgba(92, 64, 0, 0.3) transparent;
+  }
+
+  .step-number {
+    color: #5C4000;
+  }
+
+  .step-label {
+    color: #010014;
+  }
+
+  .step-description {
+    color: rgba(1, 0, 20, 0.5);
+  }
+
+  .step-actions {
+    border-top-color: rgba(92, 64, 0, 0.08);
+  }
+
+  ::ng-deep .dialog-container {
+    .mat-mdc-form-field {
+      .mat-mdc-text-field-wrapper {
+        background: rgba(1, 0, 20, 0.03) !important;
+      }
+
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: rgba(92, 64, 0, 0.25) !important;
+      }
+
+      &.mat-focused {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: #5C4000 !important;
+        }
+      }
+
+      .mat-mdc-floating-label,
+      .mdc-floating-label {
+        color: rgba(1, 0, 20, 0.55) !important;
+      }
+
+      input, textarea {
+        color: #010014 !important;
+        caret-color: #5C4000;
+      }
+
+      .mat-mdc-select-value-text {
+        color: #010014 !important;
+      }
+    }
+  }
+
+  .list-item {
+    background: rgba(1, 0, 20, 0.03);
+    border-color: rgba(1, 0, 20, 0.1);
+  }
+
+  .list-item-header:hover {
+    background: rgba(1, 0, 20, 0.04);
+  }
+
+  .list-item-icon {
+    color: #5C4000;
+  }
+
+  .list-item-name {
+    color: rgba(1, 0, 20, 0.9);
+  }
+
+  .list-type-badge {
+    background: rgba(92, 64, 0, 0.1);
+    color: #5C4000;
+  }
+
+  .list-task-count {
+    color: rgba(1, 0, 20, 0.4);
+  }
+
+  .list-expand-icon {
+    color: rgba(1, 0, 20, 0.4);
+  }
+
+  .task-item {
+    background: rgba(1, 0, 20, 0.03);
+    border-color: rgba(1, 0, 20, 0.07);
+
+    &:hover {
+      background: rgba(1, 0, 20, 0.06);
+    }
+  }
+
+  .task-item-icon mat-icon {
+    color: rgba(92, 64, 0, 0.6);
+  }
+
+  .task-item-name {
+    color: #010014;
+  }
+
+  .task-item-desc {
+    color: rgba(1, 0, 20, 0.45);
+  }
+
+  .task-delete-btn {
+    color: rgba(1, 0, 20, 0.3) !important;
+  }
+
+  .add-task-trigger {
+    border-color: rgba(92, 64, 0, 0.25);
+    color: rgba(92, 64, 0, 0.6);
+
+    &:hover {
+      border-color: #5C4000;
+      color: #5C4000;
+      background: rgba(92, 64, 0, 0.05);
+    }
+  }
+
+  .add-task-form {
+    background: rgba(1, 0, 20, 0.03);
+    border-color: rgba(92, 64, 0, 0.15);
+  }
+
+  .add-task-header {
+    color: #5C4000;
+  }
+
+  .add-list-form {
+    background: rgba(1, 0, 20, 0.02);
+    border-color: rgba(92, 64, 0, 0.15);
+  }
+
+  .task-summary {
+    background: rgba(92, 64, 0, 0.04);
+    border-color: rgba(92, 64, 0, 0.1);
+  }
+
+  .task-summary-item mat-icon {
+    color: rgba(92, 64, 0, 0.6);
+  }
+
+  .task-summary-count {
+    color: #5C4000;
+  }
+
+  .task-summary-label {
+    color: rgba(1, 0, 20, 0.4);
+  }
+
+  .preview-card-name {
+    color: #010014;
+  }
+
+  .preview-card-desc {
+    color: rgba(1, 0, 20, 0.55);
+  }
+
+  .preview-card-footer {
+    border-top-color: rgba(1, 0, 20, 0.07);
+  }
+
+  .review-column {
+    background: rgba(1, 0, 20, 0.02);
+    border-color: rgba(1, 0, 20, 0.08);
+  }
+
+  .review-col-header {
+    mat-icon {
+      color: rgba(92, 64, 0, 0.6);
+    }
+
+    span:first-of-type {
+      color: #010014;
+    }
+  }
+
+  .review-col-count {
+    color: #5C4000;
+    background: rgba(92, 64, 0, 0.1);
+  }
+
+  .review-col-badge {
+    background: rgba(92, 64, 0, 0.1);
+    color: #5C4000;
+  }
+
+  .review-task-list li {
+    color: rgba(1, 0, 20, 0.5);
+    border-bottom-color: rgba(1, 0, 20, 0.05);
+  }
+
+  .no-tasks-note {
+    color: rgba(1, 0, 20, 0.4);
+  }
+}
