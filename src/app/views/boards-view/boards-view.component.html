@@ -53,7 +53,7 @@
         </div>
         <div class="template-grid">
           @for(template of myTemplates; track template.id) {
-            <div class="template-card template-card--user" role="button" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" (keydown.space)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
+            <div class="template-card template-card--user" role="button" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="activateTemplateCard(template, $event)" (keydown.space)="onCardKeydownSpace($event)" (keyup.space)="activateTemplateCard(template, $event)" [attr.aria-label]="'Create board from template: ' + template.name">
               <div class="template-card-header">
                 <div class="template-card-icon">
                   <mat-icon>description</mat-icon>
@@ -88,7 +88,7 @@
       @if(systemTemplates.length > 0) {
         <div class="template-grid">
           @for(template of systemTemplates; track template.id) {
-          <div class="template-card" role="button" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" (keydown.space)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
+          <div class="template-card" role="button" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="activateTemplateCard(template, $event)" (keydown.space)="onCardKeydownSpace($event)" (keyup.space)="activateTemplateCard(template, $event)" [attr.aria-label]="'Create board from template: ' + template.name">
             <div class="template-card-header">
               <div class="template-card-icon">
                 <mat-icon>workspace_premium</mat-icon>
@@ -120,8 +120,9 @@
       [attr.aria-label]="editingBoardId !== board.id ? ('Open board ' + board.name) : null"
       (click)="editingBoardId !== board.id && selectBoard(board)"
       [attr.tabindex]="editingBoardId !== board.id ? 0 : null"
-      (keydown.enter)="editingBoardId === board.id ? null : selectBoard(board)"
-      (keydown.space)="editingBoardId === board.id ? null : selectBoard(board)">
+      (keydown.enter)="activateBoardCard(board, $event)"
+      (keydown.space)="onCardKeydownSpace($event)"
+      (keyup.space)="activateBoardCard(board, $event)">
       @if(editingBoardId === board.id) {
       <div class="board-card-edit" (click)="$event.stopPropagation()">
         <mat-form-field appearance="outline" class="edit-name-field">

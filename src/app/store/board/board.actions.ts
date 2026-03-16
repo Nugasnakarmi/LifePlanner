@@ -18,7 +18,7 @@ export const loadBoardsFailure = createAction(
   props<{ error: any }>()
 );
 
-export const boardNameEdited = createAction(
+export const boardEdited = createAction(
   '[Boards] Board was updated',
   props<{ board: Board }>()
 );

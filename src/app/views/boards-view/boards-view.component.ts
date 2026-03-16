@@ -144,7 +144,7 @@ export class BoardsViewComponent implements OnInit {
     const name = this.editBoardNameControl.value?.trim();
     if (name && this.editBoardNameControl.valid) {
       const description = (this.editBoardDescriptionControl.value ?? '').trim();
-      this.boardService.nameEditFinished({ ...board, name, description });
+      this.boardService.boardEditFinished({ ...board, name, description });
     }
     this.editingBoardId = null;
   }
@@ -152,6 +152,27 @@ export class BoardsViewComponent implements OnInit {
   cancelEditBoard(event: Event): void {
     event.stopPropagation();
     this.editingBoardId = null;
+  }
+
+  /** Prevent page scroll when Space is pressed on a card acting as a button. */
+  onCardKeydownSpace(event: KeyboardEvent): void {
+    event.preventDefault();
+  }
+
+  /** Activate a board card via keyboard (Enter or Space keyup). Guards against
+   *  events that bubbled up from nested child elements (e.g. edit/delete buttons). */
+  activateBoardCard(board: Board, event: KeyboardEvent): void {
+    if (event.target !== event.currentTarget) return;
+    if (this.editingBoardId !== board.id) {
+      this.selectBoard(board);
+    }
+  }
+
+  /** Activate a template card via keyboard (Enter or Space keyup). Guards against
+   *  events that bubbled up from nested child elements (e.g. delete button). */
+  activateTemplateCard(template: BoardTemplate, event: KeyboardEvent): void {
+    if (event.target !== event.currentTarget) return;
+    this.createBoardFromTemplate(template);
   }
 
   async deleteBoard(board: Board, event: Event): Promise<void> {

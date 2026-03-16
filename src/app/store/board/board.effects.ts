@@ -44,9 +44,9 @@ export class BoardEffects {
     )
   );
 
-  boardNameEdited$ = createEffect(() =>
+  boardEdited$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(boardActions.boardNameEdited),
+      ofType(boardActions.boardEdited),
       mergeMap(({ board }) =>
         this.boardAPIService
           .editBoard(board)
