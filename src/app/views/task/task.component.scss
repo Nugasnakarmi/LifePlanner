@@ -6,6 +6,368 @@ $icon-delete: #f87171;
 $icon-expand: #4ade80;
 $icon-edit:   #60a5fa;
 
+// ─── Status colours ──────────────────────────────────────────────────────────
+$status-initiated: rgba(156, 163, 175, 0.85);   // grey
+$status-working:   rgba(251, 191, 36, 0.9);      // amber
+$status-completed: rgba(74, 222, 128, 0.9);      // green
+
+// ─── Base card ───────────────────────────────────────────────────────────────
+.tasks {
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-left: 3px solid rgba(249, 208, 122, 0.35);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: grab;
+  color: #fff;
+  transition: $transition-card;
+
+  &.status-working {
+    border-left-color: $status-working;
+  }
+
+  &.status-completed {
+    border-left-color: $status-completed;
+    background: rgba(74, 222, 128, 0.04);
+  }
+
+  &:hover,
+  &:focus-within {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.11);
+    border-left-color: $gold;
+    transform: translateY(-2px);
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.25),
+      0 2px 8px rgba(249, 208, 122, 0.08);
+
+    .action-buttons {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  &.status-working:hover { border-left-color: $status-working; }
+  &.status-completed:hover { border-left-color: $status-completed; }
+}
+
+// ─── Task content ─────────────────────────────────────────────────────────────
+.name-description-container {
+  flex: 1;
+  min-width: 0;
+
+  .task-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .task-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .description {
+    font-size: 12px;
+    font-style: italic;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 4px 0 0;
+    line-height: 1.4;
+  }
+}
+
+// ─── Status badge ─────────────────────────────────────────────────────────────
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 2px 7px 2px 4px;
+  border-radius: 20px;
+  white-space: nowrap;
+  line-height: 1;
+
+  .status-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+  }
+
+  &.badge-initiated {
+    background: rgba(156, 163, 175, 0.15);
+    color: $status-initiated;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+  }
+
+  &.badge-working {
+    background: rgba(251, 191, 36, 0.15);
+    color: $status-working;
+    border: 1px solid rgba(251, 191, 36, 0.35);
+  }
+
+  &.badge-completed {
+    background: rgba(74, 222, 128, 0.12);
+    color: $status-completed;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+  }
+}
+
+// ─── Status action buttons ────────────────────────────────────────────────────
+.status-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.status-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 8px 3px 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+  }
+
+  span { line-height: 1; }
+
+  &:hover { transform: translateY(-1px); }
+
+  &.btn-initiate {
+    background: rgba(251, 191, 36, 0.18);
+    color: $status-working;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    &:hover { background: rgba(251, 191, 36, 0.28); }
+  }
+
+  &.btn-complete {
+    background: rgba(74, 222, 128, 0.15);
+    color: $status-completed;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    &:hover { background: rgba(74, 222, 128, 0.25); }
+  }
+
+  &.btn-reset {
+    background: rgba(156, 163, 175, 0.12);
+    color: $status-initiated;
+    border: 1px solid rgba(156, 163, 175, 0.2);
+    padding: 3px 5px;
+    span { display: none; }
+    &:hover { background: rgba(156, 163, 175, 0.22); }
+  }
+}
+
+// ─── Action buttons ───────────────────────────────────────────────────────────
+.action-buttons {
+  flex-shrink: 0;
+  gap: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+
+  // Always show on touch devices
+  @media (hover: none) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.delete-button,
+.expand-button,
+.edit-button {
+  border: none;
+  background-color: transparent;
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.delete-icon  { color: $icon-delete; }
+.expand-icon  { color: $icon-expand; }
+.edit-icon    { color: $icon-edit; }
+
+// ─── Container-specific accent colors ────────────────────────────────────────
+:host {
+  .symptoms-tasks {
+    border-left-color: rgba(248, 113, 113, 0.5);
+    &:hover { border-left-color: $icon-delete; }
+  }
+
+  .ideas-tasks {
+    border-left-color: rgba(96, 165, 250, 0.5);
+    &:hover { border-left-color: $icon-edit; }
+  }
+
+  .goals-tasks {
+    border-left-color: rgba(249, 208, 122, 0.4);
+    background: rgba(249, 208, 122, 0.04);
+    &:hover {
+      background: rgba(249, 208, 122, 0.08);
+      border-left-color: $gold;
+    }
+  }
+
+  .objectives-tasks {
+    border-left-color: rgba(249, 208, 122, 0.65);
+    background: rgba(249, 208, 122, 0.06);
+    &:hover {
+      background: rgba(249, 208, 122, 0.10);
+      border-left-color: $gold;
+    }
+  }
+
+  .achievements-tasks {
+    border-left-color: $gold;
+    background: rgba(249, 208, 122, 0.08);
+    &:hover {
+      background: rgba(249, 208, 122, 0.13);
+      border-left-color: $gold-dark;
+      box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.25),
+        0 2px 8px rgba(249, 208, 122, 0.15);
+    }
+  }
+
+  .tasks:not(.cdk-drag-placeholder) {
+    transition: $transition-card;
+  }
+}
+
+// ─── Drag and drop ────────────────────────────────────────────────────────────
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(249, 208, 122, 0.12);
+  background: rgba(249, 208, 122, 0.15);
+  border-left: 3px solid $gold;
+  color: #fff;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// ─── Light mode ───────────────────────────────────────────────────────────────
+:host-context(.light-mode) {
+  .tasks {
+    color: #010014;
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(1, 0, 20, 0.08);
+    border-left-color: rgba(92, 64, 0, 0.35);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-left-color: #5C4000;
+      box-shadow:
+        0 6px 20px rgba(1, 0, 20, 0.08),
+        0 2px 8px rgba(92, 64, 0, 0.08);
+    }
+
+    .description {
+      color: rgba(1, 0, 20, 0.55);
+    }
+  }
+
+  .name-description-container .task-name {
+    color: #010014;
+  }
+
+  .symptoms-tasks {
+    border-left-color: rgba(220, 80, 80, 0.5);
+    &:hover { border-left-color: #dc2626; }
+  }
+
+  .ideas-tasks {
+    border-left-color: rgba(37, 99, 235, 0.4);
+    &:hover { border-left-color: #2563eb; }
+  }
+
+  .goals-tasks {
+    background: rgba(249, 208, 122, 0.08);
+    border-left-color: rgba(92, 64, 0, 0.4);
+    &:hover {
+      background: rgba(249, 208, 122, 0.15);
+      border-left-color: #5C4000;
+    }
+  }
+
+  .objectives-tasks {
+    background: rgba(249, 208, 122, 0.12);
+    border-left-color: rgba(92, 64, 0, 0.6);
+    &:hover {
+      background: rgba(249, 208, 122, 0.18);
+      border-left-color: #5C4000;
+    }
+  }
+
+  .achievements-tasks {
+    background: rgba(249, 208, 122, 0.16);
+    border-left-color: #8B6200;
+    &:hover {
+      background: rgba(249, 208, 122, 0.22);
+      border-left-color: #5C4000;
+    }
+  }
+
+  .delete-icon  { color: #dc2626; }
+  .expand-icon  { color: #16a34a; }
+  .edit-icon    { color: #1d4ed8; }
+
+  .delete-button,
+  .expand-button,
+  .edit-button {
+    &:hover,
+    &:focus-visible {
+      background: rgba(1, 0, 20, 0.07);
+    }
+  }
+
+  .status-badge {
+    &.badge-initiated { color: #6b7280; border-color: rgba(107, 114, 128, 0.4); }
+    &.badge-working   { color: #b45309; border-color: rgba(180, 83, 9, 0.4); }
+    &.badge-completed { color: #15803d; border-color: rgba(21, 128, 61, 0.4); }
+  }
+
+  .status-btn {
+    &.btn-initiate { color: #b45309; border-color: rgba(180, 83, 9, 0.4); background: rgba(251, 191, 36, 0.1); }
+    &.btn-complete { color: #15803d; border-color: rgba(21, 128, 61, 0.4); background: rgba(74, 222, 128, 0.1); }
+    &.btn-reset    { color: #6b7280; border-color: rgba(107, 114, 128, 0.3); background: rgba(107, 114, 128, 0.08); }
+  }
+}
+
+
 // ─── Base card ───────────────────────────────────────────────────────────────
 .tasks {
   padding: 14px 16px;

@@ -96,4 +96,28 @@ export class TaskEffects {
       )
     )
   );
+
+  updateTaskStatus$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(taskActions.taskStatusUpdated),
+      switchMap(({ taskId, status }) =>
+        from(this.taskAPIService.updateTaskStatus(taskId, status)).pipe(
+          map((res: boolean) =>
+            res
+              ? taskActions.taskStatusUpdatedSuccessfully({ taskId, status })
+              : taskActions.taskStatusUpdateFailed({
+                  error: 'Failed to update task status',
+                })
+          ),
+          catchError(() =>
+            of(
+              taskActions.taskStatusUpdateFailed({
+                error: 'Failed to update task status',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
 }
