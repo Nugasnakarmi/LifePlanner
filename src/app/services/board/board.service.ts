@@ -23,8 +23,8 @@ export class BoardService {
     this.store.dispatch(boardActions.loadBoards());
   }
 
-  nameEditFinished(board: Board): void {
-    this.store.dispatch(boardActions.boardNameEdited({ board: board }));
+  boardEditFinished(board: Board): void {
+    this.store.dispatch(boardActions.boardEdited({ board: board }));
   }
 
   //create new board

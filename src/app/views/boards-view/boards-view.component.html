@@ -53,7 +53,7 @@
         </div>
         <div class="template-grid">
           @for(template of myTemplates; track template.id) {
-            <div class="template-card template-card--user" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
+            <div class="template-card template-card--user" role="button" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="activateTemplateCard(template, $event)" (keydown.space)="onCardKeydownSpace($event)" (keyup.space)="activateTemplateCard(template, $event)" [attr.aria-label]="'Create board from template: ' + template.name">
               <div class="template-card-header">
                 <div class="template-card-icon">
                   <mat-icon>description</mat-icon>
@@ -88,7 +88,7 @@
       @if(systemTemplates.length > 0) {
         <div class="template-grid">
           @for(template of systemTemplates; track template.id) {
-          <div class="template-card" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="createBoardFromTemplate(template)" [attr.aria-label]="'Create board from template: ' + template.name">
+          <div class="template-card" role="button" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="activateTemplateCard(template, $event)" (keydown.space)="onCardKeydownSpace($event)" (keyup.space)="activateTemplateCard(template, $event)" [attr.aria-label]="'Create board from template: ' + template.name">
             <div class="template-card-header">
               <div class="template-card-icon">
                 <mat-icon>workspace_premium</mat-icon>
@@ -115,10 +115,18 @@
   @if(boards$ | async; as boards) {
   <div class="boards-grid">
     @for(board of boards; track board.id) {
-    <div class="board-card" (click)="editingBoardId !== board.id && selectBoard(board)" tabindex="0" (keydown.enter)="editingBoardId === board.id ? null : selectBoard(board)">
+    <div class="board-card"
+      [attr.role]="editingBoardId !== board.id ? 'button' : null"
+      [attr.aria-label]="editingBoardId !== board.id ? ('Open board ' + board.name) : null"
+      (click)="editingBoardId !== board.id && selectBoard(board)"
+      [attr.tabindex]="editingBoardId !== board.id ? 0 : null"
+      (keydown.enter)="activateBoardCard(board, $event)"
+      (keydown.space)="onCardKeydownSpace($event)"
+      (keyup.space)="activateBoardCard(board, $event)">
       @if(editingBoardId === board.id) {
       <div class="board-card-edit" (click)="$event.stopPropagation()">
         <mat-form-field appearance="outline" class="edit-name-field">
+          <mat-label>Board name</mat-label>
           <input
             matInput
             [formControl]="editBoardNameControl"
@@ -128,8 +136,18 @@
             autofocus
           />
         </mat-form-field>
+        <mat-form-field appearance="outline" class="edit-description-field">
+          <mat-label>Description (optional)</mat-label>
+          <textarea
+            matInput
+            [formControl]="editBoardDescriptionControl"
+            placeholder="Add a description..."
+            rows="2"
+            (keydown.escape)="cancelEditBoard($event)"
+          ></textarea>
+        </mat-form-field>
         <div class="edit-actions">
-          <button mat-icon-button color="primary" (click)="saveEditBoard(board, $event)" [disabled]="editBoardNameControl.invalid" title="Save" aria-label="Save board name">
+          <button mat-icon-button color="primary" (click)="saveEditBoard(board, $event)" [disabled]="editBoardNameControl.invalid" title="Save" aria-label="Save board changes">
             <mat-icon>check</mat-icon>
           </button>
           <button mat-icon-button (click)="cancelEditBoard($event)" title="Cancel" aria-label="Cancel editing">
