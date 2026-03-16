@@ -60,6 +60,8 @@ export class BoardsViewComponent implements OnInit {
     Validators.minLength(3),
   ]);
 
+  editBoardDescriptionControl = new UntypedFormControl('');
+
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
     this.boards$ = this.boardService.boards$;
@@ -134,13 +136,15 @@ export class BoardsViewComponent implements OnInit {
     event.stopPropagation();
     this.editingBoardId = board.id ?? null;
     this.editBoardNameControl.setValue(board.name);
+    this.editBoardDescriptionControl.setValue(board.description ?? '');
   }
 
   saveEditBoard(board: Board, event: Event): void {
     event.stopPropagation();
     const name = this.editBoardNameControl.value?.trim();
     if (name && this.editBoardNameControl.valid) {
-      this.boardService.nameEditFinished({ ...board, name });
+      const description = (this.editBoardDescriptionControl.value ?? '').trim();
+      this.boardService.nameEditFinished({ ...board, name, description });
     }
     this.editingBoardId = null;
   }
