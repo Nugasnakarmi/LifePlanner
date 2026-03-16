@@ -148,11 +148,13 @@ export class BoardAPIService {
       this.toastRService.success(`Board "${template.name}" created from template`);
       return true;
     } catch (error) {
-      // Clean up the partially created board (cascade deletes lists/tasks).
+      // Clean up the partially created board. Tasks must be deleted before the board
+      // because tasks.board_id does not have ON DELETE CASCADE.
       if (boardId !== null) {
+        await this.supabaseService.supabase.from('tasks').delete().eq('board_id', boardId);
         await this.supabaseService.supabase.from('boards').delete().eq('id', boardId);
       }
-      this.toastRService.error(`Failed to create board from template: ${error.message}`);
+      this.toastRService.error(`Failed to create board from template: ${error?.message ?? String(error)}`);
       return false;
     }
   }

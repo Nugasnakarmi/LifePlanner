@@ -48,6 +48,12 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin: 0 0 4px;
+
+  @media (forced-colors: active) {
+    background: none;
+    -webkit-text-fill-color: CanvasText;
+    color: CanvasText;
+  }
 }
 
 .dialog-subtitle {
@@ -836,6 +842,12 @@
     background: -webkit-linear-gradient(#5C4000, #8B6200);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+
+    @media (forced-colors: active) {
+      background: none;
+      -webkit-text-fill-color: CanvasText;
+      color: CanvasText;
+    }
   }
 
   .dialog-subtitle {
