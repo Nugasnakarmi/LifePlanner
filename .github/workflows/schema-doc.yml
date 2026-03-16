@@ -53,92 +53,188 @@ jobs:
 
           # ── helpers ─────────────────────────────────────────────────────────
 
+          def _unquote(s):
+              """Strip surrounding double-quotes from an SQL identifier."""
+              return s.strip('"')
+
           def find_primary_keys(sql):
-              """Return {table: set(pk_columns)} from ALTER TABLE … PRIMARY KEY stmts."""
+              """Return {table: set(pk_columns)} from ALTER TABLE … PRIMARY KEY stmts.
+
+              Handles both standard pg_dump format (PRIMARY KEY (cols)) and the
+              Supabase CLI format (PRIMARY KEY using index "idx_name") where the
+              column list is resolved via the corresponding CREATE UNIQUE INDEX stmt.
+              Supports both quoted ("public"."table") and unquoted (public.table)
+              identifiers, and the optional ONLY keyword.
+              """
               pks = {}
+              # Standard pg_dump: PRIMARY KEY (col1, col2, ...)
               pat = re.compile(
-                  r'ALTER TABLE ONLY (?:public\.)?(\w+)[^;]*?'
-                  r'ADD CONSTRAINT \w+ PRIMARY KEY \(([^)]+)\)',
+                  r'ALTER TABLE (?:ONLY\s+)?(?:"?public"?\.)?("?\w+"?)[^;]*?'
+                  r'ADD CONSTRAINT "?\w+"? PRIMARY KEY \(([^)]+)\)',
                   re.IGNORECASE,
               )
               for m in pat.finditer(sql):
-                  pks[m.group(1)] = {c.strip() for c in m.group(2).split(',')}
+                  pks[_unquote(m.group(1))] = {_unquote(c.strip()) for c in m.group(2).split(',')}
+
+              # Supabase CLI: PRIMARY KEY using index "idx_name" — resolve via CREATE UNIQUE INDEX
+              idx_cols = {}
+              idx_pat = re.compile(
+                  r'CREATE UNIQUE INDEX "?(\w+)"? ON (?:"?public"?\.)?(?:"?\w+"?)\s+USING \w+ \(([^)]+)\)',
+                  re.IGNORECASE,
+              )
+              for m in idx_pat.finditer(sql):
+                  idx_cols[_unquote(m.group(1))] = {_unquote(c.strip()) for c in m.group(2).split(',')}
+
+              pk_idx_pat = re.compile(
+                  r'ALTER TABLE (?:ONLY\s+)?(?:"?public"?\.)?("?\w+"?)[^;]*?'
+                  r'ADD CONSTRAINT "?\w+"? PRIMARY KEY using index "?(\w+)"?',
+                  re.IGNORECASE,
+              )
+              for m in pk_idx_pat.finditer(sql):
+                  table = _unquote(m.group(1))
+                  idx   = _unquote(m.group(2))
+                  if idx in idx_cols:
+                      pks[table] = idx_cols[idx]
+
               return pks
 
           def find_foreign_keys(sql):
-              """Return {table: {column: description}} from FOREIGN KEY stmts."""
+              """Return {table: {column: description}} from FOREIGN KEY stmts.
+
+              Supports quoted identifiers, optional ONLY keyword, any referenced
+              schema (not just public), and only recognises valid ON DELETE actions
+              to avoid capturing trailing noise like Supabase's 'not valid'.
+              """
               fks = {}
               pat = re.compile(
-                  r'ALTER TABLE ONLY (?:public\.)?(\w+)[^;]*?'
-                  r'ADD CONSTRAINT \w+ FOREIGN KEY \(([^)]+)\)\s+'
-                  r'REFERENCES\s+([\w.]+)\s*\(([^)]+)\)([^;]*)',
+                  r'ALTER TABLE (?:ONLY\s+)?(?:"?public"?\.)?("?\w+"?)[^;]*?'
+                  r'ADD CONSTRAINT "?\w+"? FOREIGN KEY \(([^)]+)\)\s+'
+                  r'REFERENCES\s+((?:"?\w+"?\.)?(?:"?\w+"?))\s*\(([^)]+)\)([^;]*)',
                   re.IGNORECASE,
               )
               for m in pat.finditer(sql):
-                  table   = m.group(1)
-                  cols    = [c.strip() for c in m.group(2).split(',')]
-                  ref     = f'{m.group(3)}({m.group(4).strip()})'
+                  table   = _unquote(m.group(1))
+                  cols    = [_unquote(c.strip()) for c in m.group(2).split(',')]
+                  ref_raw = m.group(3)
+                  ref     = '.'.join(_unquote(p) for p in ref_raw.split('.'))
+                  ref_col = _unquote(m.group(4).strip())
                   tail    = m.group(5)
-                  od      = re.search(r'ON DELETE (\w+(?:\s+\w+)?)', tail, re.IGNORECASE)
+                  od      = re.search(
+                      r'ON DELETE (NO ACTION|SET NULL|SET DEFAULT|CASCADE|RESTRICT)',
+                      tail, re.IGNORECASE,
+                  )
                   suffix  = f' ON DELETE {od.group(1).upper()}' if od else ''
                   fks.setdefault(table, {})
                   for col in cols:
-                      fks[table][col] = f'FK → `{ref}`{suffix}'
+                      fks[table][col] = f'FK → `{ref}({ref_col})`{suffix}'
               return fks
 
           def find_identity_columns(sql):
-              """Return {table: {column: label}} for GENERATED AS IDENTITY columns."""
+              """Return {table: {column: label}} for GENERATED AS IDENTITY columns.
+
+              Handles both the standard pg_dump ALTER COLUMN … ADD GENERATED form
+              and the Supabase CLI inline form where the identity spec appears
+              directly in the CREATE TABLE column definition.
+              """
               ids = {}
+              # Standard pg_dump: ALTER COLUMN … ADD GENERATED … AS IDENTITY
               pat = re.compile(
-                  r'ALTER TABLE ONLY (?:public\.)?(\w+)[^;]*?'
-                  r'ALTER COLUMN (\w+) ADD GENERATED (\w+(?:\s+\w+)?) AS IDENTITY',
+                  r'ALTER TABLE (?:ONLY\s+)?(?:"?public"?\.)?("?\w+"?)[^;]*?'
+                  r'ALTER COLUMN ("?\w+"?) ADD GENERATED (\w+(?:\s+\w+)?) AS IDENTITY',
                   re.IGNORECASE,
               )
               for m in pat.finditer(sql):
-                  ids.setdefault(m.group(1), {})[m.group(2)] = (
+                  ids.setdefault(_unquote(m.group(1)), {})[_unquote(m.group(2))] = (
                       f'GENERATED {m.group(3).upper()} AS IDENTITY'
                   )
+
+              # Supabase CLI: inline "col type generated by default as identity …"
+              tbl_pat = re.compile(
+                  r'CREATE TABLE (?:IF NOT EXISTS\s+)?(?:"?public"?\.)?("?\w+"?)\s*\((.*?)\n\s*\);',
+                  re.DOTALL | re.IGNORECASE,
+              )
+              col_id_pat = re.compile(
+                  r'"?(\w+)"?\s+\S+.*?\bGENERATED\s+(BY DEFAULT|ALWAYS)\s+AS IDENTITY',
+                  re.IGNORECASE,
+              )
+              for m in tbl_pat.finditer(sql):
+                  table = _unquote(m.group(1))
+                  for cm in col_id_pat.finditer(m.group(2)):
+                      ids.setdefault(table, {})[cm.group(1)] = (
+                          f'GENERATED {cm.group(2).upper()} AS IDENTITY'
+                      )
+
               return ids
 
           def find_rls(sql):
-              """Return (set_of_rls_tables, {table: [policy_descriptions]})."""
+              """Return (set_of_rls_tables, {table: [policy_descriptions]}).
+
+              Supports quoted identifiers and both single-line (pg_dump) and
+              multi-line (Supabase CLI) CREATE POLICY syntax.
+              """
               rls_tables = set(
-                  m.group(1)
+                  _unquote(m.group(1))
                   for m in re.finditer(
-                      r'ALTER TABLE (?:public\.)?(\w+)\s+ENABLE ROW LEVEL SECURITY',
+                      r'ALTER TABLE (?:ONLY\s+)?(?:"?public"?\.)?("?\w+"?)\s+ENABLE ROW LEVEL SECURITY',
                       sql, re.IGNORECASE,
                   )
               )
               policies = {}
+              # Match both single-line (pg_dump) and multi-line (Supabase CLI) policy defs.
+              # The optional 'AS permissive|restrictive' clause sits between ON and FOR.
               for m in re.finditer(
-                  r'CREATE POLICY "([^"]+)"\s+ON (?:public\.)?(\w+)\s+FOR (\w+)',
+                  r'CREATE POLICY "([^"]+)"\s+ON (?:"?public"?\.)?("?\w+"?)\s+(?:AS \w+\s+)?FOR (\w+)',
                   sql, re.IGNORECASE,
               ):
-                  policies.setdefault(m.group(2), []).append(
+                  table = _unquote(m.group(2))
+                  policies.setdefault(table, []).append(
                       f'{m.group(3).upper()}: {m.group(1)}'
                   )
               return rls_tables, policies
 
           def parse_column(raw_line):
-              """Parse one column definition line; return dict or None."""
+              """Parse one column definition line; return dict or None.
+
+              Handles both standard pg_dump column order (DEFAULT before NOT NULL)
+              and Supabase CLI column order (NOT NULL before DEFAULT).  Also strips
+              double-quotes from column names and correctly excludes the DEFAULT
+              keyword that appears inside GENERATED … AS IDENTITY from being
+              treated as a column-level default value.
+              """
               tokens = raw_line.strip().rstrip(',').split()
               if not tokens:
                   return None
-              col_name = tokens[0]
+              col_name = _unquote(tokens[0])
               if col_name.upper() in ('CONSTRAINT', 'PRIMARY', 'FOREIGN', 'UNIQUE', 'CHECK', 'REFERENCES', 'KEY'):
                   return None
 
-              default_idx = not_null_idx = None
+              default_idx = not_null_idx = gen_idx = ident_idx = None
               i = 0
               while i < len(tokens):
                   tok = tokens[i].upper()
-                  if tok == 'DEFAULT' and default_idx is None:
+                  if tok == 'GENERATED' and gen_idx is None:
+                      gen_idx = i
+                  elif tok == 'IDENTITY' and ident_idx is None:
+                      ident_idx = i
+                  elif tok == 'DEFAULT' and default_idx is None:
                       default_idx = i
                   elif tok == 'NOT' and i + 1 < len(tokens) and tokens[i + 1].upper() == 'NULL':
                       not_null_idx = i
                   i += 1
 
+              # If DEFAULT sits inside GENERATED … IDENTITY it belongs to the identity
+              # spec (e.g. "BY DEFAULT"), not to the column's storage default.
+              if (default_idx is not None and gen_idx is not None and ident_idx is not None
+                      and gen_idx < default_idx < ident_idx):
+                  real_default_idx = None
+                  for i in range(ident_idx + 1, len(tokens)):
+                      if tokens[i].upper() == 'DEFAULT':
+                          real_default_idx = i
+                          break
+                  default_idx = real_default_idx
+
               type_end = min(
+                  gen_idx        if gen_idx        is not None else len(tokens),
                   default_idx    if default_idx    is not None else len(tokens),
                   not_null_idx   if not_null_idx   is not None else len(tokens),
               )
@@ -146,22 +242,30 @@ jobs:
               nullable  = not_null_idx is None
               default_v = None
               if default_idx is not None:
-                  d_end     = not_null_idx if not_null_idx is not None else len(tokens)
-                  default_v = ' '.join(tokens[default_idx + 1:d_end])
+                  # NOT NULL may precede DEFAULT (Supabase CLI) or follow it (pg_dump)
+                  d_end = (not_null_idx
+                           if not_null_idx is not None and not_null_idx > default_idx
+                           else len(tokens))
+                  default_v = ' '.join(tokens[default_idx + 1:d_end]) or None
 
               return {'name': col_name, 'type': col_type,
                       'nullable': nullable, 'default': default_v}
 
           def parse_tables(sql):
-              """Return {table_name: [column_dicts]} from CREATE TABLE stmts."""
+              """Return {table_name: [column_dicts]} from CREATE TABLE stmts.
+
+              Handles both unquoted (public.table) and quoted ("public"."table")
+              schema-qualified names, the optional IF NOT EXISTS clause, and the
+              table body closing pattern used by both pg_dump and Supabase CLI.
+              """
               tables = {}
               pat = re.compile(
-                  r'CREATE TABLE (?:public\.)?(\w+)\s*\((.*?)\);',
+                  r'CREATE TABLE (?:IF NOT EXISTS\s+)?(?:"?public"?\.)?("?\w+"?)\s*\((.*?)\n\s*\);',
                   re.DOTALL | re.IGNORECASE,
               )
               for m in pat.finditer(sql):
                   cols = [parse_column(ln) for ln in m.group(2).splitlines()]
-                  tables[m.group(1)] = [c for c in cols if c]
+                  tables[_unquote(m.group(1))] = [c for c in cols if c]
               return tables
 
           # ── gather metadata ──────────────────────────────────────────────────
