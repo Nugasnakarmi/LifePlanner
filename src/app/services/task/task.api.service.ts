@@ -126,7 +126,7 @@ export class TaskAPIService {
 
   async updateTaskStatus(taskId: number, status: TaskStatus): Promise<boolean> {
     try {
-      let { data, error } = await this.supabaseService.supabase
+      let { error } = await this.supabaseService.supabase
         .from('tasks')
         .update({ status })
         .eq('id', taskId);

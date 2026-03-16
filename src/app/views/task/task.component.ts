@@ -57,12 +57,6 @@ export class TaskComponent {
     this.taskService.taskStatusUpdated(task.id, status);
   }
 
-  getNextStatus(current: TaskStatus | undefined): TaskStatus | null {
-    if (!current || current === TaskStatus.Initiated) return TaskStatus.WorkingOn;
-    if (current === TaskStatus.WorkingOn) return TaskStatus.Completed;
-    return null;
-  }
-
   getStatusIcon(status: TaskStatus | undefined): string {
     switch (status) {
       case TaskStatus.WorkingOn: return 'autorenew';
