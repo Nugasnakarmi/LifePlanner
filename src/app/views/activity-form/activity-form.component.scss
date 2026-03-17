@@ -163,3 +163,48 @@ $gold-dark: #5C4000;
     &:hover { background: rgba(1, 0, 20, 0.06); color: #010014; }
   }
 }
+
+// ─── Mobile responsive ────────────────────────────────────────────────────────
+@media screen and (max-width: 600px) {
+  .activity-form-container {
+    width: 95vw;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .dialog-header {
+    .dialog-title { font-size: 18px; }
+    .dialog-icon { font-size: 22px; width: 22px; height: 22px; }
+  }
+
+  .field-row {
+    flex-direction: column;
+    gap: 0;
+
+    .field-key,
+    .field-value { width: 100%; }
+  }
+
+  .media-row {
+    flex-direction: column;
+    gap: 0;
+
+    .media-type,
+    .media-url,
+    .media-name { flex: unset; width: 100%; min-width: unset; }
+  }
+
+  .remove-btn {
+    align-self: flex-end;
+    margin-top: -8px;
+    margin-bottom: 4px;
+  }
+
+  .action-button-container {
+    flex-direction: column-reverse;
+    align-items: stretch;
+
+    .cancel-btn,
+    .submit-btn { width: 100%; text-align: center; }
+  }
+}
