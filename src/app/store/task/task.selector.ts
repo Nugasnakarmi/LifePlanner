@@ -13,9 +13,23 @@ export const selectLoadingState = createSelector(
   (state) => state.loading
 );
 
-export const selectTaskStatusCounts = createSelector(selectTasks, (tasks) => ({
-  [TaskStatus.Initiated]: tasks.filter((t) => t.status === TaskStatus.Initiated || !t.status).length,
-  [TaskStatus.WorkingOn]: tasks.filter((t) => t.status === TaskStatus.WorkingOn).length,
-  [TaskStatus.Completed]: tasks.filter((t) => t.status === TaskStatus.Completed).length,
-  total: tasks.length,
-}));
+export const selectTaskStatusCounts = createSelector(selectTasks, (tasks) => {
+  const counts = tasks.reduce(
+    (acc, t) => {
+      if (t.status === TaskStatus.WorkingOn) {
+        acc[TaskStatus.WorkingOn]++;
+      } else if (t.status === TaskStatus.Completed) {
+        acc[TaskStatus.Completed]++;
+      } else {
+        acc[TaskStatus.Initiated]++;
+      }
+      return acc;
+    },
+    {
+      [TaskStatus.Initiated]: 0,
+      [TaskStatus.WorkingOn]: 0,
+      [TaskStatus.Completed]: 0,
+    }
+  );
+  return { ...counts, total: tasks.length };
+});

@@ -2,7 +2,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as taskActions from './task.actions';
 import { inject, Injectable } from '@angular/core';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
-import { catchError, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap, concatMap } from 'rxjs/operators';
 import { from, of } from 'rxjs';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
@@ -100,7 +100,7 @@ export class TaskEffects {
   updateTaskStatus$ = createEffect(() =>
     this.actions$.pipe(
       ofType(taskActions.taskStatusUpdated),
-      switchMap(({ taskId, status }) =>
+      concatMap(({ taskId, status }) =>
         from(this.taskAPIService.updateTaskStatus(taskId, status)).pipe(
           map((res: boolean) =>
             res

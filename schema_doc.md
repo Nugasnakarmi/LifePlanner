@@ -128,7 +128,6 @@
 | `created_at` | `timestamp with time zone` | ❌ | `"now"()` | — |
 | `last_edited` | `timestamp without time zone` | ✅ | `"now"()` | — |
 | `completion_status` | `smallint` | ✅ | `'0'::smallint` | — |
-| `status` | `task_status` | ❌ | `'Initiated'` | Enum: `'Initiated'`, `'Working On'`, `'Completed'` |
 | `user_id` | `"uuid"` | ✅ | — | — |
 | `type` | `smallint` | ✅ | — | — |
 | `board_id` | `bigint` | ✅ | — | FK → `public.boards(id)` |
