@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { Activity, TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 import * as activityActions from 'src/app/store/task/activity.actions';
-import { selectActivities, selectActivitiesLoading } from 'src/app/store/task/activity.selector';
+import { selectActivities, selectActivitiesLoading, selectActivityProgress } from 'src/app/store/task/activity.selector';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +13,7 @@ export class ActivityService {
 
   activities$: Observable<TaskScopedActivity[]> = this.store.select(selectActivities);
   loading$: Observable<boolean> = this.store.select(selectActivitiesLoading);
+  progress$ = this.store.select(selectActivityProgress);
 
   loadActivities(taskId: number): void {
     this.store.dispatch(activityActions.loadActivities({ taskId }));
@@ -41,4 +42,11 @@ export class ActivityService {
   clearActivities(): void {
     this.store.dispatch(activityActions.clearActivities());
   }
+
+  toggleActivityComplete(taskActivityId: number, activityId: number, completed: boolean): void {
+    this.store.dispatch(
+      activityActions.toggleActivityComplete({ taskActivityId, activityId, completed })
+    );
+  }
 }
+

@@ -43,7 +43,7 @@
 
 .task-detail-body {
   flex: 1;
-  gap: 16px;
+  gap: 20px;
   overflow-y: auto;
 
   .task-name {
@@ -66,6 +66,288 @@
   }
 }
 
+// ─── Activities Section ────────────────────────────────────────────────────────
+.activities-section {
+  gap: 12px;
+  border-top: 1px solid rgba(249, 208, 122, 0.15);
+  padding-top: 16px;
+}
+
+.activities-header {
+  align-items: center;
+}
+
+.activities-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .activities-icon {
+    color: #F9D07A;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .activities-label {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #F9D07A;
+  }
+
+  .activity-count {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(249, 208, 122, 0.65);
+  }
+}
+
+.add-activity-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(249, 208, 122, 0.4);
+  background: rgba(249, 208, 122, 0.08);
+  color: #F9D07A;
+  border-radius: 6px;
+  padding: 4px 12px 4px 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(249, 208, 122, 0.18);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ─── Progress Bar ──────────────────────────────────────────────────────────────
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .activity-progress-bar {
+    flex: 1;
+    border-radius: 4px;
+    height: 6px;
+
+    &::ng-deep .mdc-linear-progress__bar-inner {
+      border-color: #F9D07A;
+    }
+    &::ng-deep .mdc-linear-progress__track {
+      background-color: rgba(249, 208, 122, 0.15);
+    }
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: rgba(249, 208, 122, 0.8);
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .all-done-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #4ade80;
+    }
+  }
+}
+
+// ─── Activity List ─────────────────────────────────────────────────────────────
+.activities-list {
+  gap: 8px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(249, 208, 122, 0.15);
+  }
+
+  &.activity-completed {
+    background: rgba(74, 222, 128, 0.04);
+    border-color: rgba(74, 222, 128, 0.15);
+  }
+}
+
+.complete-toggle {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.35);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: color 0.2s;
+
+  &.toggle-done {
+    color: #4ade80;
+  }
+
+  &:hover {
+    color: #4ade80;
+  }
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.activity-content {
+  flex: 1;
+  gap: 6px;
+  min-width: 0;
+
+  .activity-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    word-break: break-word;
+    line-height: 1.4;
+
+    &.name-done {
+      text-decoration: line-through;
+      color: rgba(255, 255, 255, 0.45);
+    }
+  }
+}
+
+// ─── Data chips ────────────────────────────────────────────────────────────────
+.data-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.flex-row-wrap {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.data-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(249, 208, 122, 0.08);
+  border: 1px solid rgba(249, 208, 122, 0.2);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 12px;
+
+  .data-key {
+    color: rgba(249, 208, 122, 0.7);
+    font-weight: 600;
+  }
+
+  .data-val {
+    color: rgba(255, 255, 255, 0.75);
+  }
+}
+
+// ─── Media previews ────────────────────────────────────────────────────────────
+.media-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.media-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: 200px;
+
+  .media-image {
+    width: 100%;
+    max-width: 200px;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .media-video {
+    width: 100%;
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .media-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+  }
+}
+
+// ─── Activity action buttons ───────────────────────────────────────────────────
+.activity-actions {
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.act-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.edit-act { color: #60a5fa; }
+.remove-act { color: #f87171; }
+
+.no-activities {
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 4px 0;
+  text-align: center;
+}
+
+// ─── Bottom Actions ────────────────────────────────────────────────────────────
 .task-detail-actions {
   align-items: center;
   padding-top: 16px;
@@ -97,6 +379,7 @@
   }
 }
 
+// ─── Light mode ────────────────────────────────────────────────────────────────
 :host-context(.light-mode) {
   .task-detail-header {
     .task-container-label {
@@ -121,4 +404,47 @@
       color: rgba(1, 0, 20, 0.75);
     }
   }
+
+  .activities-title-row {
+    .activities-icon { color: #5C4000; }
+    .activities-label { color: #5C4000; }
+    .activity-count { color: rgba(92, 64, 0, 0.65); }
+  }
+
+  .add-activity-btn {
+    border-color: rgba(92, 64, 0, 0.35);
+    background: rgba(92, 64, 0, 0.06);
+    color: #5C4000;
+    &:hover { background: rgba(92, 64, 0, 0.12); }
+  }
+
+  .activity-item {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(1, 0, 20, 0.08);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    &.activity-completed {
+      background: rgba(74, 222, 128, 0.08);
+    }
+  }
+
+  .complete-toggle {
+    color: rgba(1, 0, 20, 0.25);
+  }
+
+  .activity-content {
+    .activity-name { color: #010014; }
+    .activity-name.name-done { color: rgba(1, 0, 20, 0.4); }
+  }
+
+  .data-chip {
+    .data-key { color: #5C4000; }
+    .data-val { color: rgba(1, 0, 20, 0.7); }
+  }
+
+  .no-activities { color: rgba(1, 0, 20, 0.4); }
 }
+

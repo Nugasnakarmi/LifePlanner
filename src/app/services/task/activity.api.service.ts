@@ -28,6 +28,7 @@ export class ActivityApiService {
         ...ta.activity,
         position: ta.position,
         task_activity_id: ta.id,
+        completed: ta.completed ?? false,
       }));
     } catch (error) {
       this.toastRService.error(`Failed to load activities: ${error?.message ?? error}`);
@@ -65,6 +66,7 @@ export class ActivityApiService {
             task_id: taskId,
             activity_id: createdActivity.id,
             position,
+            completed: false,
           })
           .select()
           .single();
@@ -158,4 +160,25 @@ export class ActivityApiService {
       return false;
     }
   }
+
+  async toggleActivityComplete(taskActivityId: number, completed: boolean): Promise<boolean> {
+    try {
+      const { error } = await this.supabaseService.supabase
+        .from('task_activities')
+        .update({ completed })
+        .eq('id', taskActivityId);
+
+      if (error) {
+        throw error;
+      }
+
+      return true;
+    } catch (error) {
+      this.toastRService.error(
+        `Failed to update activity completion: ${error?.message ?? error}`
+      );
+      return false;
+    }
+  }
 }
+

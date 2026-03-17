@@ -9,6 +9,125 @@
   <div class="task-detail-body flex-column">
     <h2 class="task-name">{{ data.task.name }}</h2>
     <p class="task-description">{{ data.task.description }}</p>
+
+    <!-- Activities Section -->
+    <div class="activities-section flex-column">
+      <div class="activities-header flex-row-space-between">
+        <div class="activities-title-row">
+          <mat-icon class="activities-icon">checklist</mat-icon>
+          <span class="activities-label">Activities</span>
+          @if ((activities$ | async)?.length) {
+            <span class="activity-count">
+              ({{ (progress$ | async)?.completed }}/{{ (progress$ | async)?.total }})
+            </span>
+          }
+        </div>
+        <button class="add-activity-btn" (click)="openAddActivityDialog()" matTooltip="Add activity">
+          <mat-icon>add</mat-icon>
+          Add
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      @if ((activities$ | async)?.length) {
+        <div class="progress-container">
+          <mat-progress-bar
+            mode="determinate"
+            [value]="(progress$ | async)?.percentage"
+            class="activity-progress-bar"
+          ></mat-progress-bar>
+          <span class="progress-label">
+            {{ (progress$ | async)?.percentage }}% complete
+            @if ((progress$ | async)?.allCompleted) {
+              <mat-icon class="all-done-icon">check_circle</mat-icon>
+            }
+          </span>
+        </div>
+      }
+
+      <!-- Activity List -->
+      <div class="activities-list flex-column">
+        @for (activity of activities$ | async; track activity.id) {
+          <div class="activity-item" [class.activity-completed]="activity.completed">
+            <!-- Completion toggle -->
+            <button
+              class="complete-toggle"
+              [class.toggle-done]="activity.completed"
+              (click)="toggleActivityComplete(activity)"
+              [matTooltip]="activity.completed ? 'Mark as incomplete' : 'Mark as complete'"
+            >
+              <mat-icon>{{ activity.completed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            </button>
+
+            <!-- Activity content -->
+            <div class="activity-content flex-column">
+              <span class="activity-name" [class.name-done]="activity.completed">{{ activity.name }}</span>
+
+              <!-- Custom data fields -->
+              @if (activity.data?.length) {
+                <div class="data-fields flex-row-wrap">
+                  @for (field of activity.data; track field.key) {
+                    <span class="data-chip">
+                      <span class="data-key">{{ field.key }}:</span>
+                      <span class="data-val">{{ field.value }}</span>
+                    </span>
+                  }
+                </div>
+              }
+
+              <!-- Media -->
+              @if (activity.media?.length) {
+                <div class="media-previews">
+                  @for (media of activity.media; track media.url) {
+                    <div class="media-item">
+                      @if (media.type === 'video' || isVideo(media.url)) {
+                        <video
+                          class="media-video"
+                          [src]="media.url"
+                          controls
+                          preload="none"
+                          [title]="media.name || 'Video'"
+                        ></video>
+                      } @else if (media.type === 'gif' || isGif(media.url)) {
+                        <img
+                          class="media-image"
+                          [src]="media.url"
+                          [alt]="media.name || 'GIF'"
+                          loading="lazy"
+                        />
+                      } @else {
+                        <img
+                          class="media-image"
+                          [src]="media.url"
+                          [alt]="media.name || 'Image'"
+                          loading="lazy"
+                        />
+                      }
+                      @if (media.name) {
+                        <span class="media-label">{{ media.name }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Activity actions -->
+            <div class="activity-actions flex-column">
+              <button class="act-btn edit-act" (click)="openEditActivityDialog(activity)" matTooltip="Edit activity">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="act-btn remove-act" (click)="removeActivity(activity)" matTooltip="Remove activity">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+        @if (!(activities$ | async)?.length) {
+          <p class="no-activities">No activities yet. Add one to track progress.</p>
+        }
+      </div>
+    </div>
   </div>
 
   <div class="task-detail-actions flex-row-space-between">

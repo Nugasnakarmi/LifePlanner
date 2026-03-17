@@ -142,4 +142,22 @@ export class TaskAPIService {
       return false;
     }
   }
+
+  async updateCompletionStatus(taskId: number, completionStatus: number): Promise<boolean> {
+    try {
+      let { error } = await this.supabaseService.supabase
+        .from('tasks')
+        .update({ completion_status: completionStatus })
+        .eq('id', taskId);
+
+      if (error) {
+        throw error;
+      }
+
+      return true;
+    } catch (error) {
+      this.toastRService.error(`Failed to update task completion: ${error.message}`);
+      return false;
+    }
+  }
 }

@@ -4,10 +4,15 @@ export interface ActivityMedia {
   name?: string;
 }
 
+export interface ActivityDataField {
+  key: string;
+  value: string;
+}
+
 export interface Activity {
   id?: number;
   name: string;
-  data?: any[];
+  data?: ActivityDataField[];
   media?: ActivityMedia[];
   user_id?: string;
   created_at?: string;
@@ -16,4 +21,5 @@ export interface Activity {
 export interface TaskScopedActivity extends Activity {
   task_activity_id: number;
   position: number;
+  completed?: boolean;
 }

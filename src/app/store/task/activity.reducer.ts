@@ -33,6 +33,7 @@ export const activityReducer = createReducer(
       ...activity,
       task_activity_id: taskActivity.id!,
       position: taskActivity.position ?? 0,
+      completed: taskActivity.completed ?? false,
     }],
   })),
   on(activityActions.updateActivitySuccess, (state, { activity }) => ({
@@ -48,5 +49,12 @@ export const activityReducer = createReducer(
   on(activityActions.deleteActivitySuccess, (state, { activityId }) => ({
     ...state,
     activities: state.activities.filter((a) => a.id !== activityId),
+  })),
+  on(activityActions.toggleActivityCompleteSuccess, (state, { activityId, completed }) => ({
+    ...state,
+    activities: state.activities.map((a) =>
+      a.id === activityId ? { ...a, completed } : a
+    ),
   }))
 );
+
