@@ -8,14 +8,6 @@
 <div class="boards-view-container">
   <div class="boards-header">
     <h2 class="boards-title">Your Boards</h2>
-    <button mat-button class="dashboard-nav-btn" (click)="router.navigate(['/dashboard'])">
-      <mat-icon>dashboard</mat-icon>
-      Dashboard
-    </button>
-    <button mat-raised-button color="primary" (click)="toggleNewBoardForm()">
-      <mat-icon>{{ showNewBoardForm ? 'close' : 'add' }}</mat-icon>
-      {{ showNewBoardForm ? 'Cancel' : 'New Board' }}
-    </button>
   </div>
 
   @if(showNewBoardForm) {
