@@ -19,6 +19,8 @@ import { BoardTemplateEffects } from './store/board-template/board-template.effe
 import { boardTemplateReducer } from './store/board-template/board-template.reducer';
 import { boardListsReducer } from './store/board-list/board-list.reducer';
 import { BoardListEffects } from './store/board-list/board-list.effects';
+import { activityReducer } from './store/task/activity.reducer';
+import { ActivityEffects } from './store/task/activity.effects';
 // const composeEnhancers = composeWithDevTools({
 //   realtime: true,
 //   name: 'Your Instance Name',
@@ -49,7 +51,8 @@ export const appConfig: ApplicationConfig = {
     provideState({ name: 'board', reducer: boardsReducer }), // Assuming you have a board reducer
     provideState({ name: 'board-template', reducer: boardTemplateReducer }),
     provideState({ name: 'board-list', reducer: boardListsReducer }),
-    provideEffects([TaskEffects, BoardEffects, BoardListEffects, BoardTemplateEffects]),
+    provideState({ name: 'activity', reducer: activityReducer }),
+    provideEffects([TaskEffects, BoardEffects, BoardListEffects, BoardTemplateEffects, ActivityEffects]),
     provideStoreDevtools({ maxAge: 25 }), // Enable Redux DevTools
   ],
 };
