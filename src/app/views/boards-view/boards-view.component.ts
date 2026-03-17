@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
@@ -10,7 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
@@ -39,7 +40,9 @@ export class BoardsViewComponent implements OnInit {
   taskService = inject(TaskService);
   boardTemplateService = inject(BoardTemplateService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
   dialog = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
 
   boards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
@@ -69,6 +72,15 @@ export class BoardsViewComponent implements OnInit {
     this.systemTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isSystem)));
     this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem)));
     this.boardTemplateService.loadTemplates();
+
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        if (params['newBoard'] === 'true') {
+          this.showNewBoardForm = true;
+          this.router.navigate(['/boards'], { queryParams: {}, replaceUrl: true });
+        }
+      });
   }
 
   totalTaskCount(template: BoardTemplate): number {
