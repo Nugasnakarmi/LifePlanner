@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { Activity } from 'src/app/interfaces/activity.interface';
+import { Activity, TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 import * as activityActions from 'src/app/store/task/activity.actions';
 import { selectActivities, selectActivitiesLoading } from 'src/app/store/task/activity.selector';
 
@@ -11,7 +11,7 @@ import { selectActivities, selectActivitiesLoading } from 'src/app/store/task/ac
 export class ActivityService {
   private store = inject(Store);
 
-  activities$: Observable<Activity[]> = this.store.select(selectActivities);
+  activities$: Observable<TaskScopedActivity[]> = this.store.select(selectActivities);
   loading$: Observable<boolean> = this.store.select(selectActivitiesLoading);
 
   loadActivities(taskId: number): void {

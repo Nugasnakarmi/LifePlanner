@@ -1,6 +1,6 @@
-import { Activity } from 'src/app/interfaces/activity.interface';
+import { TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 
 export interface ActivityState {
-  activities: Activity[];
+  activities: TaskScopedActivity[];
   loading: boolean;
 }

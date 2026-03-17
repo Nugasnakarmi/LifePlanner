@@ -40,7 +40,7 @@ END;
 $$;
 
 CREATE TRIGGER trg_task_activities_limit
-  BEFORE INSERT ON public.task_activities
+  BEFORE INSERT OR UPDATE OF task_id ON public.task_activities
   FOR EACH ROW
   EXECUTE FUNCTION public.check_task_activities_limit();
 
@@ -84,6 +84,10 @@ CREATE POLICY "Users can insert their own task activities"
       SELECT 1 FROM public.tasks t
       WHERE t.id = task_id AND t.user_id = auth.uid()
     )
+    AND EXISTS (
+      SELECT 1 FROM public.activities a
+      WHERE a.id = activity_id AND a.user_id = auth.uid()
+    )
   );
 
 CREATE POLICY "Users can update their own task activities"
@@ -92,6 +96,10 @@ CREATE POLICY "Users can update their own task activities"
     EXISTS (
       SELECT 1 FROM public.tasks t
       WHERE t.id = task_id AND t.user_id = auth.uid()
+    )
+    AND EXISTS (
+      SELECT 1 FROM public.activities a
+      WHERE a.id = activity_id AND a.user_id = auth.uid()
     )
   );
 

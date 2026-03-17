@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Activity } from 'src/app/interfaces/activity.interface';
+import { Activity, TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 import { TaskActivity } from 'src/app/interfaces/task-activity.interface';
 
 export const loadActivities = createAction(
@@ -8,7 +8,7 @@ export const loadActivities = createAction(
 );
 export const loadActivitiesSuccess = createAction(
   '[Activities] Load Activities Success',
-  props<{ activities: Activity[] }>()
+  props<{ activities: TaskScopedActivity[] }>()
 );
 export const loadActivitiesFailure = createAction(
   '[Activities] Load Activities Failure',

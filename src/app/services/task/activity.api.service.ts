@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { User } from '@supabase/supabase-js';
 import { SupabaseService } from '../supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
-import { Activity } from 'src/app/interfaces/activity.interface';
+import { Activity, TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 import { TaskActivity } from 'src/app/interfaces/task-activity.interface';
 
 @Injectable({
@@ -12,7 +12,7 @@ export class ActivityApiService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
 
-  async getActivitiesByTaskId(taskId: number): Promise<Activity[]> {
+  async getActivitiesByTaskId(taskId: number): Promise<TaskScopedActivity[]> {
     try {
       const { data, error } = await this.supabaseService.supabase
         .from('task_activities')
@@ -70,6 +70,10 @@ export class ActivityApiService {
           .single();
 
       if (taError) {
+        await this.supabaseService.supabase
+          .from('activities')
+          .delete()
+          .eq('id', createdActivity.id);
         throw taError;
       }
 

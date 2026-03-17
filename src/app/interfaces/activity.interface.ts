@@ -12,3 +12,8 @@ export interface Activity {
   user_id?: string;
   created_at?: string;
 }
+
+export interface TaskScopedActivity extends Activity {
+  task_activity_id: number;
+  position: number;
+}

@@ -27,9 +27,13 @@ export const activityReducer = createReducer(
     activities: [],
     loading: false,
   })),
-  on(activityActions.addActivityToTaskSuccess, (state, { activity }) => ({
+  on(activityActions.addActivityToTaskSuccess, (state, { activity, taskActivity }) => ({
     ...state,
-    activities: [...state.activities, activity],
+    activities: [...state.activities, {
+      ...activity,
+      task_activity_id: taskActivity.id!,
+      position: taskActivity.position ?? 0,
+    }],
   })),
   on(activityActions.updateActivitySuccess, (state, { activity }) => ({
     ...state,
