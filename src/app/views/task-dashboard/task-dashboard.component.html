@@ -122,32 +122,36 @@
           <h4 class="chart-title">Status Distribution</h4>
           @if(chart.hasData) {
           <div class="donut-wrapper">
-            <svg viewBox="0 0 160 160" class="donut-svg" aria-label="Task status donut chart">
+            <svg [attr.viewBox]="'0 0 ' + svgSize + ' ' + svgSize"
+              class="donut-svg" aria-label="Task status donut chart">
               <!-- background ring -->
-              <circle cx="80" cy="80" r="60" fill="none"
-                stroke="rgba(255,255,255,0.07)" stroke-width="20"/>
+              <circle [attr.cx]="svgCenter" [attr.cy]="svgCenter" [attr.r]="chartRadius"
+                fill="none" stroke="rgba(255,255,255,0.07)" [attr.stroke-width]="svgStrokeWidth"/>
               <!-- initiated segment -->
-              <circle cx="80" cy="80" r="60" fill="none"
-                stroke="#9ca3af" stroke-width="20" stroke-linecap="butt"
+              <circle [attr.cx]="svgCenter" [attr.cy]="svgCenter" [attr.r]="chartRadius"
+                fill="none" stroke="#9ca3af" [attr.stroke-width]="svgStrokeWidth"
+                stroke-linecap="butt"
                 [attr.stroke-dasharray]="chart.initiated.dasharray"
                 [attr.stroke-dashoffset]="chart.initiated.dashoffset"
                 class="donut-segment"/>
               <!-- working-on segment -->
-              <circle cx="80" cy="80" r="60" fill="none"
-                stroke="#fbbf24" stroke-width="20" stroke-linecap="butt"
+              <circle [attr.cx]="svgCenter" [attr.cy]="svgCenter" [attr.r]="chartRadius"
+                fill="none" stroke="#fbbf24" [attr.stroke-width]="svgStrokeWidth"
+                stroke-linecap="butt"
                 [attr.stroke-dasharray]="chart.workingOn.dasharray"
                 [attr.stroke-dashoffset]="chart.workingOn.dashoffset"
                 class="donut-segment"/>
               <!-- completed segment -->
-              <circle cx="80" cy="80" r="60" fill="none"
-                stroke="#4ade80" stroke-width="20" stroke-linecap="butt"
+              <circle [attr.cx]="svgCenter" [attr.cy]="svgCenter" [attr.r]="chartRadius"
+                fill="none" stroke="#4ade80" [attr.stroke-width]="svgStrokeWidth"
+                stroke-linecap="butt"
                 [attr.stroke-dasharray]="chart.completed.dasharray"
                 [attr.stroke-dashoffset]="chart.completed.dashoffset"
                 class="donut-segment"/>
-              @if(statusCounts$ | async; as counts) {
-              <text x="80" y="73" text-anchor="middle" class="donut-center-number">{{ counts.total }}</text>
-              <text x="80" y="93" text-anchor="middle" class="donut-center-label">Tasks</text>
-              }
+              <text [attr.x]="svgCenter" [attr.y]="svgTextNumberY"
+                text-anchor="middle" class="donut-center-number">{{ counts.total }}</text>
+              <text [attr.x]="svgCenter" [attr.y]="svgTextLabelY"
+                text-anchor="middle" class="donut-center-label">Tasks</text>
             </svg>
             <div class="donut-legend">
               <span class="donut-legend-item">
@@ -170,7 +174,6 @@
         </div>
 
         <!-- Horizontal Bar Chart -->
-        @if(statusCounts$ | async; as counts) {
         <div class="chart-card">
           <h4 class="chart-title">Tasks per Status</h4>
           <div class="bar-chart">
@@ -178,8 +181,12 @@
               <span class="bar-label">Initiated</span>
               <div class="bar-track">
                 <div class="bar-fill bar-initiated"
-                  [style.width.%]="counts.total > 0 ? (counts[TaskStatus.Initiated] / counts.total) * 100 : 0"
-                  [attr.aria-valuenow]="counts[TaskStatus.Initiated]"></div>
+                  role="progressbar"
+                  aria-valuemin="0"
+                  [attr.aria-valuemax]="counts.total"
+                  [attr.aria-valuenow]="counts[TaskStatus.Initiated]"
+                  [attr.aria-label]="'Initiated: ' + counts[TaskStatus.Initiated] + ' tasks'"
+                  [style.width.%]="counts.total > 0 ? (counts[TaskStatus.Initiated] / counts.total) * 100 : 0"></div>
               </div>
               <span class="bar-value">{{ counts[TaskStatus.Initiated] }}</span>
             </div>
@@ -187,8 +194,12 @@
               <span class="bar-label">Working On</span>
               <div class="bar-track">
                 <div class="bar-fill bar-working"
-                  [style.width.%]="counts.total > 0 ? (counts[TaskStatus.WorkingOn] / counts.total) * 100 : 0"
-                  [attr.aria-valuenow]="counts[TaskStatus.WorkingOn]"></div>
+                  role="progressbar"
+                  aria-valuemin="0"
+                  [attr.aria-valuemax]="counts.total"
+                  [attr.aria-valuenow]="counts[TaskStatus.WorkingOn]"
+                  [attr.aria-label]="'Working On: ' + counts[TaskStatus.WorkingOn] + ' tasks'"
+                  [style.width.%]="counts.total > 0 ? (counts[TaskStatus.WorkingOn] / counts.total) * 100 : 0"></div>
               </div>
               <span class="bar-value">{{ counts[TaskStatus.WorkingOn] }}</span>
             </div>
@@ -196,8 +207,12 @@
               <span class="bar-label">Completed</span>
               <div class="bar-track">
                 <div class="bar-fill bar-completed"
-                  [style.width.%]="counts.total > 0 ? (counts[TaskStatus.Completed] / counts.total) * 100 : 0"
-                  [attr.aria-valuenow]="counts[TaskStatus.Completed]"></div>
+                  role="progressbar"
+                  aria-valuemin="0"
+                  [attr.aria-valuemax]="counts.total"
+                  [attr.aria-valuenow]="counts[TaskStatus.Completed]"
+                  [attr.aria-label]="'Completed: ' + counts[TaskStatus.Completed] + ' tasks'"
+                  [style.width.%]="counts.total > 0 ? (counts[TaskStatus.Completed] / counts.total) * 100 : 0"></div>
               </div>
               <span class="bar-value">{{ counts[TaskStatus.Completed] }}</span>
             </div>
@@ -210,7 +225,6 @@
             }
           </div>
         </div>
-        }
 
       </div>
     </div>

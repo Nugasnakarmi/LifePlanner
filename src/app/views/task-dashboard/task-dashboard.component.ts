@@ -45,8 +45,15 @@ export class TaskDashboardComponent implements OnInit {
   router = inject(Router);
 
   readonly TaskStatus = TaskStatus;
-  readonly CHART_RADIUS = 60;
-  readonly CHART_CIRCUMFERENCE = 2 * Math.PI * this.CHART_RADIUS;
+
+  // SVG donut geometry — all template bindings derive from these constants
+  readonly chartRadius = 60;
+  readonly chartCircumference = 2 * Math.PI * this.chartRadius;
+  readonly svgSize = 160;
+  readonly svgCenter = this.svgSize / 2;
+  readonly svgStrokeWidth = 20;
+  readonly svgTextNumberY = this.svgCenter - 7;
+  readonly svgTextLabelY = this.svgCenter + 13;
 
   statusCounts$: Observable<StatusCounts> = this.taskService.taskStatusCounts$;
 
@@ -82,7 +89,7 @@ export class TaskDashboardComponent implements OnInit {
 
   chartSegments$: Observable<ChartSegments> = this.statusCounts$.pipe(
     map((counts) => {
-      const c = this.CHART_CIRCUMFERENCE;
+      const c = this.chartCircumference;
       const total = counts.total || 1;
       const initiatedLen = (counts[TaskStatus.Initiated] / total) * c;
       const workingLen = (counts[TaskStatus.WorkingOn] / total) * c;
