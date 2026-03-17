@@ -85,7 +85,7 @@
                           class="media-video"
                           [src]="media.url"
                           controls
-                          preload="metadata"
+                          preload="none"
                           [title]="media.name || 'Video'"
                         ></video>
                       } @else if (media.type === 'gif' || isGif(media.url)) {

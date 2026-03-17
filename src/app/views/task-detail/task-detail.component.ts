@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncPipe } from '@angular/common';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, take, takeUntil, distinctUntilChanged } from 'rxjs';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { TaskStatus } from 'src/app/enums/task-status.enum';
@@ -44,7 +44,10 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
 
     // Sync task completion_status and auto-complete when all activities done
     this.activityService.progress$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        distinctUntilChanged((a, b) => a.percentage === b.percentage && a.allCompleted === b.allCompleted)
+      )
       .subscribe((progress) => {
         if (progress.total > 0) {
           // Keep completion_status in sync with activity progress
@@ -92,16 +95,14 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
     });
     ref.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((result) => {
       if (result?.activity) {
-        this.activityService.activities$
-          .pipe(takeUntil(this.destroy$))
-          .subscribe((acts) => {
-            this.activityService.addActivityToTask(
-              this.data.task.id,
-              result.activity,
-              acts.length
-            );
-          })
-          .unsubscribe();
+        // Use take(1) to get the current activities count without a persisting subscription
+        this.activityService.activities$.pipe(take(1)).subscribe((acts) => {
+          this.activityService.addActivityToTask(
+            this.data.task.id,
+            result.activity,
+            acts.length
+          );
+        });
       }
     });
   }
@@ -116,7 +117,7 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
       data: dialogData,
       disableClose: false,
     });
-    ref.afterClosed().subscribe((result) => {
+    ref.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((result) => {
       if (result?.activity) {
         this.activityService.updateActivity(result.activity);
       }
