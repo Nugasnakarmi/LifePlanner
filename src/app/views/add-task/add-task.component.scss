@@ -40,58 +40,9 @@ $gold-dim: rgba(249, 208, 122, 0.15);
   }
 }
 
-// ─── Field with emoji ─────────────────────────────────────────────────────────
-.field-with-emoji {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-
-  .full-width {
-    flex: 1;
-  }
-
-  .emoji-toggle-button {
-    border: 1px solid rgba(249, 208, 122, 0.3);
-    background: transparent;
-    border-radius: 4px;
-    font-size: 20px;
-    line-height: 1;
-    padding: 6px 8px;
-    cursor: pointer;
-    margin-top: 4px;
-    transition: border-color 0.2s, background 0.2s;
-
-    &:hover {
-      border-color: $gold;
-      background: rgba(249, 208, 122, 0.1);
-    }
-  }
-}
-
-// ─── Emoji picker ─────────────────────────────────────────────────────────────
-.emoji-picker-wrapper {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 8px;
-
-  emoji-picker {
-    --background: #010014;
-    --border-color: rgba(249, 208, 122, 0.2);
-    --button-active-background: rgba(249, 208, 122, 0.2);
-    --button-hover-background: rgba(249, 208, 122, 0.1);
-    --category-emoji-padding: 4px;
-    --emoji-padding: 4px;
-    --indicator-color: #F9D07A;
-    --input-border-color: rgba(249, 208, 122, 0.3);
-    --input-border-radius: 4px;
-    --input-font-color: #fff;
-    --input-placeholder-color: rgba(255, 255, 255, 0.4);
-    --outline-color: #F9D07A;
-    --skintone-border-radius: 4px;
-    --num-columns: 8;
-    width: 100%;
-    max-height: 300px;
-  }
+// ─── Form fields ──────────────────────────────────────────────────────────────
+.full-width {
+  width: 100%;
 }
 
 // ─── Action button ────────────────────────────────────────────────────────────
@@ -132,27 +83,6 @@ $gold-dim: rgba(249, 208, 122, 0.15);
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-  }
-
-  .field-with-emoji .emoji-toggle-button {
-    border-color: rgba(92, 64, 0, 0.3);
-
-    &:hover {
-      border-color: #5C4000;
-      background: rgba(92, 64, 0, 0.05);
-    }
-  }
-
-  .emoji-picker-wrapper emoji-picker {
-    --background: #ffffff;
-    --border-color: rgba(92, 64, 0, 0.2);
-    --button-active-background: rgba(92, 64, 0, 0.1);
-    --button-hover-background: rgba(92, 64, 0, 0.05);
-    --indicator-color: #5C4000;
-    --input-border-color: rgba(92, 64, 0, 0.3);
-    --input-font-color: #010014;
-    --input-placeholder-color: rgba(1, 0, 20, 0.4);
-    --outline-color: #5C4000;
   }
 
   .action-button-container {
