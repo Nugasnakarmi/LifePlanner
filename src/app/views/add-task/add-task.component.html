@@ -14,7 +14,6 @@
       matInput
       placeholder="Task name"
       formControlName="name"
-      [value]="data.task?.name"
     />
     @if(addTaskForm.controls.name.invalid && addTaskForm.controls.name.touched){
     <mat-error>{{ getValidationMessage() }}</mat-error>
@@ -27,7 +26,6 @@
       matInput
       placeholder="Task description"
       formControlName="description"
-      [value]="data.task?.description"
       rows="4"
     ></textarea>
   </mat-form-field>
