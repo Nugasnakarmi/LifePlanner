@@ -6,6 +6,11 @@ $icon-delete: #f87171;
 $icon-expand: #4ade80;
 $icon-edit:   #60a5fa;
 
+// ─── Status colours ──────────────────────────────────────────────────────────
+$status-initiated: rgba(156, 163, 175, 0.85);   // grey
+$status-working:   rgba(251, 191, 36, 0.9);      // amber
+$status-completed: rgba(74, 222, 128, 0.9);      // green
+
 // ─── Base card ───────────────────────────────────────────────────────────────
 .tasks {
   padding: 14px 16px;
@@ -17,6 +22,15 @@ $icon-edit:   #60a5fa;
   cursor: grab;
   color: #fff;
   transition: $transition-card;
+
+  &.status-working {
+    border-left-color: $status-working;
+  }
+
+  &.status-completed {
+    border-left-color: $status-completed;
+    background: rgba(74, 222, 128, 0.04);
+  }
 
   &:hover,
   &:focus-within {
@@ -33,12 +47,22 @@ $icon-edit:   #60a5fa;
       pointer-events: auto;
     }
   }
+
+  &.status-working:hover { border-left-color: $status-working; }
+  &.status-completed:hover { border-left-color: $status-completed; }
 }
 
 // ─── Task content ─────────────────────────────────────────────────────────────
 .name-description-container {
   flex: 1;
   min-width: 0;
+
+  .task-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
 
   .task-name {
     display: block;
@@ -56,6 +80,99 @@ $icon-edit:   #60a5fa;
     color: rgba(255, 255, 255, 0.55);
     margin: 4px 0 0;
     line-height: 1.4;
+  }
+}
+
+// ─── Status badge ─────────────────────────────────────────────────────────────
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 2px 7px 2px 4px;
+  border-radius: 20px;
+  white-space: nowrap;
+  line-height: 1;
+
+  .status-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+  }
+
+  &.badge-initiated {
+    background: rgba(156, 163, 175, 0.15);
+    color: $status-initiated;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+  }
+
+  &.badge-working {
+    background: rgba(251, 191, 36, 0.15);
+    color: $status-working;
+    border: 1px solid rgba(251, 191, 36, 0.35);
+  }
+
+  &.badge-completed {
+    background: rgba(74, 222, 128, 0.12);
+    color: $status-completed;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+  }
+}
+
+// ─── Status action buttons ────────────────────────────────────────────────────
+.status-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.status-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 8px 3px 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+  }
+
+  span { line-height: 1; }
+
+  &:hover { transform: translateY(-1px); }
+
+  &.btn-initiate {
+    background: rgba(251, 191, 36, 0.18);
+    color: $status-working;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    &:hover { background: rgba(251, 191, 36, 0.28); }
+  }
+
+  &.btn-complete {
+    background: rgba(74, 222, 128, 0.15);
+    color: $status-completed;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    &:hover { background: rgba(74, 222, 128, 0.25); }
+  }
+
+  &.btn-reset {
+    background: rgba(156, 163, 175, 0.12);
+    color: $status-initiated;
+    border: 1px solid rgba(156, 163, 175, 0.2);
+    padding: 3px 5px;
+    span { display: none; }
+    &:hover { background: rgba(156, 163, 175, 0.22); }
   }
 }
 
@@ -236,4 +353,17 @@ $icon-edit:   #60a5fa;
       background: rgba(1, 0, 20, 0.07);
     }
   }
+
+  .status-badge {
+    &.badge-initiated { color: #6b7280; border-color: rgba(107, 114, 128, 0.4); }
+    &.badge-working   { color: #b45309; border-color: rgba(180, 83, 9, 0.4); }
+    &.badge-completed { color: #15803d; border-color: rgba(21, 128, 61, 0.4); }
+  }
+
+  .status-btn {
+    &.btn-initiate { color: #b45309; border-color: rgba(180, 83, 9, 0.4); background: rgba(251, 191, 36, 0.1); }
+    &.btn-complete { color: #15803d; border-color: rgba(21, 128, 61, 0.4); background: rgba(74, 222, 128, 0.1); }
+    &.btn-reset    { color: #6b7280; border-color: rgba(107, 114, 128, 0.3); background: rgba(107, 114, 128, 0.08); }
+  }
 }
+

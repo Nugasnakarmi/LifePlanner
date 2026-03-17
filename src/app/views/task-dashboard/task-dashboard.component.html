@@ -1,0 +1,190 @@
+<div class="dashboard-bg" aria-hidden="true">
+  <div class="dashboard-bg-grid"></div>
+  <div class="dashboard-bg-accent"></div>
+</div>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <button mat-button class="back-button" (click)="goToBoards()">
+      <mat-icon>arrow_back</mat-icon>
+      Boards
+    </button>
+    <h2 class="dashboard-title">Task Progress Dashboard</h2>
+  </div>
+
+  @if(statusCounts$ | async; as counts) {
+  <div class="dashboard-content">
+
+    <!-- Summary Cards -->
+    <div class="stat-cards">
+      <div class="stat-card stat-total">
+        <mat-icon class="stat-icon">assignment</mat-icon>
+        <div class="stat-info">
+          <span class="stat-number">{{ counts.total }}</span>
+          <span class="stat-label">Total Tasks</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-initiated">
+        <mat-icon class="stat-icon">radio_button_unchecked</mat-icon>
+        <div class="stat-info">
+          <span class="stat-number">{{ counts[TaskStatus.Initiated] }}</span>
+          <span class="stat-label">Initiated</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-working">
+        <mat-icon class="stat-icon">autorenew</mat-icon>
+        <div class="stat-info">
+          <span class="stat-number">{{ counts[TaskStatus.WorkingOn] }}</span>
+          <span class="stat-label">Working On</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-completed">
+        <mat-icon class="stat-icon">check_circle</mat-icon>
+        <div class="stat-info">
+          <span class="stat-number">{{ counts[TaskStatus.Completed] }}</span>
+          <span class="stat-label">Completed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-section">
+      <h3 class="section-title">Overall Progress</h3>
+
+      @if(completionPercent$ | async; as pct) {
+      <div class="progress-bar-container">
+        <div class="progress-label">
+          <span>Completion</span>
+          <span class="progress-pct">{{ pct }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill progress-fill--completed" [style.width.%]="pct"></div>
+        </div>
+      </div>
+      }
+
+      @if(inProgressPercent$ | async; as wPct) {
+      <div class="progress-bar-container">
+        <div class="progress-label">
+          <span>In Progress</span>
+          <span class="progress-pct progress-pct--working">{{ wPct }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill progress-fill--working" [style.width.%]="wPct"></div>
+        </div>
+      </div>
+      }
+
+      <!-- Stacked status bar -->
+      @if(counts.total > 0) {
+      <div class="stacked-bar-container">
+        <h4 class="section-subtitle">Status Breakdown</h4>
+        <div class="stacked-bar">
+          <div
+            class="stacked-segment seg-initiated"
+            [style.width.%]="(counts[TaskStatus.Initiated] / counts.total) * 100"
+            [title]="'Initiated: ' + counts[TaskStatus.Initiated]"
+          ></div>
+          <div
+            class="stacked-segment seg-working"
+            [style.width.%]="(counts[TaskStatus.WorkingOn] / counts.total) * 100"
+            [title]="'Working On: ' + counts[TaskStatus.WorkingOn]"
+          ></div>
+          <div
+            class="stacked-segment seg-completed"
+            [style.width.%]="(counts[TaskStatus.Completed] / counts.total) * 100"
+            [title]="'Completed: ' + counts[TaskStatus.Completed]"
+          ></div>
+        </div>
+        <div class="stacked-bar-legend">
+          <span class="legend-item"><span class="legend-dot dot-initiated"></span>Initiated</span>
+          <span class="legend-item"><span class="legend-dot dot-working"></span>Working On</span>
+          <span class="legend-item"><span class="legend-dot dot-completed"></span>Completed</span>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Task List grouped by status -->
+    @if(taskGroups$ | async; as groups) {
+    <div class="task-groups">
+      <h3 class="section-title">Tasks by Status</h3>
+
+      @if(groups.initiated.length > 0) {
+      <div class="task-group">
+        <div class="group-header group-initiated">
+          <mat-icon>radio_button_unchecked</mat-icon>
+          <span>Initiated</span>
+          <span class="group-count">{{ groups.initiated.length }}</span>
+        </div>
+        <div class="group-tasks">
+          @for(task of groups.initiated; track task.id) {
+          <div class="dash-task-item">
+            <span class="dash-task-name">{{ task.name }}</span>
+            @if(task.description) {
+              <span class="dash-task-desc">{{ task.description }}</span>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      @if(groups.workingOn.length > 0) {
+      <div class="task-group">
+        <div class="group-header group-working">
+          <mat-icon>autorenew</mat-icon>
+          <span>Working On</span>
+          <span class="group-count">{{ groups.workingOn.length }}</span>
+        </div>
+        <div class="group-tasks">
+          @for(task of groups.workingOn; track task.id) {
+          <div class="dash-task-item">
+            <span class="dash-task-name">{{ task.name }}</span>
+            @if(task.description) {
+              <span class="dash-task-desc">{{ task.description }}</span>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      @if(groups.completed.length > 0) {
+      <div class="task-group">
+        <div class="group-header group-completed">
+          <mat-icon>check_circle</mat-icon>
+          <span>Completed</span>
+          <span class="group-count">{{ groups.completed.length }}</span>
+        </div>
+        <div class="group-tasks">
+          @for(task of groups.completed; track task.id) {
+          <div class="dash-task-item">
+            <span class="dash-task-name">{{ task.name }}</span>
+            @if(task.description) {
+              <span class="dash-task-desc">{{ task.description }}</span>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      @if(groups.initiated.length === 0 && groups.workingOn.length === 0 && groups.completed.length === 0) {
+        <div class="empty-state">
+          <mat-icon>assignment</mat-icon>
+          <p>No tasks yet. Create tasks on your boards to track progress here.</p>
+          <button mat-raised-button color="primary" (click)="goToBoards()">
+            Go to Boards
+          </button>
+        </div>
+      }
+    </div>
+    }
+
+  </div>
+  }
+</div>

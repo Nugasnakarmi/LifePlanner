@@ -3,6 +3,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { createAction, createActionGroup, props } from '@ngrx/store';
 
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
+import { TaskStatus } from 'src/app/enums/task-status.enum';
 import { AddTaskComponent } from 'src/app/views/add-task/add-task.component';
 
 export const landingPageInitialized = createAction(
@@ -59,5 +60,20 @@ export const taskWasDeletedSuccessfully = createAction(
 
 export const taskDeletionFailed = createAction(
   '[Tasks] Task Deletion Has Failed',
+  props<{ error: string }>()
+);
+
+export const taskStatusUpdated = createAction(
+  '[Tasks] Task Status Updated',
+  props<{ taskId: number; status: TaskStatus }>()
+);
+
+export const taskStatusUpdatedSuccessfully = createAction(
+  '[Tasks] Task Status Updated Successfully',
+  props<{ taskId: number; status: TaskStatus }>()
+);
+
+export const taskStatusUpdateFailed = createAction(
+  '[Tasks] Task Status Update Failed',
   props<{ error: string }>()
 );

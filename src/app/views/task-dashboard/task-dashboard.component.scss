@@ -1,0 +1,384 @@
+// ─── Variables ────────────────────────────────────────────────────────────────
+$gold: #F9D07A;
+$status-initiated: #9ca3af;
+$status-working: #fbbf24;
+$status-completed: #4ade80;
+
+// ─── Background ───────────────────────────────────────────────────────────────
+.dashboard-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  .dashboard-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(249, 208, 122, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(249, 208, 122, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .dashboard-bg-accent {
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(249, 208, 122, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+}
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
+.dashboard-container {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+  color: #fff;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.back-button {
+  color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 8px !important;
+
+  mat-icon { font-size: 18px; }
+
+  &:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+}
+
+.dashboard-title {
+  font-size: 22px;
+  font-weight: 700;
+  background: -webkit-linear-gradient($gold, #d4a94e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+}
+
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+// ─── Stat Cards ───────────────────────────────────────────────────────────────
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease, background 0.2s ease;
+
+  &:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.08); }
+
+  .stat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    opacity: 0.8;
+  }
+
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.55);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  &.stat-total    { border-left: 3px solid $gold;               .stat-icon { color: $gold; }               .stat-number { color: $gold; } }
+  &.stat-initiated { border-left: 3px solid $status-initiated;  .stat-icon { color: $status-initiated; }  .stat-number { color: $status-initiated; } }
+  &.stat-working  { border-left: 3px solid $status-working;     .stat-icon { color: $status-working; }    .stat-number { color: $status-working; } }
+  &.stat-completed { border-left: 3px solid $status-completed;  .stat-icon { color: $status-completed; }  .stat-number { color: $status-completed; } }
+}
+
+// ─── Progress Section ─────────────────────────────────────────────────────────
+.progress-section {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 22px 24px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 18px;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 18px 0 10px;
+}
+
+.progress-bar-container {
+  margin-bottom: 14px;
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 6px;
+  }
+
+  .progress-pct {
+    font-weight: 700;
+    color: $status-completed;
+
+    &.progress-pct--working { color: $status-working; }
+  }
+
+  .progress-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+
+    &.progress-fill--completed { background: $status-completed; }
+    &.progress-fill--working   { background: $status-working; }
+  }
+}
+
+// ─── Stacked bar ─────────────────────────────────────────────────────────────
+.stacked-bar {
+  display: flex;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.stacked-segment {
+  height: 100%;
+  transition: width 0.5s ease;
+
+  &.seg-initiated { background: $status-initiated; }
+  &.seg-working   { background: $status-working; }
+  &.seg-completed { background: $status-completed; }
+}
+
+.stacked-bar-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+
+  &.dot-initiated { background: $status-initiated; }
+  &.dot-working   { background: $status-working; }
+  &.dot-completed { background: $status-completed; }
+}
+
+// ─── Task Groups ─────────────────────────────────────────────────────────────
+.task-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.task-group {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
+
+  .group-count {
+    margin-left: auto;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  &.group-initiated {
+    background: rgba(156, 163, 175, 0.12);
+    color: $status-initiated;
+    border-bottom: 1px solid rgba(156, 163, 175, 0.15);
+  }
+
+  &.group-working {
+    background: rgba(251, 191, 36, 0.12);
+    color: $status-working;
+    border-bottom: 1px solid rgba(251, 191, 36, 0.15);
+  }
+
+  &.group-completed {
+    background: rgba(74, 222, 128, 0.1);
+    color: $status-completed;
+    border-bottom: 1px solid rgba(74, 222, 128, 0.15);
+  }
+}
+
+.group-tasks {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dash-task-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+  &:last-child { border-bottom: none; }
+
+  .dash-task-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .dash-task-desc {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.45);
+    margin-top: 2px;
+    font-style: italic;
+  }
+}
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.45);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.4;
+  }
+
+  p { margin: 0; font-size: 14px; }
+}
+
+// ─── Light mode ───────────────────────────────────────────────────────────────
+:host-context(.light-mode) {
+  .dashboard-container { color: #010014; }
+
+  .dashboard-title {
+    -webkit-text-fill-color: unset;
+    color: #010014;
+    background: none;
+  }
+
+  .back-button {
+    color: #010014 !important;
+    border-color: rgba(1, 0, 20, 0.15) !important;
+    &:hover { background: rgba(1, 0, 20, 0.05) !important; }
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(1, 0, 20, 0.08);
+    &:hover { background: #fff; }
+    .stat-label { color: rgba(1, 0, 20, 0.5); }
+  }
+
+  .progress-section {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(1, 0, 20, 0.08);
+  }
+
+  .section-title { color: #010014; }
+  .section-subtitle { color: rgba(1, 0, 20, 0.5); }
+
+  .progress-bar-container .progress-label { color: rgba(1, 0, 20, 0.6); }
+  .progress-track { background: rgba(1, 0, 20, 0.07); }
+
+  .task-group {
+    border-color: rgba(1, 0, 20, 0.08);
+    .group-tasks { background: rgba(255, 255, 255, 0.6); }
+  }
+
+  .group-header {
+    &.group-initiated { color: #6b7280; }
+    &.group-working   { color: #b45309; }
+    &.group-completed { color: #15803d; }
+    .group-count { background: rgba(1, 0, 20, 0.07); color: #010014; }
+  }
+
+  .dash-task-item {
+    border-color: rgba(1, 0, 20, 0.05);
+    .dash-task-name { color: #010014; }
+    .dash-task-desc { color: rgba(1, 0, 20, 0.45); }
+  }
+
+  .legend-item { color: rgba(1, 0, 20, 0.55); }
+  .empty-state { color: rgba(1, 0, 20, 0.45); }
+}

@@ -2,7 +2,9 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { Component, inject, input, output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
+import { TaskStatus } from 'src/app/enums/task-status.enum';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { TaskDetailComponent } from '../task-detail/task-detail.component';
@@ -11,7 +13,7 @@ import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
   selector: 'app-task',
-  imports: [DragDropModule, MatIconModule],
+  imports: [DragDropModule, MatIconModule, MatTooltipModule],
   templateUrl: './task.component.html',
   styleUrl: './task.component.scss',
 })
@@ -24,6 +26,8 @@ export class TaskComponent {
   dragEnabled = input<boolean>(true);
   taskUpdated = output<void>();
   readonly addTaskDialog = inject(MatDialog);
+
+  readonly TaskStatus = TaskStatus;
 
   deleteTask(taskId: number): void {
     this.taskService.taskDeletionInitiated(taskId);
@@ -47,5 +51,17 @@ export class TaskComponent {
       maxHeight: '100vh',
       panelClass: 'task-detail-fullscreen-dialog',
     });
+  }
+
+  onUpdateStatus(task: IdeaTask, status: TaskStatus): void {
+    this.taskService.taskStatusUpdated(task.id, status);
+  }
+
+  getStatusIcon(status: TaskStatus | undefined): string {
+    switch (status) {
+      case TaskStatus.WorkingOn: return 'autorenew';
+      case TaskStatus.Completed: return 'check_circle';
+      default: return 'radio_button_unchecked';
+    }
   }
 }
