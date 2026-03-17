@@ -30,7 +30,12 @@
         </button>
       }
       @if(task().status === TaskStatus.WorkingOn) {
-        <button class="status-btn btn-complete" (click)="onUpdateStatus(task(), TaskStatus.Completed)" matTooltip="Mark as Completed">
+        <button
+          class="status-btn btn-complete"
+          (click)="onUpdateStatus(task(), TaskStatus.Completed)"
+          [matTooltip]="hasActivitiesInProgress(task()) ? 'Complete all activities first (' + task().completion_status + '%)' : 'Mark as Completed'"
+          [disabled]="hasActivitiesInProgress(task())"
+        >
           <mat-icon>check</mat-icon>
           <span>Complete</span>
         </button>
@@ -44,6 +49,17 @@
         </button>
       }
     </div>
+
+    @if((task().completion_status ?? 0) > 0 && task().status !== TaskStatus.Completed) {
+      <div class="task-progress-container">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="task().completion_status"
+          class="task-progress-bar"
+        ></mat-progress-bar>
+        <span class="task-progress-label">{{ task().completion_status }}%</span>
+      </div>
+    }
   </div>
   <div class="action-buttons flex-column-center">
     <button class="expand-button" (click)="onExpandTask(task())" title="Expand to fullscreen" aria-label="Expand to fullscreen">

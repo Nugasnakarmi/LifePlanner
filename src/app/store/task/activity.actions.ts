@@ -68,3 +68,17 @@ export const deleteActivityFailure = createAction(
   '[Activities] Delete Activity Failure',
   props<{ error: any }>()
 );
+
+export const toggleActivityComplete = createAction(
+  '[Activities] Toggle Activity Complete',
+  props<{ taskActivityId: number; activityId: number; completed: boolean }>()
+);
+export const toggleActivityCompleteSuccess = createAction(
+  '[Activities] Toggle Activity Complete Success',
+  props<{ activityId: number; completed: boolean }>()
+);
+export const toggleActivityCompleteFailure = createAction(
+  '[Activities] Toggle Activity Complete Failure',
+  props<{ error: any }>()
+);
+

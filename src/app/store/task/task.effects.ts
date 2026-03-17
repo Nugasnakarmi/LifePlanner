@@ -120,4 +120,28 @@ export class TaskEffects {
       )
     )
   );
+
+  updateTaskCompletionStatus$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(taskActions.taskCompletionStatusUpdated),
+      concatMap(({ taskId, completionStatus }) =>
+        from(this.taskAPIService.updateCompletionStatus(taskId, completionStatus)).pipe(
+          map((res: boolean) =>
+            res
+              ? taskActions.taskCompletionStatusUpdatedSuccessfully({ taskId, completionStatus })
+              : taskActions.taskCompletionStatusUpdateFailed({
+                  error: 'Failed to update task completion status',
+                })
+          ),
+          catchError(() =>
+            of(
+              taskActions.taskCompletionStatusUpdateFailed({
+                error: 'Failed to update task completion status',
+              })
+            )
+          )
+        )
+      )
+    )
+  );
 }

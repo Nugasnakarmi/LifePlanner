@@ -77,3 +77,19 @@ export const taskStatusUpdateFailed = createAction(
   '[Tasks] Task Status Update Failed',
   props<{ error: string }>()
 );
+
+export const taskCompletionStatusUpdated = createAction(
+  '[Tasks] Task Completion Status Updated',
+  props<{ taskId: number; completionStatus: number }>()
+);
+
+export const taskCompletionStatusUpdatedSuccessfully = createAction(
+  '[Tasks] Task Completion Status Updated Successfully',
+  props<{ taskId: number; completionStatus: number }>()
+);
+
+export const taskCompletionStatusUpdateFailed = createAction(
+  '[Tasks] Task Completion Status Update Failed',
+  props<{ error: string }>()
+);
+

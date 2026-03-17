@@ -259,6 +259,34 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
   }
 }
 
+// ─── Task Progress Bar ─────────────────────────────────────────────────────────
+.task-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+
+  .task-progress-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 4px;
+
+    &::ng-deep .mdc-linear-progress__bar-inner {
+      border-color: $gold;
+    }
+    &::ng-deep .mdc-linear-progress__track {
+      background-color: rgba(249, 208, 122, 0.15);
+    }
+  }
+
+  .task-progress-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(249, 208, 122, 0.7);
+    white-space: nowrap;
+  }
+}
+
 // ─── Drag and drop ────────────────────────────────────────────────────────────
 .cdk-drag-preview {
   box-sizing: border-box;

@@ -107,5 +107,26 @@ export class ActivityEffects {
     )
   );
 
+  toggleActivityComplete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(activityActions.toggleActivityComplete),
+      mergeMap(({ taskActivityId, activityId, completed }) =>
+        this.activityApiService
+          .toggleActivityComplete(taskActivityId, completed)
+          .then((success) =>
+            success
+              ? activityActions.toggleActivityCompleteSuccess({ activityId, completed })
+              : activityActions.toggleActivityCompleteFailure({
+                  error: 'Failed to update activity completion',
+                })
+          )
+          .catch((error) =>
+            activityActions.toggleActivityCompleteFailure({ error })
+          )
+      )
+    )
+  );
+
   constructor(private actions$: Actions) {}
 }
+

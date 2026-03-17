@@ -43,4 +43,8 @@ export class TaskService {
   public taskStatusUpdated(taskId: number, status: TaskStatus): void {
     this.store.dispatch(taskActions.taskStatusUpdated({ taskId, status }));
   }
+
+  public taskCompletionStatusUpdated(taskId: number, completionStatus: number): void {
+    this.store.dispatch(taskActions.taskCompletionStatusUpdated({ taskId, completionStatus }));
+  }
 }
