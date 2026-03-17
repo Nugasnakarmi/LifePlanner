@@ -39,6 +39,20 @@
         </button>
         <mat-menu #userMenu="matMenu">
           <div class="menu-email-header" mat-menu-item disabled>{{ userEmail }}</div>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="navigateToDashboard()">
+            <mat-icon>dashboard</mat-icon>
+            <span>Dashboard</span>
+          </button>
+          <button mat-menu-item (click)="navigateToNewBoard()">
+            <mat-icon>add</mat-icon>
+            <span>New Board</span>
+          </button>
+          <button mat-menu-item (click)="openCreateTemplateDialog()">
+            <mat-icon>add_circle_outline</mat-icon>
+            <span>Create Template</span>
+          </button>
+          <mat-divider></mat-divider>
           <button mat-menu-item (click)="logout()">
             <mat-icon>logout</mat-icon>
             <span>Logout</span>
