@@ -21,6 +21,18 @@ interface TaskGroups {
   completed: IdeaTask[];
 }
 
+interface DonutSegment {
+  dasharray: string;
+  dashoffset: number;
+}
+
+interface ChartSegments {
+  hasData: boolean;
+  initiated: DonutSegment;
+  workingOn: DonutSegment;
+  completed: DonutSegment;
+}
+
 @Component({
   selector: 'app-task-dashboard',
   standalone: true,
@@ -33,6 +45,15 @@ export class TaskDashboardComponent implements OnInit {
   router = inject(Router);
 
   readonly TaskStatus = TaskStatus;
+
+  // SVG donut geometry — all template bindings derive from these constants
+  readonly chartRadius = 60;
+  readonly chartCircumference = 2 * Math.PI * this.chartRadius;
+  readonly svgSize = 160;
+  readonly svgCenter = this.svgSize / 2;
+  readonly svgStrokeWidth = 20;
+  readonly svgTextNumberY = this.svgCenter - 7;
+  readonly svgTextLabelY = this.svgCenter + 13;
 
   statusCounts$: Observable<StatusCounts> = this.taskService.taskStatusCounts$;
 
@@ -64,6 +85,31 @@ export class TaskDashboardComponent implements OnInit {
 
   totalTasks$: Observable<number> = this.taskService.tasks$.pipe(
     map((tasks) => tasks.length)
+  );
+
+  chartSegments$: Observable<ChartSegments> = this.statusCounts$.pipe(
+    map((counts) => {
+      const c = this.chartCircumference;
+      const total = counts.total || 1;
+      const initiatedLen = (counts[TaskStatus.Initiated] / total) * c;
+      const workingLen = (counts[TaskStatus.WorkingOn] / total) * c;
+      const completedLen = (counts[TaskStatus.Completed] / total) * c;
+      return {
+        hasData: counts.total > 0,
+        initiated: {
+          dasharray: `${initiatedLen} ${c - initiatedLen}`,
+          dashoffset: c / 4,
+        },
+        workingOn: {
+          dasharray: `${workingLen} ${c - workingLen}`,
+          dashoffset: c / 4 - initiatedLen,
+        },
+        completed: {
+          dasharray: `${completedLen} ${c - completedLen}`,
+          dashoffset: c / 4 - initiatedLen - workingLen,
+        },
+      };
+    })
   );
 
   ngOnInit(): void {
