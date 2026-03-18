@@ -61,6 +61,19 @@
       </div>
     }
 
+    @if(mediaThumbnails().length) {
+      <div class="task-media-strip">
+        @for(thumb of mediaThumbnails(); track thumb.url) {
+          <img
+            class="task-media-thumb"
+            [src]="thumb.url"
+            [alt]="thumb.name || 'Activity media'"
+            loading="lazy"
+          />
+        }
+      </div>
+    }
+
     @if(task().activities?.length) {
       <ul class="task-activities-list">
         @for(activity of task().activities; track activity.task_activity_id) {

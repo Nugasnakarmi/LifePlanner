@@ -1,5 +1,5 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -12,6 +12,7 @@ import { TaskDetailComponent } from '../task-detail/task-detail.component';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { TaskService } from 'src/app/services/task/task.service';
 import { ToastrService } from 'ngx-toastr';
+import { ActivityMedia } from 'src/app/interfaces/activity.interface';
 
 @Component({
   selector: 'app-task',
@@ -31,6 +32,21 @@ export class TaskComponent {
   readonly addTaskDialog = inject(MatDialog);
 
   readonly TaskStatus = TaskStatus;
+
+  /** Collect the first few previewable media items from all activities */
+  mediaThumbnails = computed<ActivityMedia[]>(() => {
+    const activities = this.task()?.activities ?? [];
+    const thumbs: ActivityMedia[] = [];
+    for (const act of activities) {
+      for (const m of act.media ?? []) {
+        if (m.type === 'image' || m.type === 'gif') {
+          thumbs.push(m);
+          if (thumbs.length >= 3) return thumbs;
+        }
+      }
+    }
+    return thumbs;
+  });
 
   hasActivitiesInProgress(task: IdeaTask): boolean {
     const cs = task.completion_status ?? 0;

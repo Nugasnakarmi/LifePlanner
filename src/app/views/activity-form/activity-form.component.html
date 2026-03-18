@@ -46,47 +46,87 @@
   <!-- Media Attachments -->
   <div class="section-header flex-row-space-between">
     <span class="section-label">Media</span>
-    <button type="button" class="add-btn" (click)="addMediaItem()" matTooltip="Add media (image, gif, video)">
-      <mat-icon>add</mat-icon>
+    <button type="button" class="add-btn" (click)="addMediaItem()" matTooltip="Add media by URL">
+      <mat-icon>link</mat-icon>
     </button>
   </div>
 
+  <!-- Upload Drop Zone -->
+  <div
+    class="upload-zone"
+    [class.drag-over]="dragOver"
+    [class.uploading]="uploading"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+  >
+    @if(uploading) {
+      <mat-progress-bar mode="indeterminate" class="upload-progress"></mat-progress-bar>
+      <span class="upload-label">Uploading…</span>
+    } @else {
+      <mat-icon class="upload-icon">cloud_upload</mat-icon>
+      <span class="upload-label">Drag &amp; drop images / GIFs here, or</span>
+      <label class="upload-browse-btn">
+        Browse
+        <input
+          type="file"
+          hidden
+          multiple
+          [accept]="storageService.acceptedTypes"
+          (change)="onFilesSelected($event)"
+        />
+      </label>
+    }
+  </div>
+
+  <!-- Media items list -->
   <div formArrayName="mediaItems" class="fields-list flex-column">
     @for(item of mediaItems.controls; track $index) {
-      <div [formGroupName]="$index" class="media-row flex-row-space-between">
-        <mat-form-field appearance="outline" class="media-type">
-          <mat-label>Type</mat-label>
-          <mat-select formControlName="type">
-            @for(t of mediaTypes; track t.value) {
-              <mat-option [value]="t.value">
-                <mat-icon>{{ t.icon }}</mat-icon>
-                {{ t.label }}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="media-url">
-          <mat-label>URL</mat-label>
-          <input matInput formControlName="url" placeholder="https://..." />
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="media-name">
-          <mat-label>Label (optional)</mat-label>
-          <input matInput formControlName="name" placeholder="My image" />
-        </mat-form-field>
-        <button type="button" class="remove-btn" (click)="removeMediaItem($index)" matTooltip="Remove media">
-          <mat-icon>remove_circle_outline</mat-icon>
-        </button>
+      <div class="media-item-card">
+        <!-- Preview thumbnail -->
+        @if(isPreviewable(item.get('url')?.value)) {
+          <img
+            class="media-preview-thumb"
+            [src]="item.get('url')?.value"
+            [alt]="item.get('name')?.value || 'Media preview'"
+            loading="lazy"
+          />
+        }
+        <div [formGroupName]="$index" class="media-row flex-row-space-between">
+          <mat-form-field appearance="outline" class="media-type">
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="type">
+              @for(t of mediaTypes; track t.value) {
+                <mat-option [value]="t.value">
+                  <mat-icon>{{ t.icon }}</mat-icon>
+                  {{ t.label }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="media-url">
+            <mat-label>URL</mat-label>
+            <input matInput formControlName="url" placeholder="https://..." />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="media-name">
+            <mat-label>Label (optional)</mat-label>
+            <input matInput formControlName="name" placeholder="My image" />
+          </mat-form-field>
+          <button type="button" class="remove-btn" (click)="removeMediaItem($index)" matTooltip="Remove media">
+            <mat-icon>remove_circle_outline</mat-icon>
+          </button>
+        </div>
       </div>
     }
     @if(mediaItems.length === 0) {
-      <p class="empty-hint">No media attached. Click + to add an image, GIF or video URL.</p>
+      <p class="empty-hint">No media attached. Upload files or add a URL.</p>
     }
   </div>
 
   <!-- Actions -->
   <div class="action-button-container flex">
     <button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
-    <button mat-raised-button color="primary" type="submit" class="submit-btn" [disabled]="form.invalid">
+    <button mat-raised-button color="primary" type="submit" class="submit-btn" [disabled]="form.invalid || uploading">
       {{ data.mode === 'edit' ? 'Save Changes' : 'Add Activity' }}
     </button>
   </div>

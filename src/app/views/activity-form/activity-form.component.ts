@@ -2,7 +2,6 @@ import { Component, inject, Inject, OnInit } from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
-  UntypedFormGroup,
   Validators,
   FormArray,
   FormBuilder,
@@ -15,7 +14,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Activity, ActivityDataField, ActivityMedia } from 'src/app/interfaces/activity.interface';
+import { StorageService } from 'src/app/services/storage/storage.service';
+import { SupabaseService } from 'src/app/services/supabase/supabase.service';
 
 export interface ActivityFormData {
   taskId: number;
@@ -34,15 +36,20 @@ export interface ActivityFormData {
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
+    MatProgressBarModule,
   ],
   templateUrl: './activity-form.component.html',
   styleUrl: './activity-form.component.scss',
 })
 export class ActivityFormComponent implements OnInit {
   private fb = inject(FormBuilder);
+  storageService = inject(StorageService);
+  private supabaseService = inject(SupabaseService);
   dialogRef = inject(MatDialogRef<ActivityFormComponent>);
 
   form: FormGroup;
+  uploading = false;
+  dragOver = false;
   readonly mediaTypes: Array<{ value: ActivityMedia['type']; label: string; icon: string }> = [
     { value: 'image', label: 'Image', icon: 'image' },
     { value: 'gif', label: 'GIF', icon: 'gif' },
@@ -101,6 +108,70 @@ export class ActivityFormComponent implements OnInit {
 
   removeMediaItem(index: number): void {
     this.mediaItems.removeAt(index);
+  }
+
+  /** Handle file input change */
+  async onFilesSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    await this.uploadFiles(Array.from(input.files));
+    input.value = '';
+  }
+
+  /** Handle drag-over */
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = true;
+  }
+
+  /** Handle drag-leave */
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+  }
+
+  /** Handle drop */
+  async onDrop(event: DragEvent): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+    const files = event.dataTransfer?.files;
+    if (!files?.length) return;
+    await this.uploadFiles(Array.from(files));
+  }
+
+  /** Upload one or more files and add them as media items */
+  private async uploadFiles(files: File[]): Promise<void> {
+    this.uploading = true;
+    try {
+      const user = await this.supabaseService.getUser();
+      for (const file of files) {
+        const url = await this.storageService.uploadFile(file, user.id);
+        if (url) {
+          const mediaType = this.storageService.getMediaType(file.type);
+          this.addMediaItem({ type: mediaType, url, name: file.name });
+        }
+      }
+    } finally {
+      this.uploading = false;
+    }
+  }
+
+  /** Check whether a media url points to an image or gif */
+  isPreviewable(url: string): boolean {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+    return (
+      lower.includes('image') ||
+      lower.endsWith('.png') ||
+      lower.endsWith('.jpg') ||
+      lower.endsWith('.jpeg') ||
+      lower.endsWith('.gif') ||
+      lower.endsWith('.webp') ||
+      lower.includes('/activity-media/')
+    );
   }
 
   getNameError(): string {

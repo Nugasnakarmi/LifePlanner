@@ -113,6 +113,87 @@ $gold-dark: #5C4000;
   .media-name { flex: 1; min-width: 100px; }
 }
 
+// ─── Upload drop zone ─────────────────────────────────────────────────────────
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 16px;
+  border: 2px dashed rgba($gold, 0.3);
+  border-radius: 10px;
+  background: rgba($gold, 0.04);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+
+  &.drag-over {
+    border-color: $gold;
+    background: rgba($gold, 0.12);
+  }
+
+  &.uploading {
+    cursor: default;
+  }
+
+  .upload-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: rgba($gold, 0.6);
+  }
+
+  .upload-label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .upload-browse-btn {
+    font-size: 13px;
+    font-weight: 600;
+    color: $gold;
+    cursor: pointer;
+    padding: 4px 12px;
+    border: 1px solid rgba($gold, 0.3);
+    border-radius: 6px;
+    background: rgba($gold, 0.1);
+    transition: background 0.2s;
+
+    &:hover { background: rgba($gold, 0.2); }
+  }
+
+  .upload-progress {
+    width: 100%;
+    border-radius: 4px;
+  }
+}
+
+// ─── Media item card with preview ─────────────────────────────────────────────
+.media-item-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: rgba($gold, 0.2);
+  }
+
+  .media-preview-thumb {
+    display: block;
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .media-row {
+    padding: 8px;
+  }
+}
+
 .empty-hint {
   font-size: 13px;
   font-style: italic;
@@ -184,6 +265,37 @@ $gold-dark: #5C4000;
   .action-button-container {
     background: #ffffff;
   }
+
+  .upload-zone {
+    border-color: rgba($gold-dark, 0.3);
+    background: rgba($gold-dark, 0.04);
+
+    &.drag-over {
+      border-color: $gold-dark;
+      background: rgba($gold-dark, 0.12);
+    }
+
+    .upload-icon { color: rgba($gold-dark, 0.5); }
+    .upload-label { color: rgba(1, 0, 20, 0.5); }
+    .upload-browse-btn {
+      color: $gold-dark;
+      border-color: rgba($gold-dark, 0.3);
+      background: rgba($gold-dark, 0.08);
+      &:hover { background: rgba($gold-dark, 0.16); }
+    }
+  }
+
+  .media-item-card {
+    border-color: rgba(1, 0, 20, 0.1);
+    background: rgba(1, 0, 20, 0.02);
+
+    &:hover { border-color: rgba($gold-dark, 0.25); }
+
+    .media-preview-thumb {
+      border-bottom-color: rgba(1, 0, 20, 0.06);
+      background: rgba(1, 0, 20, 0.04);
+    }
+  }
 }
 
 // ─── Mobile responsive ────────────────────────────────────────────────────────
@@ -229,5 +341,15 @@ $gold-dark: #5C4000;
 
     .cancel-btn,
     .submit-btn { width: 100%; text-align: center; }
+  }
+
+  .upload-zone {
+    padding: 14px 12px;
+
+    .upload-icon { font-size: 28px; width: 28px; height: 28px; }
+  }
+
+  .media-item-card .media-preview-thumb {
+    max-height: 140px;
   }
 }
