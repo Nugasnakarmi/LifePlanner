@@ -279,14 +279,17 @@ html.light-mode {
     border-radius: 16px !important;
     padding: 0 !important;
     overflow: hidden;
-    // dvh accounts for mobile browser chrome (URL bar); falls back to vh on older browsers
-    max-height: min(90dvh, 90vh) !important;
+    // vh fallback first, then dvh (dynamic — accounts for mobile browser chrome / URL bar)
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
   }
 
   .mdc-dialog__surface {
     border-radius: 16px !important;
     background: #010014 !important;
-    max-height: min(90dvh, 90vh) !important;
+    // vh fallback first, then dvh
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
     // Keep overflow hidden here — inner .step-content is the single scroll container.
     // Having overflow-y: auto on both this surface AND .step-content creates nested
     // scroll containers that prevent touch-scroll on mobile browsers.
@@ -298,12 +301,14 @@ html.light-mode {
   @media (max-width: 600px) {
     .mat-mdc-dialog-container {
       border-radius: 12px !important;
-      max-height: min(95dvh, 95vh) !important;
+      max-height: 95vh !important;
+      max-height: 95dvh !important;
     }
 
     .mdc-dialog__surface {
       border-radius: 12px !important;
-      max-height: min(95dvh, 95vh) !important;
+      max-height: 95vh !important;
+      max-height: 95dvh !important;
     }
   }
 }

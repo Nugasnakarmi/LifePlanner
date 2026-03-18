@@ -83,6 +83,9 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  // Make the stepper itself a flex column so its content container can grow
+  display: flex;
+  flex-direction: column;
 
   ::ng-deep {
     .mat-stepper-header-position-bottom .mat-horizontal-content-container,
@@ -92,13 +95,6 @@
       flex: 1;
       min-height: 0;
       overflow: hidden;
-    }
-
-    // The stepper itself should be a flex column so the content container can flex
-    &.mat-horizontal-stepper {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
     }
 
     .mat-horizontal-stepper-header-container {
@@ -162,9 +158,10 @@
 
   @media (max-width: 600px) {
     padding: 16px 16px 20px;
-    // On mobile use dvh so the browser URL bar is accounted for;
+    // vh fallback first, then dvh (accounts for mobile browser URL bar);
     // subtract header (~88px) + stepper nav (~72px) = ~160px
-    max-height: calc(min(95dvh, 95vh) - 160px);
+    max-height: calc(95vh - 160px);
+    max-height: calc(95dvh - 160px);
   }
 }
 
