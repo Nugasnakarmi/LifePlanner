@@ -2,14 +2,16 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as taskActions from './task.actions';
 import { inject, Injectable } from '@angular/core';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
-import { catchError, map, mergeMap, switchMap, concatMap } from 'rxjs/operators';
+import { catchError, map, mergeMap, switchMap, concatMap, tap } from 'rxjs/operators';
 import { from, of } from 'rxjs';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
+import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 
 @Injectable()
 export class TaskEffects {
   dialogService = inject(DialogService);
+  private formCache = inject(DialogFormCacheService);
   constructor(
     private actions$: Actions,
     private taskAPIService: TaskAPIService
@@ -143,5 +145,14 @@ export class TaskEffects {
         )
       )
     )
+  );
+
+  clearAddTaskDraft$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(taskActions.taskWasAddedSuccessfully),
+        tap(() => this.formCache.clear(DIALOG_CACHE_KEYS.ADD_TASK))
+      ),
+    { dispatch: false }
   );
 }

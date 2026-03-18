@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, Inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ReactiveFormsModule,
@@ -18,9 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { debounceTime } from 'rxjs';
 import { Activity, ActivityDataField, ActivityMedia } from 'src/app/interfaces/activity.interface';
-import { DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
-
-const CACHE_KEY = 'lifeplanner-dialog-activity-form';
+import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 
 interface ActivityFormCache {
   name: string;
@@ -49,7 +47,7 @@ export interface ActivityFormData {
   templateUrl: './activity-form.component.html',
   styleUrl: './activity-form.component.scss',
 })
-export class ActivityFormComponent implements OnInit {
+export class ActivityFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private formCache = inject(DialogFormCacheService);
   private destroyRef = inject(DestroyRef);
@@ -61,6 +59,8 @@ export class ActivityFormComponent implements OnInit {
     { value: 'gif', label: 'GIF', icon: 'gif' },
     { value: 'video', label: 'Video', icon: 'videocam' },
   ];
+
+  private submitting = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -79,7 +79,7 @@ export class ActivityFormComponent implements OnInit {
       (this.data.activity.data ?? []).forEach((field) => this.addDataField(field));
       (this.data.activity.media ?? []).forEach((m) => this.addMediaItem(m));
     } else {
-      const cached = this.formCache.load<ActivityFormCache>(CACHE_KEY);
+      const cached = this.formCache.load<ActivityFormCache>(DIALOG_CACHE_KEYS.ACTIVITY_FORM);
       if (cached) {
         this.form.patchValue({ name: cached.name });
         (cached.dataFields ?? []).forEach((field) => this.addDataField(field));
@@ -87,7 +87,15 @@ export class ActivityFormComponent implements OnInit {
       }
       this.form.valueChanges
         .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
-        .subscribe((values) => this.formCache.save(CACHE_KEY, values));
+        .subscribe((values) => this.formCache.save(DIALOG_CACHE_KEYS.ACTIVITY_FORM, values));
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.data.mode === 'add' && !this.submitting) {
+      // Flush the latest form state immediately so no trailing keystrokes are lost
+      // (the debounced subscription may not have fired yet when the dialog closes)
+      this.formCache.save(DIALOG_CACHE_KEYS.ACTIVITY_FORM, this.form.getRawValue());
     }
   }
 
@@ -143,7 +151,7 @@ export class ActivityFormComponent implements OnInit {
     };
 
     if (this.data.mode === 'add') {
-      this.formCache.clear(CACHE_KEY);
+      this.submitting = true;
     }
     this.dialogRef.close({ activity, mode: this.data.mode });
   }

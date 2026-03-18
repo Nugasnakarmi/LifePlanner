@@ -1,6 +1,16 @@
 import { Injectable } from '@angular/core';
 
 /**
+ * Shared cache keys used by dialog form components and their corresponding
+ * NgRx effects so that both sides reference the same localStorage key.
+ */
+export const DIALOG_CACHE_KEYS = {
+  ADD_TASK: 'lifeplanner-dialog-add-task',
+  ACTIVITY_FORM: 'lifeplanner-dialog-activity-form',
+  CREATE_TEMPLATE: 'lifeplanner-dialog-create-template',
+} as const;
+
+/**
  * Lightweight service that persists dialog form state to localStorage so that
  * entries are not lost when a dialog is accidentally closed.
  *

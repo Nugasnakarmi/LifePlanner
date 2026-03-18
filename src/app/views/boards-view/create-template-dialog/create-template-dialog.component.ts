@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -22,9 +22,7 @@ import {
 } from 'src/app/interfaces/board-template.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
-import { DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
-
-const CACHE_KEY = 'lifeplanner-dialog-create-template';
+import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 
 interface CreateTemplateCache {
   infoForm: { name: string; description: string };
@@ -56,7 +54,7 @@ const CLOSE_AFTER_SAVE_DELAY_MS = 600;
   templateUrl: './create-template-dialog.component.html',
   styleUrls: ['./create-template-dialog.component.scss'],
 })
-export class CreateTemplateDialogComponent implements OnInit {
+export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<CreateTemplateDialogComponent>);
   private boardTemplateService = inject(BoardTemplateService);
@@ -64,6 +62,7 @@ export class CreateTemplateDialogComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   saving = false;
+  private submitting = false;
 
   /** Lists accumulate as the user adds them in step 2. */
   lists: Array<BoardTemplateList & { showAddTask: boolean }> = [];
@@ -103,7 +102,7 @@ export class CreateTemplateDialogComponent implements OnInit {
       taskDescription: [''],
     });
 
-    const cached = this.formCache.load<CreateTemplateCache>(CACHE_KEY);
+    const cached = this.formCache.load<CreateTemplateCache>(DIALOG_CACHE_KEYS.CREATE_TEMPLATE);
     if (cached) {
       this.infoForm.patchValue(cached.infoForm ?? {});
       this.lists = (cached.lists ?? []).map((l) => ({ ...l, showAddTask: false }));
@@ -112,6 +111,14 @@ export class CreateTemplateDialogComponent implements OnInit {
     this.infoForm.valueChanges
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.persistCache());
+  }
+
+  ngOnDestroy(): void {
+    if (!this.submitting) {
+      // Flush the latest state immediately so no trailing keystrokes are lost
+      // (the debounced subscription may not have fired yet when the dialog closes)
+      this.persistCache();
+    }
   }
 
   private persistCache(): void {
@@ -124,7 +131,7 @@ export class CreateTemplateDialogComponent implements OnInit {
         tasks,
       })),
     };
-    this.formCache.save(CACHE_KEY, cache);
+    this.formCache.save(DIALOG_CACHE_KEYS.CREATE_TEMPLATE, cache);
   }
 
   getColumnType(type: IdeaType): ColumnType {
@@ -215,6 +222,7 @@ export class CreateTemplateDialogComponent implements OnInit {
   async save(): Promise<void> {
     if (this.infoForm.invalid || this.saving) return;
     this.saving = true;
+    this.submitting = true;
 
     const v = this.infoForm.value;
     const template: BoardTemplate = {
@@ -231,7 +239,6 @@ export class CreateTemplateDialogComponent implements OnInit {
     };
 
     this.boardTemplateService.saveTemplate(template);
-    this.formCache.clear(CACHE_KEY);
 
     // Wait briefly so the success toast fires, then close
     await new Promise((r) => setTimeout(r, CLOSE_AFTER_SAVE_DELAY_MS));
