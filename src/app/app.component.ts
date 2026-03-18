@@ -19,7 +19,6 @@ import { CreateTemplateDialogComponent } from './views/boards-view/create-templa
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  title = 'LifePlanner';
   userEmail: string | null = null;
   menuActive = false;
   isEditingTitle = false;
@@ -38,6 +37,9 @@ export class AppComponent implements OnInit {
     if (session?.user?.email) {
       this.userEmail = session.user.email;
       await this.appTitleService.loadFromDb();
+    } else {
+      // No active session — clear any stale cached title from a previous user
+      this.appTitleService.reset();
     }
 
     this.supabaseService.supabase.auth.onAuthStateChange(async (_event, session) => {

@@ -62,16 +62,22 @@ export class AppTitleService {
       return;
     }
 
+    if (trimmed.length > 100) {
+      this.toastr.error('App title must be 100 characters or fewer');
+      return;
+    }
+
     try {
       const user = await this.supabaseService.getUser();
       if (!user) {
         return;
       }
 
+      // updated_at is managed server-side via a DB trigger — do not send it from the client
       const { error } = await this.supabaseService.supabase
         .from('user_preferences')
         .upsert(
-          { user_id: user.id, app_title: trimmed, updated_at: new Date().toISOString() },
+          { user_id: user.id, app_title: trimmed },
           { onConflict: 'user_id' }
         );
 
@@ -89,6 +95,10 @@ export class AppTitleService {
 
   reset(): void {
     this._appTitle.set(DEFAULT_TITLE);
-    this.saveToCache(DEFAULT_TITLE);
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    } catch {
+      // localStorage unavailable — cache cannot be cleared
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
+import { AppTitleService } from './services/app-title.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -16,9 +17,9 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'LifePlanner'`, () => {
+  it(`should display the default title 'LifePlanner'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('LifePlanner');
+    const appTitleService = TestBed.inject(AppTitleService);
+    expect(appTitleService.appTitle()).toEqual('LifePlanner');
   });
 });
