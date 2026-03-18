@@ -1,9 +1,38 @@
 <nav class="navbar app-navbar" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <div class="navbar-item">
-      <h1 class="app-name has-gradient-text" (click)="navigateToHome()">
-        LifePlanner
-      </h1>
+    <div class="navbar-item title-brand-item">
+      <ng-container *ngIf="!isEditingTitle; else titleEditMode">
+        <h1
+          class="app-name has-gradient-text"
+          (click)="navigateToHome()"
+          [title]="userEmail ? 'Click to navigate home; double-click to rename' : ''"
+          (dblclick)="startEditingTitle()"
+        >
+          {{ appTitleService.appTitle() }}
+        </h1>
+        <button
+          *ngIf="userEmail"
+          mat-icon-button
+          class="title-edit-button"
+          (click)="startEditingTitle()"
+          aria-label="Rename app title"
+          title="Rename app title"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+      </ng-container>
+      <ng-template #titleEditMode>
+        <input
+          #titleInput
+          class="app-name-input"
+          type="text"
+          [(ngModel)]="editingTitleValue"
+          (keydown)="onTitleKeydown($event)"
+          (blur)="commitTitleEdit()"
+          maxlength="100"
+          aria-label="Edit app title"
+        />
+      </ng-template>
     </div>
     <button
       class="navbar-burger"

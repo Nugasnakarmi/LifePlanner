@@ -5,6 +5,46 @@
   cursor: pointer;
 }
 
+.app-name-input {
+  font-size: 28px;
+  font-family: "Yatra One", sans-serif;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #F9D07A;
+  color: #F9D07A;
+  outline: none;
+  width: 220px;
+  padding: 0 4px;
+  line-height: 1.2;
+}
+
+.title-brand-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.title-edit-button {
+  color: #F9D07A;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.title-brand-item:hover .title-edit-button,
+.title-edit-button:focus {
+  opacity: 1;
+}
+
 .has-gradient-text {
   background: -webkit-linear-gradient(#F9D07A, #d4a94e);
   -webkit-background-clip: text;
@@ -48,6 +88,15 @@
   }
 
   .theme-toggle-button {
+    color: #010014;
+  }
+
+  .app-name-input {
+    color: #010014;
+    border-bottom-color: #010014;
+  }
+
+  .title-edit-button {
     color: #010014;
   }
 }
