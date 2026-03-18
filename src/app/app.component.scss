@@ -5,6 +5,20 @@
   cursor: pointer;
 }
 
+.app-name-input {
+  font-size: 28px;
+  font-family: "Yatra One", sans-serif;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #F9D07A;
+  color: #F9D07A;
+  outline: none;
+  width: 220px;
+  padding: 0 4px;
+  line-height: 1.2;
+}
+
 .has-gradient-text {
   background: -webkit-linear-gradient(#F9D07A, #d4a94e);
   -webkit-background-clip: text;
@@ -49,5 +63,10 @@
 
   .theme-toggle-button {
     color: #010014;
+  }
+
+  .app-name-input {
+    color: #010014;
+    border-bottom-color: #010014;
   }
 }
