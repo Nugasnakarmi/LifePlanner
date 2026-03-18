@@ -1,4 +1,5 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
@@ -10,10 +11,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { debounceTime } from 'rxjs';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
+import { DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 import { TaskService } from 'src/app/services/task/task.service';
+
+const CACHE_KEY = 'lifeplanner-dialog-add-task';
 
 @Component({
   selector: 'add-task',
@@ -23,6 +28,8 @@ import { TaskService } from 'src/app/services/task/task.service';
 })
 export class AddTaskComponent implements OnInit {
   taskService = inject(TaskService);
+  private formCache = inject(DialogFormCacheService);
+  private destroyRef = inject(DestroyRef);
 
   addTaskForm: UntypedFormGroup;
   addTaskDialogRef = inject(MatDialogRef<AddTaskComponent>);
@@ -45,6 +52,14 @@ export class AddTaskComponent implements OnInit {
     if (this.data.mode === TaskMode.Edit) {
       this.actionString = 'Edit Task';
       this.addTaskForm.patchValue(this.data.task);
+    } else {
+      const cached = this.formCache.load<{ name: string; description: string }>(CACHE_KEY);
+      if (cached) {
+        this.addTaskForm.patchValue(cached);
+      }
+      this.addTaskForm.valueChanges
+        .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+        .subscribe((values) => this.formCache.save(CACHE_KEY, values));
     }
   }
 
@@ -70,6 +85,7 @@ export class AddTaskComponent implements OnInit {
       boards_lists_id: this.data.boardListId,
     };
     this.taskService.taskWasAdded(task);
+    this.formCache.clear(CACHE_KEY);
     this.addTaskDialogRef.close();
   }
 

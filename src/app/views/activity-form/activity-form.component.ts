@@ -1,4 +1,5 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
@@ -15,7 +16,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { debounceTime } from 'rxjs';
 import { Activity, ActivityDataField, ActivityMedia } from 'src/app/interfaces/activity.interface';
+import { DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
+
+const CACHE_KEY = 'lifeplanner-dialog-activity-form';
+
+interface ActivityFormCache {
+  name: string;
+  dataFields: ActivityDataField[];
+  mediaItems: ActivityMedia[];
+}
 
 export interface ActivityFormData {
   taskId: number;
@@ -40,6 +51,8 @@ export interface ActivityFormData {
 })
 export class ActivityFormComponent implements OnInit {
   private fb = inject(FormBuilder);
+  private formCache = inject(DialogFormCacheService);
+  private destroyRef = inject(DestroyRef);
   dialogRef = inject(MatDialogRef<ActivityFormComponent>);
 
   form: FormGroup;
@@ -65,6 +78,16 @@ export class ActivityFormComponent implements OnInit {
       this.form.patchValue({ name: this.data.activity.name });
       (this.data.activity.data ?? []).forEach((field) => this.addDataField(field));
       (this.data.activity.media ?? []).forEach((m) => this.addMediaItem(m));
+    } else {
+      const cached = this.formCache.load<ActivityFormCache>(CACHE_KEY);
+      if (cached) {
+        this.form.patchValue({ name: cached.name });
+        (cached.dataFields ?? []).forEach((field) => this.addDataField(field));
+        (cached.mediaItems ?? []).forEach((m) => this.addMediaItem(m));
+      }
+      this.form.valueChanges
+        .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+        .subscribe((values) => this.formCache.save(CACHE_KEY, values));
     }
   }
 
@@ -119,6 +142,9 @@ export class ActivityFormComponent implements OnInit {
       media: this.form.value.mediaItems as ActivityMedia[],
     };
 
+    if (this.data.mode === 'add') {
+      this.formCache.clear(CACHE_KEY);
+    }
     this.dialogRef.close({ activity, mode: this.data.mode });
   }
 

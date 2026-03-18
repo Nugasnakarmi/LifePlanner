@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
@@ -13,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
+import { debounceTime } from 'rxjs';
 import {
   BoardTemplate,
   BoardTemplateList,
@@ -20,6 +22,14 @@ import {
 } from 'src/app/interfaces/board-template.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
+import { DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
+
+const CACHE_KEY = 'lifeplanner-dialog-create-template';
+
+interface CreateTemplateCache {
+  infoForm: { name: string; description: string };
+  lists: Array<{ name: string; listType: IdeaType; position: number; tasks: BoardTemplateTask[] }>;
+}
 
 export interface ColumnType {
   value: IdeaType;
@@ -50,6 +60,8 @@ export class CreateTemplateDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<CreateTemplateDialogComponent>);
   private boardTemplateService = inject(BoardTemplateService);
+  private formCache = inject(DialogFormCacheService);
+  private destroyRef = inject(DestroyRef);
 
   saving = false;
 
@@ -90,6 +102,29 @@ export class CreateTemplateDialogComponent implements OnInit {
       taskName: ['', Validators.required],
       taskDescription: [''],
     });
+
+    const cached = this.formCache.load<CreateTemplateCache>(CACHE_KEY);
+    if (cached) {
+      this.infoForm.patchValue(cached.infoForm ?? {});
+      this.lists = (cached.lists ?? []).map((l) => ({ ...l, showAddTask: false }));
+    }
+
+    this.infoForm.valueChanges
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.persistCache());
+  }
+
+  private persistCache(): void {
+    const cache: CreateTemplateCache = {
+      infoForm: this.infoForm.value,
+      lists: this.lists.map(({ name, listType, position, tasks }) => ({
+        name,
+        listType,
+        position,
+        tasks,
+      })),
+    };
+    this.formCache.save(CACHE_KEY, cache);
   }
 
   getColumnType(type: IdeaType): ColumnType {
@@ -116,6 +151,7 @@ export class CreateTemplateDialogComponent implements OnInit {
     this.addListForm.reset({ listType: IdeaType.goals });
     this.showAddListForm = false;
     this.expandedListIndex = this.lists.length - 1;
+    this.persistCache();
   }
 
   cancelAddList(): void {
@@ -130,6 +166,7 @@ export class CreateTemplateDialogComponent implements OnInit {
     } else if (this.expandedListIndex !== null && this.expandedListIndex > index) {
       this.expandedListIndex--;
     }
+    this.persistCache();
   }
 
   toggleList(index: number): void {
@@ -165,10 +202,12 @@ export class CreateTemplateDialogComponent implements OnInit {
     this.lists[listIndex].tasks.push(task);
     this.lists[listIndex].showAddTask = false;
     this.addTaskForm.reset();
+    this.persistCache();
   }
 
   removeTask(listIndex: number, taskIndex: number): void {
     this.lists[listIndex].tasks.splice(taskIndex, 1);
+    this.persistCache();
   }
 
   // ── Save ──────────────────────────────────────────────────────────────────
@@ -192,6 +231,7 @@ export class CreateTemplateDialogComponent implements OnInit {
     };
 
     this.boardTemplateService.saveTemplate(template);
+    this.formCache.clear(CACHE_KEY);
 
     // Wait briefly so the success toast fires, then close
     await new Promise((r) => setTimeout(r, CLOSE_AFTER_SAVE_DELAY_MS));
