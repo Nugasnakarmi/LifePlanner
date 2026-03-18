@@ -6,6 +6,9 @@
   overflow: hidden;
   min-width: 560px;
   max-width: 700px;
+  // Flex column so the stepper fills remaining height and step-content can scroll
+  display: flex;
+  flex-direction: column;
 
   @media (max-width: 600px) {
     min-width: unset;
@@ -76,17 +79,29 @@
 // === Stepper ===
 .template-stepper {
   background: transparent !important;
+  // Grow to fill remaining dialog height so step-content can scroll within it
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  // Make the stepper itself a flex column so its content container can grow
+  display: flex;
+  flex-direction: column;
 
   ::ng-deep {
     .mat-stepper-header-position-bottom .mat-horizontal-content-container,
     .mat-horizontal-content-container {
       padding: 0;
+      // Allow the content area to grow and scroll
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .mat-horizontal-stepper-header-container {
       padding: 16px 28px 0;
       background: rgba(249, 208, 122, 0.03);
       border-bottom: 1px solid rgba(249, 208, 122, 0.08);
+      flex-shrink: 0;
     }
 
     .mat-step-label,
@@ -127,10 +142,27 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-height: 65vh;
+  // Fill the content container height and scroll within it.
+  // flex + min-height: 0 is the canonical pattern for scrollable flex children.
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  // Fallback max-height for browsers where the flex layout isn't applied
+  max-height: 65vh;
   scrollbar-width: thin;
   scrollbar-color: rgba(249, 208, 122, 0.2) transparent;
+  // Enable momentum (inertia) scrolling on iOS Safari
+  -webkit-overflow-scrolling: touch;
+  // Prevent scroll-chaining to the dialog backdrop on mobile
+  overscroll-behavior-y: contain;
+
+  @media (max-width: 600px) {
+    padding: 16px 16px 20px;
+    // vh fallback first, then dvh (accounts for mobile browser URL bar);
+    // subtract header (~88px) + stepper nav (~72px) = ~160px
+    max-height: calc(95vh - 160px);
+    max-height: calc(95dvh - 160px);
+  }
 }
 
 .step-intro {
