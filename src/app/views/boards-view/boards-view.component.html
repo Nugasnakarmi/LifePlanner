@@ -156,9 +156,10 @@
       @if(board.description) {
       <div class="board-card-description">{{ board.description }}</div>
       }
-      @if(getListsForBoard(board.id).length > 0) {
+      @let boardLists = boardListsMap[board.id] ?? [];
+      @if(boardLists.length > 0) {
       <div class="board-card-lists">
-        @for(list of getListsForBoard(board.id); track list.id) {
+        @for(list of boardLists; track list.id) {
           <span class="board-list-chip">{{ list.name }}</span>
         }
       </div>

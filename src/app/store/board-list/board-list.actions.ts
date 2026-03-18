@@ -14,6 +14,18 @@ export const loadBoardListsFailure = createAction(
   props<{ error: any }>()
 );
 
+export const loadAllBoardListsForUser = createAction(
+  '[BoardLists] Load All Lists For User'
+);
+export const loadAllBoardListsForUserSuccess = createAction(
+  '[BoardLists] Load All Lists For User Success',
+  props<{ lists: BoardList[] }>()
+);
+export const loadAllBoardListsForUserFailure = createAction(
+  '[BoardLists] Load All Lists For User Failure',
+  props<{ error: any }>()
+);
+
 export const clearBoardLists = createAction('[BoardLists] Clear Lists');
 
 export const addBoardList = createAction(

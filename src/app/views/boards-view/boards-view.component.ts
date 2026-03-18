@@ -19,7 +19,7 @@ import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
-import { BoardListApiService } from 'src/app/services/board-list/board-list.api.service';
+import { BoardListService } from 'src/app/services/board-list/board-list.service';
 import { CreateTemplateDialogComponent } from './create-template-dialog/create-template-dialog.component';
 
 @Component({
@@ -41,7 +41,7 @@ export class BoardsViewComponent implements OnInit {
   boardService = inject(BoardService);
   taskService = inject(TaskService);
   boardTemplateService = inject(BoardTemplateService);
-  boardListApiService = inject(BoardListApiService);
+  boardListService = inject(BoardListService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   dialog = inject(MatDialog);
@@ -76,7 +76,10 @@ export class BoardsViewComponent implements OnInit {
     this.systemTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isSystem)));
     this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem)));
     this.boardTemplateService.loadTemplates();
-    this.loadAllBoardLists();
+    this.boardListService.loadAllLists();
+    this.boardListService.allListsGroupedByBoard$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((grouped) => { this.boardListsMap = grouped; });
 
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -86,21 +89,6 @@ export class BoardsViewComponent implements OnInit {
           this.router.navigate(['/boards'], { queryParams: {}, replaceUrl: true });
         }
       });
-  }
-
-  private async loadAllBoardLists(): Promise<void> {
-    const lists = await this.boardListApiService.getAllListsForUser();
-    this.boardListsMap = lists.reduce((acc, list) => {
-      if (!acc[list.board_id]) {
-        acc[list.board_id] = [];
-      }
-      acc[list.board_id].push(list);
-      return acc;
-    }, {} as Record<number, BoardList[]>);
-  }
-
-  getListsForBoard(boardId: number): BoardList[] {
-    return this.boardListsMap[boardId] ?? [];
   }
 
   totalTaskCount(template: BoardTemplate): number {
