@@ -14,10 +14,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, map, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
+import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
+import { BoardListApiService } from 'src/app/services/board-list/board-list.api.service';
 import { CreateTemplateDialogComponent } from './create-template-dialog/create-template-dialog.component';
 
 @Component({
@@ -39,6 +41,7 @@ export class BoardsViewComponent implements OnInit {
   boardService = inject(BoardService);
   taskService = inject(TaskService);
   boardTemplateService = inject(BoardTemplateService);
+  boardListApiService = inject(BoardListApiService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   dialog = inject(MatDialog);
@@ -52,6 +55,7 @@ export class BoardsViewComponent implements OnInit {
   showNewBoardForm = false;
   showTemplates = false;
   editingBoardId: number | null = null;
+  boardListsMap: Record<number, BoardList[]> = {};
 
   newBoardNameControl = new UntypedFormControl('', [
     Validators.required,
@@ -72,6 +76,7 @@ export class BoardsViewComponent implements OnInit {
     this.systemTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isSystem)));
     this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem)));
     this.boardTemplateService.loadTemplates();
+    this.loadAllBoardLists();
 
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -81,6 +86,21 @@ export class BoardsViewComponent implements OnInit {
           this.router.navigate(['/boards'], { queryParams: {}, replaceUrl: true });
         }
       });
+  }
+
+  private async loadAllBoardLists(): Promise<void> {
+    const lists = await this.boardListApiService.getAllListsForUser();
+    this.boardListsMap = lists.reduce((acc, list) => {
+      if (!acc[list.board_id]) {
+        acc[list.board_id] = [];
+      }
+      acc[list.board_id].push(list);
+      return acc;
+    }, {} as Record<number, BoardList[]>);
+  }
+
+  getListsForBoard(boardId: number): BoardList[] {
+    return this.boardListsMap[boardId] ?? [];
   }
 
   totalTaskCount(template: BoardTemplate): number {

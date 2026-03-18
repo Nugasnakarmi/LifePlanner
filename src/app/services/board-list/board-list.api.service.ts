@@ -11,6 +11,27 @@ export class BoardListApiService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
 
+  async getAllListsForUser(): Promise<BoardList[]> {
+    try {
+      const user: User = await this.supabaseService.getUser();
+      const { data, error } = await this.supabaseService.supabase
+        .from('board_lists')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('board_id', { ascending: true })
+        .order('position', { ascending: true });
+
+      if (error) {
+        throw error;
+      }
+
+      return data ?? [];
+    } catch (error) {
+      this.toastRService.error(`Failed to load lists: ${error?.message ?? error}`);
+      return [];
+    }
+  }
+
   async getListsByBoardId(boardId: number): Promise<BoardList[]> {
     try {
       const user: User = await this.supabaseService.getUser();

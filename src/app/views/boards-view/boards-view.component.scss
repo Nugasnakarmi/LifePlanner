@@ -304,6 +304,25 @@
   }
 }
 
+.board-card-lists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.board-list-chip {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(249, 208, 122, 0.7);
+  background: rgba(249, 208, 122, 0.08);
+  border: 1px solid rgba(249, 208, 122, 0.18);
+  border-radius: 4px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
 .no-boards-message {
   font-family: 'Montserrat', sans-serif;
   color: rgba(255, 255, 255, 0.5);
@@ -625,6 +644,14 @@
 
   .board-card-description {
     color: rgba(1, 0, 20, 0.55);
+  }
+
+  .board-card-lists {
+    .board-list-chip {
+      color: rgba(92, 64, 0, 0.75);
+      background: rgba(92, 64, 0, 0.07);
+      border-color: rgba(92, 64, 0, 0.18);
+    }
   }
 
   .no-boards-message {

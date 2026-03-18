@@ -60,6 +60,17 @@
         <span class="task-progress-label">{{ task().completion_status }}%</span>
       </div>
     }
+
+    @if(task().activities?.length) {
+      <ul class="task-activities-list">
+        @for(activity of task().activities; track activity.task_activity_id) {
+          <li class="task-activity-item" [class.task-activity-done]="activity.completed">
+            <mat-icon class="task-activity-icon">{{ activity.completed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            <span class="task-activity-name">{{ activity.name }}</span>
+          </li>
+        }
+      </ul>
+    }
   </div>
   <div class="action-buttons flex-column-center">
     <button class="expand-button" (click)="onExpandTask(task())" title="Expand to fullscreen" aria-label="Expand to fullscreen">
