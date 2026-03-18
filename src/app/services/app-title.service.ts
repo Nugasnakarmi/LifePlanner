@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { SupabaseService } from '../supabase/supabase.service';
+import { SupabaseService } from './supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
 
 const LOCAL_STORAGE_KEY = 'lifeplanner-app-title';
