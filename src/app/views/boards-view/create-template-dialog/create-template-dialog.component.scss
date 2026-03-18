@@ -201,7 +201,14 @@
   gap: 12px;
   justify-content: flex-end;
   padding-top: 8px;
+  padding-bottom: 4px;
   border-top: 1px solid rgba(249, 208, 122, 0.08);
+  // Stick to the bottom of the scrollable .step-content so navigation/save
+  // buttons remain reachable even when the step has a long list of items.
+  position: sticky;
+  bottom: 0;
+  background: #010014;
+  z-index: 2;
 }
 
 // === Material form field overrides inside dialog ===
@@ -948,6 +955,7 @@
 
   .step-actions {
     border-top-color: rgba(92, 64, 0, 0.08);
+    background: #ffffff;
   }
 
   ::ng-deep .dialog-container {
