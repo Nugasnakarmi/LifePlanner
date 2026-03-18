@@ -6,6 +6,14 @@ $gold-dark: #5C4000;
   padding: 28px;
   box-sizing: border-box;
   gap: 16px;
+  // Constrain height and allow vertical scrolling when content overflows
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(249, 208, 122, 0.2) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 .dialog-header {
@@ -118,6 +126,12 @@ $gold-dark: #5C4000;
   gap: 12px;
   padding-top: 8px;
   border-top: 1px solid rgba(249, 208, 122, 0.15);
+  // Keep actions visible when the form scrolls
+  position: sticky;
+  bottom: -28px; // offset container padding
+  background: #010014;
+  padding-bottom: 4px;
+  z-index: 2;
 }
 
 .cancel-btn {
@@ -140,6 +154,10 @@ $gold-dark: #5C4000;
 
 // ─── Light mode ───────────────────────────────────────────────────────────────
 :host-context(.light-mode) {
+  .activity-form-container {
+    scrollbar-color: rgba(92, 64, 0, 0.3) transparent;
+  }
+
   .dialog-title {
     background: -webkit-linear-gradient(#8B6200, #5C4000);
     -webkit-background-clip: text;
@@ -161,6 +179,10 @@ $gold-dark: #5C4000;
     border-color: rgba(1, 0, 20, 0.2);
     color: rgba(1, 0, 20, 0.7);
     &:hover { background: rgba(1, 0, 20, 0.06); color: #010014; }
+  }
+
+  .action-button-container {
+    background: #ffffff;
   }
 }
 
@@ -203,6 +225,7 @@ $gold-dark: #5C4000;
   .action-button-container {
     flex-direction: column-reverse;
     align-items: stretch;
+    bottom: -16px; // offset smaller container padding
 
     .cancel-btn,
     .submit-btn { width: 100%; text-align: center; }

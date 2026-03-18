@@ -95,6 +95,18 @@
       flex: 1;
       min-height: 0;
       overflow: hidden;
+      // Make this a flex column so the active step wrapper can fill it
+      display: flex;
+      flex-direction: column;
+    }
+
+    // The active step wrapper must participate in the flex chain so
+    // .step-content can fill exactly the remaining space and scroll.
+    .mat-horizontal-stepper-content.mat-horizontal-stepper-content-current {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .mat-horizontal-stepper-header-container {
@@ -147,8 +159,6 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  // Fallback max-height for browsers where the flex layout isn't applied
-  max-height: 65vh;
   scrollbar-width: thin;
   scrollbar-color: rgba(249, 208, 122, 0.2) transparent;
   // Enable momentum (inertia) scrolling on iOS Safari
@@ -158,10 +168,6 @@
 
   @media (max-width: 600px) {
     padding: 16px 16px 20px;
-    // vh fallback first, then dvh (accounts for mobile browser URL bar);
-    // subtract header (~88px) + stepper nav (~72px) = ~160px
-    max-height: calc(95vh - 160px);
-    max-height: calc(95dvh - 160px);
   }
 }
 
