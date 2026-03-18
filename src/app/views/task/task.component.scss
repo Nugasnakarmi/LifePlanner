@@ -287,7 +287,53 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
   }
 }
 
-// ─── Drag and drop ────────────────────────────────────────────────────────────
+// ─── Task Activities List ──────────────────────────────────────────────────────
+.task-activities-list {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.4;
+
+  &.task-activity-done {
+    color: rgba(74, 222, 128, 0.6);
+    text-decoration: line-through;
+  }
+
+  .task-activity-icon {
+    font-size: 11px;
+    width: 11px;
+    height: 11px;
+    line-height: 11px;
+    flex-shrink: 0;
+  }
+
+  .task-activity-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+:host-context(.light-mode) {
+  .task-activity-item {
+    color: rgba(1, 0, 20, 0.45);
+
+    &.task-activity-done {
+      color: rgba(21, 128, 61, 0.65);
+    }
+  }
+}
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 10px;

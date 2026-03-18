@@ -47,14 +47,28 @@ export class TaskAPIService {
       let user: User = await this.supabaseService.getUser();
       let { data: tasks, error } = await this.supabaseService.supabase
         .from('tasks')
-        .select('*')
+        .select('*, task_activities(id, completed, position, activity:activities(id, name))')
         .eq('user_id', user.id);
       if (error) {
         throw error;
       }
 
       if (tasks) {
-        return tasks;
+        return tasks.map((task: any) => {
+          const { task_activities, ...rest } = task;
+          return {
+            ...rest,
+            activities: (task_activities ?? [])
+              .sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0))
+              .map((ta: any) => ({
+                id: ta.activity?.id,
+                name: ta.activity?.name ?? '',
+                task_activity_id: ta.id,
+                position: ta.position ?? 0,
+                completed: ta.completed ?? false,
+              })),
+          };
+        });
       }
     } catch (error) {
       this.toastRService.error(`Failed to get tasks: ${error.message}`);

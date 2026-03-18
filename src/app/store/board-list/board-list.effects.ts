@@ -23,6 +23,18 @@ export class BoardListEffects {
     )
   );
 
+  loadAllBoardListsForUser$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(boardListActions.loadAllBoardListsForUser),
+      switchMap(() =>
+        this.boardListApiService
+          .getAllListsForUser()
+          .then((lists) => boardListActions.loadAllBoardListsForUserSuccess({ lists }))
+          .catch((error) => boardListActions.loadAllBoardListsForUserFailure({ error }))
+      )
+    )
+  );
+
   addBoardList$ = createEffect(() =>
     this.actions$.pipe(
       ofType(boardListActions.addBoardList),

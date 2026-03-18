@@ -156,6 +156,14 @@
       @if(board.description) {
       <div class="board-card-description">{{ board.description }}</div>
       }
+      @let boardLists = boardListsMap[board.id] ?? [];
+      @if(boardLists.length > 0) {
+      <div class="board-card-lists">
+        @for(list of boardLists; track list.id) {
+          <span class="board-list-chip">{{ list.name }}</span>
+        }
+      </div>
+      }
       <div class="board-card-actions">
         <button mat-icon-button class="card-action-btn" (click)="startEditBoard(board, $event)" title="Rename board" [attr.aria-label]="'Rename board ' + board.name">
           <mat-icon>edit</mat-icon>
