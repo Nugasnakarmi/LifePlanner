@@ -20,6 +20,9 @@ export class StorageService {
 
   private async getS3Client(): Promise<S3Client> {
     const session = await this.supabaseService.getSession();
+    // Supabase S3-compatible endpoint uses the project ref as accessKeyId
+    // and the public anon key as secretAccessKey, with the user's JWT as session token.
+    // See: https://supabase.com/docs/guides/storage/s3/authentication
     return new S3Client({
       forcePathStyle: true,
       region: 'ap-southeast-1',

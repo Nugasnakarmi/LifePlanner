@@ -84,7 +84,7 @@
     @for(item of mediaItems.controls; track $index) {
       <div class="media-item-card">
         <!-- Preview thumbnail -->
-        @if(isPreviewable(item.get('url')?.value)) {
+        @if(isPreviewable(item.get('type')?.value, item.get('url')?.value)) {
           <img
             class="media-preview-thumb"
             [src]="item.get('url')?.value"

@@ -159,19 +159,10 @@ export class ActivityFormComponent implements OnInit {
     }
   }
 
-  /** Check whether a media url points to an image or gif */
-  isPreviewable(url: string): boolean {
+  /** Check whether a media item is previewable (image or gif with a url) */
+  isPreviewable(type: string | undefined, url: string | undefined): boolean {
     if (!url) return false;
-    const lower = url.toLowerCase();
-    return (
-      lower.includes('image') ||
-      lower.endsWith('.png') ||
-      lower.endsWith('.jpg') ||
-      lower.endsWith('.jpeg') ||
-      lower.endsWith('.gif') ||
-      lower.endsWith('.webp') ||
-      lower.includes('/activity-media/')
-    );
+    return type === 'image' || type === 'gif';
   }
 
   getNameError(): string {
