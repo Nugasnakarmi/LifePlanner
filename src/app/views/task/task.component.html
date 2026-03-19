@@ -62,14 +62,29 @@
     }
 
     @if(mediaThumbnails().length) {
-      <div class="task-media-strip">
-        @for(thumb of mediaThumbnails(); track thumb.url) {
-          <img
-            class="task-media-thumb"
-            [src]="thumb.url"
-            [alt]="thumb.name || 'Activity media'"
-            loading="lazy"
-          />
+      <div class="task-media-strip" role="list" aria-label="Activity images">
+        @for(thumb of mediaThumbnails(); track thumb.url; let last = $last) {
+          <div
+            class="task-media-thumb-wrap"
+            role="listitem"
+            [matTooltip]="thumb.name || 'Activity image'"
+            (click)="onExpandTask(task())"
+            (keydown.enter)="onExpandTask(task())"
+            (keydown.space)="$event.preventDefault(); onExpandTask(task())"
+            tabindex="0"
+            aria-label="Open task detail"
+          >
+            <img
+              class="task-media-thumb"
+              [src]="thumb.url"
+              [alt]="thumb.name || 'Activity image'"
+              loading="lazy"
+              (error)="onThumbError($event)"
+            />
+            @if(last && extraMediaCount() > 0) {
+              <span class="task-media-more">+{{ extraMediaCount() }}</span>
+            }
+          </div>
         }
       </div>
     }

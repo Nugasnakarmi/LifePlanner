@@ -32,6 +32,7 @@ export class TaskComponent {
   readonly addTaskDialog = inject(MatDialog);
 
   readonly TaskStatus = TaskStatus;
+  readonly MAX_THUMBS = 3;
 
   /** Collect the first few previewable media items from all activities */
   mediaThumbnails = computed<ActivityMedia[]>(() => {
@@ -41,12 +42,37 @@ export class TaskComponent {
       for (const m of act.media ?? []) {
         if (m.type === 'image' || m.type === 'gif') {
           thumbs.push(m);
-          if (thumbs.length >= 3) return thumbs;
+          if (thumbs.length >= this.MAX_THUMBS) return thumbs;
         }
       }
     }
     return thumbs;
   });
+
+  /** Total count of all previewable images/GIFs across all activities */
+  totalMediaCount = computed<number>(() => {
+    const activities = this.task()?.activities ?? [];
+    let count = 0;
+    for (const act of activities) {
+      for (const m of act.media ?? []) {
+        if (m.type === 'image' || m.type === 'gif') count++;
+      }
+    }
+    return count;
+  });
+
+  /** Number of images beyond the MAX_THUMBS shown in the strip */
+  extraMediaCount = computed<number>(() =>
+    Math.max(0, this.totalMediaCount() - this.MAX_THUMBS)
+  );
+
+  /** Hide a broken thumbnail by removing it from the DOM */
+  onThumbError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img?.parentElement) {
+      img.parentElement.style.display = 'none';
+    }
+  }
 
   hasActivitiesInProgress(task: IdeaTask): boolean {
     const cs = task.completion_status ?? 0;
