@@ -102,7 +102,6 @@
             class="media-preview-thumb"
             [src]="item.get('url')?.value"
             [alt]="item.get('name')?.value || 'Media preview'"
-            loading="lazy"
           />
         }
         <div [formGroupName]="$index" class="media-row flex-row-space-between">

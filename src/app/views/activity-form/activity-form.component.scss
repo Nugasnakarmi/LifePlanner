@@ -228,7 +228,7 @@ $gold-dark: #5C4000;
   .media-preview-thumb {
     display: block;
     width: 100%;
-    max-height: 180px;
+    height: 180px;
     object-fit: cover;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     background: rgba(0, 0, 0, 0.2);
@@ -400,6 +400,6 @@ $gold-dark: #5C4000;
   }
 
   .media-item-card .media-preview-thumb {
-    max-height: 140px;
+    height: 140px;
   }
 }
