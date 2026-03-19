@@ -47,7 +47,7 @@ export class TaskAPIService {
       let user: User = await this.supabaseService.getUser();
       let { data: tasks, error } = await this.supabaseService.supabase
         .from('tasks')
-        .select('*, task_activities(id, completed, position, activity:activities(id, name))')
+        .select('*, task_activities(id, completed, position, activity:activities(id, name, media))')
         .eq('user_id', user.id);
       if (error) {
         throw error;
@@ -63,6 +63,7 @@ export class TaskAPIService {
               .map((ta: any) => ({
                 id: ta.activity?.id,
                 name: ta.activity?.name ?? '',
+                media: ta.activity?.media ?? [],
                 task_activity_id: ta.id,
                 position: ta.position ?? 0,
                 completed: ta.completed ?? false,

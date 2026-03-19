@@ -1,7 +1,9 @@
 import { createReducer, on } from '@ngrx/store';
 import { IdeaTaskState } from 'src/app/store/task/task.state.interface';
 import * as taskActions from './task.actions';
+import * as activityActions from './activity.actions';
 import * as boardActions from 'src/app/store/board/board.actions';
+import { TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 
 export const initialState: IdeaTaskState = {
   tasks: [],
@@ -66,5 +68,49 @@ export const tasksReducer = createReducer(
     tasks: state.tasks.map((task) =>
       task.id === taskId ? { ...task, completion_status: completionStatus } : task
     ),
+  })),
+  on(activityActions.addActivityToTaskSuccess, (state, { activity, taskActivity }) => ({
+    ...state,
+    tasks: state.tasks.map((task) =>
+      task.id === taskActivity.task_id
+        ? {
+            ...task,
+            activities: [
+              ...(task.activities ?? []),
+              {
+                ...activity,
+                task_activity_id: taskActivity.id!,
+                position: taskActivity.position ?? 0,
+                completed: taskActivity.completed ?? false,
+              } as TaskScopedActivity,
+            ],
+          }
+        : task
+    ),
+  })),
+  on(activityActions.updateActivitySuccess, (state, { activity }) => ({
+    ...state,
+    tasks: state.tasks.map((task) => ({
+      ...task,
+      activities: (task.activities ?? []).map((a) =>
+        a.id === activity.id ? { ...a, ...activity } : a
+      ),
+    })),
+  })),
+  on(activityActions.removeActivityFromTaskSuccess, activityActions.deleteActivitySuccess, (state, { activityId }) => ({
+    ...state,
+    tasks: state.tasks.map((task) => ({
+      ...task,
+      activities: (task.activities ?? []).filter((a) => a.id !== activityId),
+    })),
+  })),
+  on(activityActions.toggleActivityCompleteSuccess, (state, { activityId, completed }) => ({
+    ...state,
+    tasks: state.tasks.map((task) => ({
+      ...task,
+      activities: (task.activities ?? []).map((a) =>
+        a.id === activityId ? { ...a, completed } : a
+      ),
+    })),
   }))
 );
