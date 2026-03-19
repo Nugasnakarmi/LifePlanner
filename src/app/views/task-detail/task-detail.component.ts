@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, inject, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -142,6 +142,26 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
 
   isGif(url: string): boolean {
     return /\.gif(\?|$)/i.test(url);
+  }
+
+  viewingImageUrl: string | null = null;
+  viewingImageAlt = '';
+
+  openImageViewer(url: string, alt: string): void {
+    this.viewingImageUrl = url;
+    this.viewingImageAlt = alt;
+  }
+
+  closeImageViewer(): void {
+    this.viewingImageUrl = null;
+    this.viewingImageAlt = '';
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscKey(): void {
+    if (this.viewingImageUrl) {
+      this.closeImageViewer();
+    }
   }
 }
 
