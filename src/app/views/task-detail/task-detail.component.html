@@ -90,17 +90,19 @@
                         ></video>
                       } @else if (media.type === 'gif' || isGif(media.url)) {
                         <img
-                          class="media-image"
+                          class="media-image media-image-clickable"
                           [src]="media.url"
                           [alt]="media.name || 'GIF'"
                           loading="lazy"
+                          (click)="openImageViewer(media.url, media.name || 'GIF')"
                         />
                       } @else {
                         <img
-                          class="media-image"
+                          class="media-image media-image-clickable"
                           [src]="media.url"
                           [alt]="media.name || 'Image'"
                           loading="lazy"
+                          (click)="openImageViewer(media.url, media.name || 'Image')"
                         />
                       }
                       @if (media.name) {
@@ -141,3 +143,27 @@
     </button>
   </div>
 </div>
+
+@if (viewingImageUrl) {
+  <div
+    class="image-viewer-overlay"
+    (click)="closeImageViewer()"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Full screen image viewer"
+  >
+    <button
+      class="image-viewer-close"
+      (click)="closeImageViewer()"
+      aria-label="Close full screen view"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+    <img
+      class="image-viewer-img"
+      [src]="viewingImageUrl"
+      [alt]="viewingImageAlt"
+      (click)="$event.stopPropagation()"
+    />
+  </div>
+}
