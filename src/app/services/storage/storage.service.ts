@@ -1,14 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
 import { SupabaseService } from '../supabase/supabase.service';
 import { environment } from 'src/environments/environment';
 import { ToastrService } from 'ngx-toastr';
 
-const PROJECT_REF = environment.SUPABASE_URL.replace('https://', '').split('.')[0];
 const BUCKET = 'activity-media';
 
 const ALLOWED_MIME_TYPES = new Set([
@@ -38,26 +32,6 @@ export class StorageService {
   private supabaseService = inject(SupabaseService);
   private toastr = inject(ToastrService);
 
-  private async getS3Client(): Promise<S3Client> {
-    const session = await this.supabaseService.getSession();
-    if (!session?.access_token) {
-      throw new Error('Not authenticated. Please sign in and try again.');
-    }
-    // Supabase S3-compatible endpoint uses the project ref as accessKeyId
-    // and the public anon key as secretAccessKey, with the user's JWT as session token.
-    // See: https://supabase.com/docs/guides/storage/s3/authentication
-    return new S3Client({
-      forcePathStyle: true,
-      region: 'ap-southeast-1',
-      endpoint: `${environment.SUPABASE_URL}/storage/v1/s3`,
-      credentials: {
-        accessKeyId: PROJECT_REF,
-        secretAccessKey: environment.SUPABASE_KEY,
-        sessionToken: session.access_token,
-      },
-    });
-  }
-
   /**
    * Validates a file before upload. Returns an error message or null if valid.
    */
@@ -84,16 +58,13 @@ export class StorageService {
         ? `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`
         : `${userId}/${Date.now()}-${crypto.randomUUID()}`;
 
-      const client = await this.getS3Client();
+      const { error } = await this.supabaseService.supabase.storage
+        .from(BUCKET)
+        .upload(key, file, { contentType: file.type });
 
-      await client.send(
-        new PutObjectCommand({
-          Bucket: BUCKET,
-          Key: key,
-          Body: file,
-          ContentType: file.type,
-        })
-      );
+      if (error) {
+        throw error;
+      }
 
       // Return the Supabase public URL for the object
       return `${environment.SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${key}`;
@@ -113,14 +84,14 @@ export class StorageService {
       if (idx === -1) return false;
 
       const key = publicUrl.substring(idx + prefix.length);
-      const client = await this.getS3Client();
 
-      await client.send(
-        new DeleteObjectCommand({
-          Bucket: BUCKET,
-          Key: key,
-        })
-      );
+      const { error } = await this.supabaseService.supabase.storage
+        .from(BUCKET)
+        .remove([key]);
+
+      if (error) {
+        throw error;
+      }
 
       return true;
     } catch (error: any) {
