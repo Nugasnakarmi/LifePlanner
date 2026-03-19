@@ -65,6 +65,9 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
   form: FormGroup;
   uploading = false;
   dragOver = false;
+  uploadFileIndex = 0;
+  uploadFilesTotal = 0;
+  uploadingFileName = '';
   readonly mediaTypes: Array<{ value: ActivityMedia['type']; label: string; icon: string }> = [
     { value: 'image', label: 'Image', icon: 'image' },
     { value: 'gif', label: 'GIF', icon: 'gif' },
@@ -182,6 +185,11 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
     await this.uploadFiles(Array.from(files));
   }
 
+  get uploadProgress(): number {
+    if (this.uploadFilesTotal === 0) return 0;
+    return Math.round((this.uploadFileIndex / this.uploadFilesTotal) * 100);
+  }
+
   /** Upload one or more files and add them as media items */
   private async uploadFiles(files: File[]): Promise<void> {
     const user = await this.supabaseService.getUser();
@@ -203,16 +211,23 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
     if (!validFiles.length) return;
 
     this.uploading = true;
+    this.uploadFilesTotal = validFiles.length;
+    this.uploadFileIndex = 1;
     try {
       for (const file of validFiles) {
+        this.uploadingFileName = file.name;
         const url = await this.storageService.uploadFile(file, user.id);
         if (url) {
           const mediaType = this.storageService.getMediaType(file.type);
           this.addMediaItem({ type: mediaType, url, name: file.name });
         }
+        this.uploadFileIndex++;
       }
     } finally {
       this.uploading = false;
+      this.uploadFilesTotal = 0;
+      this.uploadFileIndex = 0;
+      this.uploadingFileName = '';
     }
   }
 
