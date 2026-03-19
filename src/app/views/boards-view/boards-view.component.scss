@@ -1,3 +1,5 @@
+$gold: #F9D07A;
+
 :host {
   display: block;
   min-height: 100vh;
@@ -761,4 +763,15 @@
   border-radius: 4px;
   padding: 2px 8px;
   white-space: nowrap;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+
+  ::ng-deep .mdc-circular-progress__indeterminate-circle-graphic {
+    stroke: $gold;
+  }
 }

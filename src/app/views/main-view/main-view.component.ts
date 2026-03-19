@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReactiveFormsModule, UntypedFormControl, Validators } from '@angular/forms';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
@@ -29,6 +30,7 @@ import { BoardListService } from 'src/app/services/board-list/board-list.service
     DragDropModule,
     MatIconModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
     ReactiveFormsModule,
     TaskComponent,
     AsyncPipe,

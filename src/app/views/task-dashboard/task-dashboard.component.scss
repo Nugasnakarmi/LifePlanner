@@ -4,6 +4,18 @@ $status-initiated: #9ca3af;
 $status-working: #fbbf24;
 $status-completed: #4ade80;
 
+// ─── Loading ──────────────────────────────────────────────────────────────────
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+
+  ::ng-deep .mdc-circular-progress__indeterminate-circle-graphic {
+    stroke: $gold;
+  }
+}
+
 // ─── Mixins ───────────────────────────────────────────────────────────────────
 @mixin dashboard-card {
   background: rgba(255, 255, 255, 0.04);

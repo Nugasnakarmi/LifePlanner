@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, map, Observable } from 'rxjs';
@@ -31,6 +32,7 @@ import { CreateTemplateDialogComponent } from './create-template-dialog/create-t
     MatDialogModule,
     MatIconModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatTooltipModule,
     ReactiveFormsModule,
   ],

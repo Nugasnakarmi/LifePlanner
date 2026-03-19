@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskStatus } from 'src/app/enums/task-status.enum';
-import { selectTaskStatusCounts, selectTasks } from 'src/app/store/task/task.selector';
+import { selectLoadingState, selectTaskStatusCounts, selectTasks } from 'src/app/store/task/task.selector';
 import { DialogRef } from '@angular/cdk/dialog';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AddTaskComponent } from 'src/app/views/add-task/add-task.component';
@@ -19,6 +19,7 @@ export class TaskService {
 
   tasks$: Observable<IdeaTask[]> = this.store.select(selectTasks);
   taskStatusCounts$ = this.store.select(selectTaskStatusCounts);
+  loading$: Observable<boolean> = this.store.select(selectLoadingState);
 
   public landingPageInitialized(): void {
     this.store.dispatch(taskActions.landingPageInitialized());
