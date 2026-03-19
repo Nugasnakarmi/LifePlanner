@@ -78,8 +78,8 @@ export class StorageService {
    */
   async uploadFile(file: File, userId: string): Promise<string | null> {
     try {
-      const nameParts = file.name.split('.');
-      const ext = nameParts.length > 1 ? nameParts.pop()! : (MIME_TO_EXT[file.type] ?? '');
+      const dotIdx = file.name.lastIndexOf('.');
+      const ext = dotIdx > 0 ? file.name.substring(dotIdx + 1) : (MIME_TO_EXT[file.type] ?? '');
       const key = ext
         ? `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`
         : `${userId}/${Date.now()}-${crypto.randomUUID()}`;
@@ -90,7 +90,7 @@ export class StorageService {
         new PutObjectCommand({
           Bucket: BUCKET,
           Key: key,
-          Body: file as unknown as Blob,
+          Body: file,
           ContentType: file.type,
         })
       );

@@ -49,7 +49,7 @@ export class ActivityFormComponent implements OnInit {
   private toastr = inject(ToastrService);
   dialogRef = inject(MatDialogRef<ActivityFormComponent>);
 
-  @ViewChild('fileInput') fileInput: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   form: FormGroup;
   uploading = false;
