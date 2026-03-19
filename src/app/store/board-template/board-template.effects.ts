@@ -1,13 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { mergeMap } from 'rxjs';
+import { mergeMap, tap } from 'rxjs';
 import { BoardTemplateApiService } from 'src/app/services/board-template/board-template.api.service';
 import * as actions from './board-template.actions';
+import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 
 @Injectable()
 export class BoardTemplateEffects {
   private actions$ = inject(Actions);
   private api = inject(BoardTemplateApiService);
+  private formCache = inject(DialogFormCacheService);
 
   loadBoardTemplates$ = createEffect(() =>
     this.actions$.pipe(
@@ -51,5 +53,14 @@ export class BoardTemplateEffects {
           .catch((error) => actions.deleteBoardTemplateFailure({ error }))
       )
     )
+  );
+
+  clearTemplateDraft$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(actions.saveBoardTemplateSuccess),
+        tap(() => this.formCache.clear(DIALOG_CACHE_KEYS.CREATE_TEMPLATE))
+      ),
+    { dispatch: false }
   );
 }

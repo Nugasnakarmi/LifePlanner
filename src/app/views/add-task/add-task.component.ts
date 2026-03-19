@@ -1,4 +1,5 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, OnDestroy, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
@@ -10,9 +11,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { debounceTime } from 'rxjs';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { TaskMode } from 'src/app/enums/task-mode.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
+import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 import { TaskService } from 'src/app/services/task/task.service';
 
 @Component({
@@ -21,13 +24,16 @@ import { TaskService } from 'src/app/services/task/task.service';
   templateUrl: './add-task.component.html',
   styleUrl: './add-task.component.scss',
 })
-export class AddTaskComponent implements OnInit {
+export class AddTaskComponent implements OnInit, OnDestroy {
   taskService = inject(TaskService);
+  private formCache = inject(DialogFormCacheService);
+  private destroyRef = inject(DestroyRef);
 
   addTaskForm: UntypedFormGroup;
   addTaskDialogRef = inject(MatDialogRef<AddTaskComponent>);
   actionString = 'Add Task';
   readonly TaskMode = TaskMode;
+  private submitting = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -45,6 +51,22 @@ export class AddTaskComponent implements OnInit {
     if (this.data.mode === TaskMode.Edit) {
       this.actionString = 'Edit Task';
       this.addTaskForm.patchValue(this.data.task);
+    } else {
+      const cached = this.formCache.load<{ name: string; description: string }>(DIALOG_CACHE_KEYS.ADD_TASK);
+      if (cached) {
+        this.addTaskForm.patchValue(cached);
+      }
+      this.addTaskForm.valueChanges
+        .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+        .subscribe((values) => this.formCache.save(DIALOG_CACHE_KEYS.ADD_TASK, values));
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.data.mode !== TaskMode.Edit && !this.submitting) {
+      // Flush the latest form state immediately so no trailing keystrokes are lost
+      // (the debounced subscription may not have fired yet when the dialog closes)
+      this.formCache.save(DIALOG_CACHE_KEYS.ADD_TASK, this.addTaskForm.getRawValue());
     }
   }
 
@@ -69,6 +91,7 @@ export class AddTaskComponent implements OnInit {
       board_id: this.data.boardId,
       boards_lists_id: this.data.boardListId,
     };
+    this.submitting = true;
     this.taskService.taskWasAdded(task);
     this.addTaskDialogRef.close();
   }

@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { mergeMap, switchMap } from 'rxjs';
+import { mergeMap, switchMap, tap } from 'rxjs';
 import { ActivityApiService } from 'src/app/services/task/activity.api.service';
 import * as activityActions from './activity.actions';
+import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 
 @Injectable()
 export class ActivityEffects {
   activityApiService = inject(ActivityApiService);
+  private formCache = inject(DialogFormCacheService);
 
   loadActivities$ = createEffect(() =>
     this.actions$.pipe(
@@ -125,6 +127,15 @@ export class ActivityEffects {
           )
       )
     )
+  );
+
+  clearActivityDraft$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(activityActions.addActivityToTaskSuccess),
+        tap(() => this.formCache.clear(DIALOG_CACHE_KEYS.ACTIVITY_FORM))
+      ),
+    { dispatch: false }
   );
 
   constructor(private actions$: Actions) {}
