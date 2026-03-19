@@ -69,8 +69,20 @@
       (change)="onFilesSelected($event)"
     />
     @if(uploading) {
-      <mat-progress-bar mode="indeterminate" class="upload-progress"></mat-progress-bar>
-      <span class="upload-label">Uploading…</span>
+      <mat-progress-bar
+        [mode]="uploadFilesTotal > 1 ? 'determinate' : 'indeterminate'"
+        [value]="uploadProgress"
+        class="upload-progress"
+      ></mat-progress-bar>
+      <span class="upload-label upload-status">
+        <mat-icon class="upload-status-icon">hourglass_top</mat-icon>
+        <span class="upload-status-text">
+          Uploading <span class="upload-filename" [title]="uploadingFileName">{{ uploadingFileName }}</span>
+          @if(uploadFilesTotal > 1) {
+            <span class="upload-count">({{ uploadFileIndex }} of {{ uploadFilesTotal }})</span>
+          }
+        </span>
+      </span>
     } @else {
       <mat-icon class="upload-icon">cloud_upload</mat-icon>
       <span class="upload-label">Drag &amp; drop images, GIFs or videos here, or</span>

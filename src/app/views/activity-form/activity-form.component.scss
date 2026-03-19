@@ -166,6 +166,51 @@ $gold-dark: #5C4000;
     width: 100%;
     border-radius: 4px;
   }
+
+  .upload-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+
+    .upload-status-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: rgba($gold, 0.7);
+      flex-shrink: 0;
+      animation: activity-upload-spin 1.2s linear infinite;
+    }
+
+    .upload-status-text {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .upload-filename {
+      color: rgba($gold, 0.9);
+      font-weight: 600;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+
+    .upload-count {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 12px;
+    }
+  }
+}
+
+@keyframes activity-upload-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 // ─── Media item card with preview ─────────────────────────────────────────────
@@ -282,6 +327,11 @@ $gold-dark: #5C4000;
       border-color: rgba($gold-dark, 0.3);
       background: rgba($gold-dark, 0.08);
       &:hover { background: rgba($gold-dark, 0.16); }
+    }
+    .upload-status {
+      .upload-status-icon { color: rgba($gold-dark, 0.7); }
+      .upload-filename { color: rgba($gold-dark, 0.9); }
+      .upload-count { color: rgba(1, 0, 20, 0.4); }
     }
   }
 
