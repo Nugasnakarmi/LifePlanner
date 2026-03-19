@@ -1,9 +1,8 @@
-import { Component, DestroyRef, inject, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
-  UntypedFormGroup,
   Validators,
   FormArray,
   FormBuilder,
@@ -16,9 +15,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { debounceTime } from 'rxjs';
 import { Activity, ActivityDataField, ActivityMedia } from 'src/app/interfaces/activity.interface';
 import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
+import { StorageService } from 'src/app/services/storage/storage.service';
+import { SupabaseService } from 'src/app/services/supabase/supabase.service';
+import { ToastrService } from 'ngx-toastr';
 
 interface ActivityFormCache {
   name: string;
@@ -43,6 +46,7 @@ export interface ActivityFormData {
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
+    MatProgressBarModule,
   ],
   templateUrl: './activity-form.component.html',
   styleUrl: './activity-form.component.scss',
@@ -51,9 +55,16 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private formCache = inject(DialogFormCacheService);
   private destroyRef = inject(DestroyRef);
+  storageService = inject(StorageService);
+  private supabaseService = inject(SupabaseService);
+  private toastr = inject(ToastrService);
   dialogRef = inject(MatDialogRef<ActivityFormComponent>);
 
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   form: FormGroup;
+  uploading = false;
+  dragOver = false;
   readonly mediaTypes: Array<{ value: ActivityMedia['type']; label: string; icon: string }> = [
     { value: 'image', label: 'Image', icon: 'image' },
     { value: 'gif', label: 'GIF', icon: 'gif' },
@@ -132,6 +143,83 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
 
   removeMediaItem(index: number): void {
     this.mediaItems.removeAt(index);
+  }
+
+  /** Open the native file picker */
+  openFilePicker(): void {
+    this.fileInput?.nativeElement?.click();
+  }
+
+  /** Handle file input change */
+  async onFilesSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    await this.uploadFiles(Array.from(input.files));
+    input.value = '';
+  }
+
+  /** Handle drag-over */
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = true;
+  }
+
+  /** Handle drag-leave */
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+  }
+
+  /** Handle drop */
+  async onDrop(event: DragEvent): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+    const files = event.dataTransfer?.files;
+    if (!files?.length) return;
+    await this.uploadFiles(Array.from(files));
+  }
+
+  /** Upload one or more files and add them as media items */
+  private async uploadFiles(files: File[]): Promise<void> {
+    const user = await this.supabaseService.getUser();
+    if (!user?.id) {
+      this.toastr.error('Please sign in again to upload files.');
+      return;
+    }
+
+    // Validate all files before uploading
+    const validFiles: File[] = [];
+    for (const file of files) {
+      const error = this.storageService.validateFile(file);
+      if (error) {
+        this.toastr.warning(error);
+      } else {
+        validFiles.push(file);
+      }
+    }
+    if (!validFiles.length) return;
+
+    this.uploading = true;
+    try {
+      for (const file of validFiles) {
+        const url = await this.storageService.uploadFile(file, user.id);
+        if (url) {
+          const mediaType = this.storageService.getMediaType(file.type);
+          this.addMediaItem({ type: mediaType, url, name: file.name });
+        }
+      }
+    } finally {
+      this.uploading = false;
+    }
+  }
+
+  /** Check whether a media item is previewable (image or gif with a url) */
+  isPreviewable(type: string | undefined, url: string | undefined): boolean {
+    if (!url) return false;
+    return type === 'image' || type === 'gif';
   }
 
   getNameError(): string {
