@@ -1,4 +1,4 @@
-import { Component, inject, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, inject, Inject, OnInit, ViewChild } from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormControl,
@@ -18,6 +18,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Activity, ActivityDataField, ActivityMedia } from 'src/app/interfaces/activity.interface';
 import { StorageService } from 'src/app/services/storage/storage.service';
 import { SupabaseService } from 'src/app/services/supabase/supabase.service';
+import { ToastrService } from 'ngx-toastr';
 
 export interface ActivityFormData {
   taskId: number;
@@ -45,7 +46,10 @@ export class ActivityFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   storageService = inject(StorageService);
   private supabaseService = inject(SupabaseService);
+  private toastr = inject(ToastrService);
   dialogRef = inject(MatDialogRef<ActivityFormComponent>);
+
+  @ViewChild('fileInput') fileInput: ElementRef<HTMLInputElement>;
 
   form: FormGroup;
   uploading = false;
@@ -110,6 +114,11 @@ export class ActivityFormComponent implements OnInit {
     this.mediaItems.removeAt(index);
   }
 
+  /** Open the native file picker */
+  openFilePicker(): void {
+    this.fileInput?.nativeElement?.click();
+  }
+
   /** Handle file input change */
   async onFilesSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
@@ -144,10 +153,27 @@ export class ActivityFormComponent implements OnInit {
 
   /** Upload one or more files and add them as media items */
   private async uploadFiles(files: File[]): Promise<void> {
+    const user = await this.supabaseService.getUser();
+    if (!user?.id) {
+      this.toastr.error('Please sign in again to upload files.');
+      return;
+    }
+
+    // Validate all files before uploading
+    const validFiles: File[] = [];
+    for (const file of files) {
+      const error = this.storageService.validateFile(file);
+      if (error) {
+        this.toastr.warning(error);
+      } else {
+        validFiles.push(file);
+      }
+    }
+    if (!validFiles.length) return;
+
     this.uploading = true;
     try {
-      const user = await this.supabaseService.getUser();
-      for (const file of files) {
+      for (const file of validFiles) {
         const url = await this.storageService.uploadFile(file, user.id);
         if (url) {
           const mediaType = this.storageService.getMediaType(file.type);

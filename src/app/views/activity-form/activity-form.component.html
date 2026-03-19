@@ -60,22 +60,23 @@
     (dragleave)="onDragLeave($event)"
     (drop)="onDrop($event)"
   >
+    <input
+      #fileInput
+      type="file"
+      hidden
+      multiple
+      [accept]="storageService.acceptedTypes"
+      (change)="onFilesSelected($event)"
+    />
     @if(uploading) {
       <mat-progress-bar mode="indeterminate" class="upload-progress"></mat-progress-bar>
       <span class="upload-label">Uploading…</span>
     } @else {
       <mat-icon class="upload-icon">cloud_upload</mat-icon>
-      <span class="upload-label">Drag &amp; drop images / GIFs here, or</span>
-      <label class="upload-browse-btn">
+      <span class="upload-label">Drag &amp; drop images, GIFs or videos here, or</span>
+      <button type="button" class="upload-browse-btn" (click)="openFilePicker()">
         Browse
-        <input
-          type="file"
-          hidden
-          multiple
-          [accept]="storageService.acceptedTypes"
-          (change)="onFilesSelected($event)"
-        />
-      </label>
+      </button>
     }
   </div>
 

@@ -11,6 +11,26 @@ import { ToastrService } from 'ngx-toastr';
 const PROJECT_REF = environment.SUPABASE_URL.replace('https://', '').split('.')[0];
 const BUCKET = 'activity-media';
 
+const ALLOWED_MIME_TYPES = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+  'video/mp4',
+  'video/webm',
+]);
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+
+const MIME_TO_EXT: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -20,6 +40,9 @@ export class StorageService {
 
   private async getS3Client(): Promise<S3Client> {
     const session = await this.supabaseService.getSession();
+    if (!session?.access_token) {
+      throw new Error('Not authenticated. Please sign in and try again.');
+    }
     // Supabase S3-compatible endpoint uses the project ref as accessKeyId
     // and the public anon key as secretAccessKey, with the user's JWT as session token.
     // See: https://supabase.com/docs/guides/storage/s3/authentication
@@ -30,9 +53,23 @@ export class StorageService {
       credentials: {
         accessKeyId: PROJECT_REF,
         secretAccessKey: environment.SUPABASE_KEY,
-        sessionToken: session?.access_token ?? '',
+        sessionToken: session.access_token,
       },
     });
+  }
+
+  /**
+   * Validates a file before upload. Returns an error message or null if valid.
+   */
+  validateFile(file: File): string | null {
+    if (!ALLOWED_MIME_TYPES.has(file.type)) {
+      return `"${file.name}" has an unsupported type (${file.type || 'unknown'}). Allowed: images, GIFs, and videos.`;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      return `"${file.name}" is too large (${sizeMB} MB). Maximum size is 50 MB.`;
+    }
+    return null;
   }
 
   /**
@@ -41,17 +78,19 @@ export class StorageService {
    */
   async uploadFile(file: File, userId: string): Promise<string | null> {
     try {
-      const ext = file.name.split('.').pop() ?? '';
-      const key = `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const nameParts = file.name.split('.');
+      const ext = nameParts.length > 1 ? nameParts.pop()! : (MIME_TO_EXT[file.type] ?? '');
+      const key = ext
+        ? `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`
+        : `${userId}/${Date.now()}-${crypto.randomUUID()}`;
 
       const client = await this.getS3Client();
-      const arrayBuffer = await file.arrayBuffer();
 
       await client.send(
         new PutObjectCommand({
           Bucket: BUCKET,
           Key: key,
-          Body: new Uint8Array(arrayBuffer),
+          Body: file as unknown as Blob,
           ContentType: file.type,
         })
       );
@@ -92,7 +131,7 @@ export class StorageService {
 
   /** Accepted file types for the file picker */
   get acceptedTypes(): string {
-    return 'image/png,image/jpeg,image/gif,image/webp,video/mp4,video/webm';
+    return Array.from(ALLOWED_MIME_TYPES).join(',');
   }
 
   /** Derives the media type from a MIME type */
