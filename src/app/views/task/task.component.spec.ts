@@ -97,6 +97,12 @@ describe('TaskComponent', () => {
       expect(component.mediaThumbnails()[0].type).toBe('image');
     });
 
+    it('isPreviewableMedia() correctly identifies previewable media types', () => {
+      expect(component.isPreviewableMedia({ type: 'image', url: '' })).toBeTrue();
+      expect(component.isPreviewableMedia({ type: 'gif', url: '' })).toBeTrue();
+      expect(component.isPreviewableMedia({ type: 'video', url: '' })).toBeFalse();
+    });
+
     it('totalMediaCount() counts all images/GIFs across all activities', () => {
       const task = makeTask([
         [{ type: 'image', url: 'http://a.com/1.jpg' }, { type: 'gif', url: 'http://a.com/2.gif' }],
@@ -127,7 +133,7 @@ describe('TaskComponent', () => {
       expect(component.extraMediaCount()).toBe(2); // 5 total - 3 MAX_THUMBS
     });
 
-    it('onThumbError() hides the parent wrapper when an image fails to load', () => {
+    it('onThumbError() hides only the <img> and inserts a placeholder, wrapper stays visible', () => {
       const wrapper = document.createElement('div');
       const img = document.createElement('img');
       wrapper.appendChild(img);
@@ -135,7 +141,18 @@ describe('TaskComponent', () => {
 
       component.onThumbError(mockEvent);
 
-      expect(wrapper.style.display).toBe('none');
+      expect(img.style.display).toBe('none');
+      expect(wrapper.style.display).not.toBe('none');
+      expect(wrapper.querySelector('.task-media-thumb-placeholder')).toBeTruthy();
+    });
+
+    it('onThumbKeydownSpace() prevents default scroll', () => {
+      const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+      spyOn(event, 'preventDefault');
+
+      component.onThumbKeydownSpace(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
     });
   });
 });

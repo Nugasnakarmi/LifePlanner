@@ -64,15 +64,16 @@
     @if(mediaThumbnails().length) {
       <div class="task-media-strip" role="list" aria-label="Activity images">
         @for(thumb of mediaThumbnails(); track thumb.url; let last = $last) {
-          <div
+          <button
             class="task-media-thumb-wrap"
             role="listitem"
+            type="button"
             [matTooltip]="thumb.name || 'Activity image'"
+            [attr.aria-label]="(thumb.name || 'Activity image') + ': open task detail'"
             (click)="onExpandTask(task())"
             (keydown.enter)="onExpandTask(task())"
-            (keydown.space)="$event.preventDefault(); onExpandTask(task())"
-            tabindex="0"
-            aria-label="Open task detail"
+            (keydown.space)="onThumbKeydownSpace($event)"
+            (keyup.space)="onExpandTask(task())"
           >
             <img
               class="task-media-thumb"
@@ -84,7 +85,7 @@
             @if(last && extraMediaCount() > 0) {
               <span class="task-media-more">+{{ extraMediaCount() }}</span>
             }
-          </div>
+          </button>
         }
       </div>
     }

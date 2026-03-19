@@ -306,6 +306,8 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.2);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  padding: 0;
+  appearance: none;
 
   &:hover,
   &:focus-visible {
@@ -320,6 +322,24 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.task-media-thumb-placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.06);
+
+  &::after {
+    content: 'image';
+    font-family: 'Material Icons';
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
 }
 
 .task-media-more {
@@ -386,6 +406,10 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
   .task-media-thumb-wrap {
     border-color: rgba(1, 0, 20, 0.1);
     background: rgba(1, 0, 20, 0.04);
+  }
+
+  .task-media-thumb-placeholder::after {
+    color: rgba(1, 0, 20, 0.2);
   }
 }
 .cdk-drag-preview {

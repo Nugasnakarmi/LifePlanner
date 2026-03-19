@@ -34,13 +34,18 @@ export class TaskComponent {
   readonly TaskStatus = TaskStatus;
   readonly MAX_THUMBS = 3;
 
+  /** Returns true for media types that can be shown as an image thumbnail */
+  isPreviewableMedia(m: ActivityMedia): boolean {
+    return m.type === 'image' || m.type === 'gif';
+  }
+
   /** Collect the first few previewable media items from all activities */
   mediaThumbnails = computed<ActivityMedia[]>(() => {
     const activities = this.task()?.activities ?? [];
     const thumbs: ActivityMedia[] = [];
     for (const act of activities) {
       for (const m of act.media ?? []) {
-        if (m.type === 'image' || m.type === 'gif') {
+        if (this.isPreviewableMedia(m)) {
           thumbs.push(m);
           if (thumbs.length >= this.MAX_THUMBS) return thumbs;
         }
@@ -55,7 +60,7 @@ export class TaskComponent {
     let count = 0;
     for (const act of activities) {
       for (const m of act.media ?? []) {
-        if (m.type === 'image' || m.type === 'gif') count++;
+        if (this.isPreviewableMedia(m)) count++;
       }
     }
     return count;
@@ -66,12 +71,21 @@ export class TaskComponent {
     Math.max(0, this.totalMediaCount() - this.MAX_THUMBS)
   );
 
-  /** Hide a broken thumbnail by removing it from the DOM */
+  /** Replace a broken thumbnail with a generic placeholder so the wrapper stays visible */
   onThumbError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    if (img?.parentElement) {
-      img.parentElement.style.display = 'none';
+    if (img) {
+      img.style.display = 'none';
+      const placeholder = document.createElement('span');
+      placeholder.className = 'task-media-thumb-placeholder';
+      placeholder.setAttribute('aria-hidden', 'true');
+      img.parentElement?.appendChild(placeholder);
     }
+  }
+
+  /** Prevent page scroll on Space keydown for keyboard-activated thumbnails */
+  onThumbKeydownSpace(event: KeyboardEvent): void {
+    event.preventDefault();
   }
 
   hasActivitiesInProgress(task: IdeaTask): boolean {
