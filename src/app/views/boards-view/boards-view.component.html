@@ -108,6 +108,11 @@
   </div>
   }
 
+  @if(taskService.loading$ | async) {
+  <div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+  } @else {
   @if(boards$ | async; as boards) {
   <div class="boards-grid">
     @for(board of boards; track board.id) {
@@ -178,5 +183,6 @@
     <p class="no-boards-message">No boards yet. Create one to get started!</p>
     }
   </div>
+  }
   }
 </div>

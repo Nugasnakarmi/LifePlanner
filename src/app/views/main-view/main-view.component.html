@@ -19,7 +19,11 @@
         {{ dragEnabled ? 'Lock Order' : 'Reorder' }}
       </button>
     </div>
-    @if(tasks$ | async; as tasks){
+    @if(boardListService.loading$ | async) {
+    <div class="loading-container">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+    } @else if(tasks$ | async; as tasks){
     <div class="board-wrapper">
       <div class="board-columns" cdkDropListGroup>
         @for(list of boardLists; track list.id){

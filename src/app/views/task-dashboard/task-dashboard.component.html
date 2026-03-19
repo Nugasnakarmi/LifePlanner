@@ -12,7 +12,11 @@
     <h2 class="dashboard-title">Task Progress Dashboard</h2>
   </div>
 
-  @if(statusCounts$ | async; as counts) {
+  @if(taskService.loading$ | async) {
+  <div class="loading-container">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+  } @else if(statusCounts$ | async; as counts) {
   <div class="dashboard-content">
 
     <!-- Summary Cards -->
