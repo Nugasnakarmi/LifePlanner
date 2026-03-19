@@ -10,8 +10,11 @@ const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
   'image/gif',
   'image/webp',
+  'image/heic',
+  'image/heif',
   'video/mp4',
   'video/webm',
+  'video/quicktime',
 ]);
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
@@ -21,8 +24,25 @@ const MIME_TO_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/gif': 'gif',
   'image/webp': 'webp',
+  'image/heic': 'heic',
+  'image/heif': 'heif',
   'video/mp4': 'mp4',
   'video/webm': 'webm',
+  'video/quicktime': 'mov',
+};
+
+/** Fallback: derive MIME type from file extension when the browser leaves file.type empty */
+const EXT_TO_MIME: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  heic: 'image/heic',
+  heif: 'image/heif',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
 };
 
 @Injectable({
@@ -33,11 +53,23 @@ export class StorageService {
   private toastr = inject(ToastrService);
 
   /**
+   * Resolves the effective MIME type for a file.
+   * Mobile browsers sometimes leave file.type empty; fall back to the extension.
+   */
+  resolveMimeType(file: File): string {
+    // Some mobile browsers set type to empty or 'application/octet-stream'; fall back to extension
+    if (file.type && file.type !== 'application/octet-stream') return file.type;
+    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+    return EXT_TO_MIME[ext] ?? file.type ?? '';
+  }
+
+  /**
    * Validates a file before upload. Returns an error message or null if valid.
    */
   validateFile(file: File): string | null {
-    if (!ALLOWED_MIME_TYPES.has(file.type)) {
-      return `"${file.name}" has an unsupported type (${file.type || 'unknown'}). Allowed: images, GIFs, and videos.`;
+    const mime = this.resolveMimeType(file);
+    if (!ALLOWED_MIME_TYPES.has(mime)) {
+      return `"${file.name}" has an unsupported type (${mime || 'unknown'}). Allowed: images, GIFs, and videos.`;
     }
     if (file.size > MAX_FILE_SIZE) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
@@ -52,15 +84,16 @@ export class StorageService {
    */
   async uploadFile(file: File, userId: string): Promise<string | null> {
     try {
+      const mime = this.resolveMimeType(file);
       const dotIdx = file.name.lastIndexOf('.');
-      const ext = dotIdx > 0 ? file.name.substring(dotIdx + 1) : (MIME_TO_EXT[file.type] ?? '');
+      const ext = dotIdx > 0 ? file.name.substring(dotIdx + 1).toLowerCase() : (MIME_TO_EXT[mime] ?? '');
       const key = ext
         ? `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`
         : `${userId}/${Date.now()}-${crypto.randomUUID()}`;
 
       const { error } = await this.supabaseService.supabase.storage
         .from(BUCKET)
-        .upload(key, file, { contentType: file.type });
+        .upload(key, file, { contentType: mime || undefined });
 
       if (error) {
         throw error;
@@ -100,9 +133,13 @@ export class StorageService {
     }
   }
 
-  /** Accepted file types for the file picker */
+  /**
+   * Accepted file types for the file picker.
+   * Uses broad categories so mobile browsers show all compatible photos/videos
+   * (e.g. HEIC on iOS) instead of filtering them out.
+   */
   get acceptedTypes(): string {
-    return Array.from(ALLOWED_MIME_TYPES).join(',');
+    return 'image/*,video/*';
   }
 
   /** Derives the media type from a MIME type */

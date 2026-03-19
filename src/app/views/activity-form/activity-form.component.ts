@@ -218,7 +218,7 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
         this.uploadingFileName = validFiles[i].name;
         const url = await this.storageService.uploadFile(validFiles[i], user.id);
         if (url) {
-          const mediaType = this.storageService.getMediaType(validFiles[i].type);
+          const mediaType = this.storageService.getMediaType(this.storageService.resolveMimeType(validFiles[i]));
           this.addMediaItem({ type: mediaType, url, name: validFiles[i].name });
         }
       }
