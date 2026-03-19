@@ -212,16 +212,15 @@ export class ActivityFormComponent implements OnInit, OnDestroy {
 
     this.uploading = true;
     this.uploadFilesTotal = validFiles.length;
-    this.uploadFileIndex = 1;
     try {
-      for (const file of validFiles) {
-        this.uploadingFileName = file.name;
-        const url = await this.storageService.uploadFile(file, user.id);
+      for (let i = 0; i < validFiles.length; i++) {
+        this.uploadFileIndex = i + 1;
+        this.uploadingFileName = validFiles[i].name;
+        const url = await this.storageService.uploadFile(validFiles[i], user.id);
         if (url) {
-          const mediaType = this.storageService.getMediaType(file.type);
-          this.addMediaItem({ type: mediaType, url, name: file.name });
+          const mediaType = this.storageService.getMediaType(validFiles[i].type);
+          this.addMediaItem({ type: mediaType, url, name: validFiles[i].name });
         }
-        this.uploadFileIndex++;
       }
     } finally {
       this.uploading = false;

@@ -179,7 +179,7 @@ $gold-dark: #5C4000;
       height: 16px;
       color: rgba($gold, 0.7);
       flex-shrink: 0;
-      animation: spin 1.2s linear infinite;
+      animation: activity-upload-spin 1.2s linear infinite;
     }
 
     .upload-status-text {
@@ -208,7 +208,7 @@ $gold-dark: #5C4000;
   }
 }
 
-@keyframes spin {
+@keyframes activity-upload-spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
