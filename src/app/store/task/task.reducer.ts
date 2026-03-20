@@ -3,6 +3,7 @@ import { IdeaTaskState } from 'src/app/store/task/task.state.interface';
 import * as taskActions from './task.actions';
 import * as activityActions from './activity.actions';
 import * as boardActions from 'src/app/store/board/board.actions';
+import * as boardListActions from 'src/app/store/board-list/board-list.actions';
 import { TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 
 export const initialState: IdeaTaskState = {
@@ -56,6 +57,10 @@ export const tasksReducer = createReducer(
   on(boardActions.deleteBoardSuccess, (state, { boardId }) => ({
     ...state,
     tasks: state.tasks.filter((task) => task.board_id !== boardId),
+  })),
+  on(boardListActions.deleteBoardListSuccess, (state, { listId }) => ({
+    ...state,
+    tasks: state.tasks.filter((task) => task.boards_lists_id !== listId),
   })),
   on(taskActions.taskStatusUpdatedSuccessfully, (state, { taskId, status }) => ({
     ...state,
