@@ -105,6 +105,18 @@ export class BoardListApiService {
   async deleteList(listId: number): Promise<boolean> {
     try {
       const user: User = await this.supabaseService.getUser();
+
+      // Delete all tasks in this list first
+      const { error: tasksError } = await this.supabaseService.supabase
+        .from('tasks')
+        .delete()
+        .eq('boards_lists_id', listId)
+        .eq('user_id', user.id);
+
+      if (tasksError) {
+        throw tasksError;
+      }
+
       const { error } = await this.supabaseService.supabase
         .from('board_lists')
         .delete()

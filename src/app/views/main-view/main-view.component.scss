@@ -126,6 +126,22 @@ $gold: #F9D07A;
           }
         }
 
+        .delete-list-button {
+          border: none;
+          background-color: transparent;
+          border-radius: 2px;
+          padding: 0;
+          cursor: pointer;
+          color: rgba(255, 255, 255, 0.5);
+          display: flex;
+          align-items: center;
+          transition: color 0.2s;
+
+          &:hover {
+            color: #ff6b6b;
+          }
+        }
+
         .title-actions {
           display: flex;
           align-items: center;
@@ -332,6 +348,14 @@ $gold: #F9D07A;
 
       &:hover {
         color: #5C4000;
+      }
+    }
+
+    .delete-list-button {
+      color: rgba(1, 0, 20, 0.5);
+
+      &:hover {
+        color: #c0392b;
       }
     }
 

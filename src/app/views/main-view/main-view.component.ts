@@ -6,7 +6,7 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 
-import { Observable, Subscription, tap } from 'rxjs';
+import { firstValueFrom, Observable, Subscription, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -228,5 +228,20 @@ export class MainViewComponent implements OnInit, OnDestroy {
       this.showAddListForm = false;
       this.newListNameControl.reset();
     }
+  }
+
+  // --- Delete list ---
+  async deleteList(list: BoardList): Promise<void> {
+    const tasks = await firstValueFrom(this.taskService.tasks$);
+    const listTasks = tasks.filter((t) => t.boards_lists_id === list.id);
+
+    let message = `Are you sure you want to delete the list "${list.name}"?`;
+    if (listTasks.length > 0) {
+      message = `"${list.name}" has ${listTasks.length} task(s). Deleting this list will also delete all its tasks. Are you sure?`;
+    }
+
+    if (!window.confirm(message)) return;
+
+    this.boardListService.deleteList(list.id);
   }
 }
