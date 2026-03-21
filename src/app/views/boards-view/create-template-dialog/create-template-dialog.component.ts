@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { Actions, ofType } from '@ngrx/effects';
-import { debounceTime, firstValueFrom, map, race } from 'rxjs';
+import { debounceTime, firstValueFrom, map, race, timer } from 'rxjs';
 import {
   BoardTemplate,
   BoardTemplateList,
@@ -219,10 +219,16 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
   // ── Save ──────────────────────────────────────────────────────────────────
 
+  /** Maximum time (ms) to wait for a save result before treating it as a failure. */
+  private static readonly SAVE_TIMEOUT_MS = 30_000;
+
   async save(): Promise<void> {
     if (this.infoForm.invalid || this.saving) return;
     this.saving = true;
     this.submitting = true;
+
+    // Prevent dismissal via ESC / backdrop / X button while the API call is in flight.
+    this.dialogRef.disableClose = true;
 
     const v = this.infoForm.value;
     const template: BoardTemplate = {
@@ -242,6 +248,8 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
     // Wait for the NgRx effect to complete (success or failure) rather than
     // relying on a fixed-duration timeout that races with the API call.
+    // A fallback timer ensures the dialog is never permanently stuck if the
+    // Supabase request stalls.
     const saved = await firstValueFrom(
       race(
         this.actions$.pipe(
@@ -251,7 +259,8 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
         this.actions$.pipe(
           ofType(boardTemplateActions.saveBoardTemplateFailure),
           map(() => false)
-        )
+        ),
+        timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(map(() => false))
       )
     );
 
@@ -262,13 +271,16 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
       // form cache; the clearTemplateDraft$ effect will clear it after success.
       this.dialogRef.close(true);
     } else {
-      // Keep the dialog open so the user can retry; the API service already
-      // showed a toastr error describing what went wrong.
+      // Keep the dialog open so the user can retry; re-enable close so the
+      // user can also dismiss manually if desired.
+      this.dialogRef.disableClose = false;
       this.submitting = false;
     }
   }
 
   close(): void {
+    // Do not allow manual close while a save is in flight.
+    if (this.saving) return;
     this.dialogRef.close(false);
   }
 }
