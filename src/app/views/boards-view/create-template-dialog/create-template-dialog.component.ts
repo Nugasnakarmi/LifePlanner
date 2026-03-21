@@ -14,7 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
-import { debounceTime } from 'rxjs';
+import { Actions, ofType } from '@ngrx/effects';
+import { debounceTime, firstValueFrom, map, race } from 'rxjs';
 import {
   BoardTemplate,
   BoardTemplateList,
@@ -23,6 +24,7 @@ import {
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
 import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
+import * as boardTemplateActions from 'src/app/store/board-template/board-template.actions';
 
 interface CreateTemplateCache {
   infoForm: { name: string; description: string };
@@ -34,9 +36,6 @@ export interface ColumnType {
   label: string;
   icon: string;
 }
-
-/** Delay (ms) after dispatching save so the success toast appears before the dialog closes. */
-const CLOSE_AFTER_SAVE_DELAY_MS = 600;
 
 @Component({
   selector: 'app-create-template-dialog',
@@ -60,6 +59,7 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   private boardTemplateService = inject(BoardTemplateService);
   private formCache = inject(DialogFormCacheService);
   private destroyRef = inject(DestroyRef);
+  private actions$ = inject(Actions);
 
   saving = false;
   private submitting = false;
@@ -240,10 +240,32 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
     this.boardTemplateService.saveTemplate(template);
 
-    // Wait briefly so the success toast fires, then close
-    await new Promise((r) => setTimeout(r, CLOSE_AFTER_SAVE_DELAY_MS));
+    // Wait for the NgRx effect to complete (success or failure) rather than
+    // relying on a fixed-duration timeout that races with the API call.
+    const saved = await firstValueFrom(
+      race(
+        this.actions$.pipe(
+          ofType(boardTemplateActions.saveBoardTemplateSuccess),
+          map(() => true)
+        ),
+        this.actions$.pipe(
+          ofType(boardTemplateActions.saveBoardTemplateFailure),
+          map(() => false)
+        )
+      )
+    );
+
     this.saving = false;
-    this.dialogRef.close(true);
+
+    if (saved) {
+      // Keep `submitting = true` so that ngOnDestroy does not re-persist the
+      // form cache; the clearTemplateDraft$ effect will clear it after success.
+      this.dialogRef.close(true);
+    } else {
+      // Keep the dialog open so the user can retry; the API service already
+      // showed a toastr error describing what went wrong.
+      this.submitting = false;
+    }
   }
 
   close(): void {
