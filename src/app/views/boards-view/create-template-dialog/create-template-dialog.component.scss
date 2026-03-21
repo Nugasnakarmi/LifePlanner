@@ -82,7 +82,7 @@
   // Grow to fill remaining dialog height so step-content can scroll within it
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
   // Make the stepper itself a flex column so its content container can grow
   display: flex;
   flex-direction: column;

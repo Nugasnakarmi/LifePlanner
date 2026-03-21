@@ -3,6 +3,7 @@ $gold-dark: #5C4000;
 
 .activity-form-container {
   width: min(90vw, 600px);
+  max-width: 100%;
   padding: 28px;
   box-sizing: border-box;
   gap: 16px;
@@ -10,6 +11,7 @@ $gold-dark: #5C4000;
   max-height: 85vh;
   max-height: 85dvh;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(249, 208, 122, 0.2) transparent;
   -webkit-overflow-scrolling: touch;
@@ -99,8 +101,8 @@ $gold-dark: #5C4000;
   gap: 8px;
   align-items: flex-start;
 
-  .field-key { flex: 1; }
-  .field-value { flex: 1.5; }
+  .field-key { flex: 1; min-width: 0; }
+  .field-value { flex: 1.5; min-width: 0; }
 }
 
 .media-row {
@@ -108,9 +110,9 @@ $gold-dark: #5C4000;
   align-items: flex-start;
   flex-wrap: wrap;
 
-  .media-type { flex: 0 0 120px; }
-  .media-url  { flex: 2; min-width: 150px; }
-  .media-name { flex: 1; min-width: 100px; }
+  .media-type { flex: 0 0 120px; min-width: 0; }
+  .media-url  { flex: 2; min-width: 0; }
+  .media-name { flex: 1; min-width: 0; }
 }
 
 // ─── Upload drop zone ─────────────────────────────────────────────────────────
