@@ -67,6 +67,8 @@ export class MainViewComponent implements OnInit, OnDestroy {
   readonly addTaskDialog = inject(MatDialog);
 
   ngOnInit(): void {
+    this.taskService.landingPageInitialized();
+
     this.listsSub = this.boardListService.lists$.subscribe((lists) => {
       this.boardLists = lists;
       this.resetContainerData();

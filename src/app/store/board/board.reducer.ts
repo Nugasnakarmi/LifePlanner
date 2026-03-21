@@ -41,7 +41,7 @@ export const boardsReducer = createReducer(
     boards: [...state.boards.map((b) => (b.id === board.id ? board : b))],
     selectedBoard:
       state.selectedBoard?.id === board.id ? board : state.selectedBoard,
-    loading: true,
+    loading: false,
   })),
   on(boardActions.selectBoard, (state, { board }) => ({
     ...state,
