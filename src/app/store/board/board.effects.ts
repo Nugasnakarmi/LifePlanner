@@ -50,8 +50,10 @@ export class BoardEffects {
       mergeMap(({ board }) =>
         this.boardAPIService
           .editBoard(board)
-          .then((board: Board) =>
-            boardActions.boardEditedSuccessfully({ board })
+          .then((updatedBoard: Board | null) =>
+            updatedBoard
+              ? boardActions.boardEditedSuccessfully({ board: updatedBoard })
+              : boardActions.boardEditFailed({ error: 'Failed to update board' })
           )
           .catch((error) => boardActions.boardEditFailed({ error }))
       )

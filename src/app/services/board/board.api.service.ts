@@ -25,17 +25,20 @@ export class BoardAPIService {
           description: boardData.description,
           user_id: user.id,
           created_at: new Date().toISOString(),
-        });
-      if (data) {
-        console.log('Board added:', data);
-      }
+        })
+        .select()
+        .single();
       if (error) {
         throw error;
+      }
+      if (!data) {
+        throw new Error('Board was not returned after insert');
       }
       this.toastRService.success(`Board ${boardData.name} added successfully`);
       return true;
     } catch (error) {
-      this.toastRService.error(`Failed to add board : ${error.message}`);
+      this.toastRService.error(`Failed to add board : ${error?.message ?? String(error)}`);
+      return false;
     }
   }
 
@@ -159,7 +162,7 @@ export class BoardAPIService {
     }
   }
 
-  async editBoard(boardData: Board): Promise<unknown> {
+  async editBoard(boardData: Board): Promise<Board | null> {
     try {
       let { data, error } = await this.supabaseService.supabase
         .from('boards')
@@ -176,9 +179,10 @@ export class BoardAPIService {
         throw error;
       }
 
-      return data;
+      return data as Board;
     } catch (error) {
-      return false;
+      this.toastRService.error(`Failed to update board: ${error?.message ?? String(error)}`);
+      return null;
     }
   }
 }
