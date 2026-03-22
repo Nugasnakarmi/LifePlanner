@@ -54,13 +54,13 @@ export class LoginComponent implements OnInit {
       password: this.password.value,
     };
     if (this.email.valid && this.password.valid) {
-      try {
-        const userSessionDetails = await this.loginService.loginEmailPassword(
-          loginCredentials
-        );
+      const userSessionDetails = await this.loginService.loginEmailPassword(
+        loginCredentials
+      );
+      if (userSessionDetails?.user && userSessionDetails?.session) {
         this.userDetails = userSessionDetails.user;
         this.router.navigate(['/boards']);
-      } catch (error) {}
+      }
     }
   }
   register() {
