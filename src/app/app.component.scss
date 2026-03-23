@@ -64,6 +64,14 @@
   gap: 4px;
 }
 
+.nav-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(249, 208, 122, 0.3);
+}
+
 .user-email {
   max-width: 200px;
   overflow: hidden;
@@ -85,6 +93,10 @@
 :host-context(.light-mode) {
   .user-menu-button {
     color: #010014;
+  }
+
+  .nav-avatar {
+    border-color: rgba(92, 64, 0, 0.3);
   }
 
   .theme-toggle-button {

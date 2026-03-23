@@ -6,6 +6,7 @@ import { RegisterComponent } from './views/email/register/register.component';
 import { LandingPageComponent } from './views/landing-page/landing-page.component';
 import { BoardsViewComponent } from './views/boards-view/boards-view.component';
 import { TaskDashboardComponent } from './views/task-dashboard/task-dashboard.component';
+import { UserProfileComponent } from './views/user-profile.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -13,6 +14,7 @@ export const routes: Routes = [
   { path: 'boards', component: BoardsViewComponent, canActivate: [authGuard] },
   { path: 'main', component: MainViewComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: TaskDashboardComponent, canActivate: [authGuard] },
+  { path: 'profile', component: UserProfileComponent, canActivate: [authGuard] },
   { path: 'confirmEmail', component: EmailConfirmComponent },
   { path: 'resetPassword', component: ResetPasswordComponent },
   { path: 'register', component: RegisterComponent },

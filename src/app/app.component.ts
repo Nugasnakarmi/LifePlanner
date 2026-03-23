@@ -3,6 +3,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { SupabaseService } from './services/supabase/supabase.service';
 import { ThemeService } from './services/theme/theme.service';
 import { AppTitleService } from './services/app-title.service';
+import { UserProfileService } from './services/user-profile.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit {
   supabaseService = inject(SupabaseService);
   themeService = inject(ThemeService);
   appTitleService = inject(AppTitleService);
+  userProfileService = inject(UserProfileService);
   dialog = inject(MatDialog);
 
   async ngOnInit(): Promise<void> {
@@ -37,6 +39,7 @@ export class AppComponent implements OnInit {
     if (session?.user?.email) {
       this.userEmail = session.user.email;
       await this.appTitleService.loadFromDb();
+      await this.userProfileService.loadProfile();
     } else {
       // No active session — clear any stale cached title from a previous user
       this.appTitleService.reset();
@@ -46,6 +49,7 @@ export class AppComponent implements OnInit {
       this.userEmail = session?.user?.email ?? null;
       if (session?.user) {
         await this.appTitleService.loadFromDb();
+        await this.userProfileService.loadProfile();
       } else {
         this.appTitleService.reset();
       }
@@ -98,6 +102,10 @@ export class AppComponent implements OnInit {
 
   navigateToNewBoard(): void {
     this.router.navigate(['/boards'], { queryParams: { newBoard: 'true' } });
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/profile']);
   }
 
   openCreateTemplateDialog(): void {
