@@ -21,6 +21,8 @@ import { boardListsReducer } from './store/board-list/board-list.reducer';
 import { BoardListEffects } from './store/board-list/board-list.effects';
 import { activityReducer } from './store/task/activity.reducer';
 import { ActivityEffects } from './store/task/activity.effects';
+import { userProfileReducer } from './store/user-profile.reducer';
+import { UserProfileEffects } from './store/user-profile.effects';
 // const composeEnhancers = composeWithDevTools({
 //   realtime: true,
 //   name: 'Your Instance Name',
@@ -52,7 +54,8 @@ export const appConfig: ApplicationConfig = {
     provideState({ name: 'board-template', reducer: boardTemplateReducer }),
     provideState({ name: 'board-list', reducer: boardListsReducer }),
     provideState({ name: 'activity', reducer: activityReducer }),
-    provideEffects([TaskEffects, BoardEffects, BoardListEffects, BoardTemplateEffects, ActivityEffects]),
+    provideState({ name: 'user-profile', reducer: userProfileReducer }),
+    provideEffects([TaskEffects, BoardEffects, BoardListEffects, BoardTemplateEffects, ActivityEffects, UserProfileEffects]),
     provideStoreDevtools({ maxAge: 25 }), // Enable Redux DevTools
   ],
 };

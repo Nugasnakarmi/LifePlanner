@@ -3,18 +3,19 @@ import { Router, RouterOutlet } from '@angular/router';
 import { SupabaseService } from './services/supabase/supabase.service';
 import { ThemeService } from './services/theme/theme.service';
 import { AppTitleService } from './services/app-title.service';
+import { UserProfileService } from './services/user-profile.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
-import { NgIf } from '@angular/common';
+import { AsyncPipe, NgIf } from '@angular/common';
 import { CreateTemplateDialogComponent } from './views/boards-view/create-template-dialog/create-template-dialog.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatMenuModule, MatButtonModule, MatIconModule, MatDividerModule, MatDialogModule, NgIf, FormsModule],
+  imports: [RouterOutlet, MatMenuModule, MatButtonModule, MatIconModule, MatDividerModule, MatDialogModule, NgIf, AsyncPipe, FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit {
   supabaseService = inject(SupabaseService);
   themeService = inject(ThemeService);
   appTitleService = inject(AppTitleService);
+  userProfileService = inject(UserProfileService);
   dialog = inject(MatDialog);
 
   async ngOnInit(): Promise<void> {
@@ -37,17 +39,20 @@ export class AppComponent implements OnInit {
     if (session?.user?.email) {
       this.userEmail = session.user.email;
       await this.appTitleService.loadFromDb();
+      this.userProfileService.loadProfile();
     } else {
-      // No active session — clear any stale cached title from a previous user
       this.appTitleService.reset();
+      this.userProfileService.clearProfile();
     }
 
     this.supabaseService.supabase.auth.onAuthStateChange(async (_event, session) => {
       this.userEmail = session?.user?.email ?? null;
       if (session?.user) {
         await this.appTitleService.loadFromDb();
+        this.userProfileService.loadProfile();
       } else {
         this.appTitleService.reset();
+        this.userProfileService.clearProfile();
       }
     });
   }
@@ -98,6 +103,10 @@ export class AppComponent implements OnInit {
 
   navigateToNewBoard(): void {
     this.router.navigate(['/boards'], { queryParams: { newBoard: 'true' } });
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/profile']);
   }
 
   openCreateTemplateDialog(): void {
