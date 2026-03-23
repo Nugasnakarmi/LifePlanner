@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,7 +6,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgIf } from '@angular/common';
+import { AsyncPipe, NgIf } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { Subject, takeUntil } from 'rxjs';
+import { selectUserProfile, selectUserProfileSaving } from '../store/user-profile.selector';
+import * as profileActions from '../store/user-profile.actions';
 import { UserProfileService } from '../services/user-profile.service';
 
 @Component({
@@ -20,13 +24,14 @@ import { UserProfileService } from '../services/user-profile.service';
     MatIconModule,
     MatProgressSpinnerModule,
     NgIf,
+    AsyncPipe,
   ],
   template: `
     <div class="profile-container">
       <h2 class="profile-title has-gradient-text">My Profile</h2>
 
       <div class="avatar-section">
-        <div class="avatar-wrapper" (click)="avatarInput.click()">
+        <button type="button" class="avatar-wrapper" (click)="avatarInput.click()" aria-label="Change avatar photo">
           <img
             *ngIf="avatarUrl"
             [src]="avatarUrl"
@@ -37,7 +42,7 @@ import { UserProfileService } from '../services/user-profile.service';
           <div class="avatar-overlay">
             <mat-icon>photo_camera</mat-icon>
           </div>
-        </div>
+        </button>
         <input
           #avatarInput
           type="file"
@@ -46,25 +51,25 @@ import { UserProfileService } from '../services/user-profile.service';
           hidden
         />
         <div class="avatar-actions">
-          <button mat-button color="primary" (click)="avatarInput.click()" [disabled]="uploading">
+          <button mat-button color="primary" (click)="avatarInput.click()" [disabled]="saving$ | async">
             <mat-icon>upload</mat-icon>
             {{ avatarUrl ? 'Change Photo' : 'Upload Photo' }}
           </button>
           <button
             mat-button
             *ngIf="avatarUrl"
-            (click)="removeAvatar()"
-            [disabled]="uploading"
+            (click)="onRemoveAvatar()"
+            [disabled]="saving$ | async"
             class="remove-btn"
           >
             <mat-icon>delete</mat-icon>
             Remove
           </button>
         </div>
-        <mat-spinner *ngIf="uploading" diameter="24" class="upload-spinner"></mat-spinner>
+        <mat-spinner *ngIf="saving$ | async" diameter="24" class="upload-spinner"></mat-spinner>
       </div>
 
-      <form class="profile-form" (ngSubmit)="saveProfile()">
+      <form class="profile-form" (ngSubmit)="onSaveProfile()">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Display Name</mat-label>
           <input
@@ -88,8 +93,8 @@ import { UserProfileService } from '../services/user-profile.service';
         </mat-form-field>
 
         <div class="form-actions">
-          <button mat-raised-button color="primary" type="submit" [disabled]="saving">
-            {{ saving ? 'Saving...' : 'Save Profile' }}
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving$ | async">
+            {{ (saving$ | async) ? 'Saving...' : 'Save Profile' }}
           </button>
           <button mat-button type="button" (click)="goBack()">Cancel</button>
         </div>
@@ -127,6 +132,8 @@ import { UserProfileService } from '../services/user-profile.service';
       cursor: pointer;
       border: 3px solid rgba(249, 208, 122, 0.3);
       transition: border-color 0.2s ease;
+      padding: 0;
+      background: transparent;
     }
 
     .avatar-wrapper:hover {
@@ -199,86 +206,71 @@ import { UserProfileService } from '../services/user-profile.service';
       margin-top: 16px;
     }
 
-    :host-context(.light-mode) {
-      .avatar-placeholder {
-        color: rgba(92, 64, 0, 0.4);
-      }
+    :host-context(.light-mode) .avatar-placeholder {
+      color: rgba(92, 64, 0, 0.4);
+    }
 
-      .avatar-wrapper {
-        border-color: rgba(92, 64, 0, 0.3);
-      }
+    :host-context(.light-mode) .avatar-wrapper {
+      border-color: rgba(92, 64, 0, 0.3);
+    }
 
-      .avatar-wrapper:hover {
-        border-color: #5C4000;
-      }
+    :host-context(.light-mode) .avatar-wrapper:hover {
+      border-color: #5C4000;
+    }
 
-      .remove-btn {
-        color: #B00020;
-      }
+    :host-context(.light-mode) .remove-btn {
+      color: #B00020;
     }
   `],
 })
-export class UserProfileComponent implements OnInit {
-  @ViewChild('avatarInput') avatarInput!: ElementRef<HTMLInputElement>;
-
+export class UserProfileComponent implements OnInit, OnDestroy {
+  private store = inject(Store);
   private userProfileService = inject(UserProfileService);
   private router = inject(Router);
+  private destroy$ = new Subject<void>();
+
+  saving$ = this.store.select(selectUserProfileSaving);
 
   displayName = '';
   address = '';
   avatarUrl = '';
-  saving = false;
-  uploading = false;
 
-  async ngOnInit(): Promise<void> {
-    const profile = await this.userProfileService.loadProfile();
-    if (profile) {
-      this.displayName = profile.display_name ?? '';
-      this.address = profile.address ?? '';
-      this.avatarUrl = profile.avatar_url ?? '';
-    }
+  ngOnInit(): void {
+    this.userProfileService.loadProfile();
+
+    this.store.select(selectUserProfile).pipe(takeUntil(this.destroy$)).subscribe((profile) => {
+      if (profile) {
+        this.displayName = profile.display_name ?? '';
+        this.address = profile.address ?? '';
+        this.avatarUrl = profile.avatar_url ?? '';
+      }
+    });
   }
 
-  async saveProfile(): Promise<void> {
-    this.saving = true;
-    try {
-      await this.userProfileService.saveProfile({
-        display_name: this.displayName.trim(),
-        address: this.address.trim(),
-      });
-    } finally {
-      this.saving = false;
-    }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  async onAvatarSelected(event: Event): Promise<void> {
+  onSaveProfile(): void {
+    this.userProfileService.saveProfile({
+      display_name: this.displayName.trim(),
+      address: this.address.trim(),
+    });
+  }
+
+  onAvatarSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
-    this.uploading = true;
-    try {
-      const url = await this.userProfileService.uploadAvatar(file);
-      if (url) {
-        this.avatarUrl = url;
-      }
-    } finally {
-      this.uploading = false;
-      // Reset input so re-selecting the same file triggers change
-      input.value = '';
-    }
+    this.userProfileService.uploadAvatar(file);
+    // Reset input so re-selecting the same file triggers change
+    input.value = '';
   }
 
-  async removeAvatar(): Promise<void> {
-    this.uploading = true;
-    try {
-      const success = await this.userProfileService.removeAvatar();
-      if (success) {
-        this.avatarUrl = '';
-      }
-    } finally {
-      this.uploading = false;
-    }
+  onRemoveAvatar(): void {
+    this.userProfileService.removeAvatar();
   }
 
   goBack(): void {

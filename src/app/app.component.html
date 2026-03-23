@@ -61,15 +61,22 @@
         </button>
       </div>
       <div class="navbar-item" *ngIf="userEmail">
-        <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
-          <img
-            *ngIf="userProfileService.profile()?.avatar_url"
-            [src]="userProfileService.profile()!.avatar_url"
-            alt="Avatar"
-            class="nav-avatar"
-          />
-          <mat-icon *ngIf="!userProfileService.profile()?.avatar_url">account_circle</mat-icon>
-          <span class="user-email">{{ userProfileService.profile()?.display_name || userEmail }}</span>
+        <ng-container *ngIf="userProfileService.profile$ | async as profile">
+          <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
+            <img
+              *ngIf="profile.avatar_url"
+              [src]="profile.avatar_url"
+              alt="Avatar"
+              class="nav-avatar"
+            />
+            <mat-icon *ngIf="!profile.avatar_url">account_circle</mat-icon>
+            <span class="user-email">{{ profile.display_name || userEmail }}</span>
+            <mat-icon>arrow_drop_down</mat-icon>
+          </button>
+        </ng-container>
+        <button *ngIf="!(userProfileService.profile$ | async)" mat-button [matMenuTriggerFor]="userMenu" class="user-menu-button">
+          <mat-icon>account_circle</mat-icon>
+          <span class="user-email">{{ userEmail }}</span>
           <mat-icon>arrow_drop_down</mat-icon>
         </button>
         <mat-menu #userMenu="matMenu">

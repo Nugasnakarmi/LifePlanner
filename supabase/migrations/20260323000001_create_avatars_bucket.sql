@@ -12,17 +12,24 @@ CREATE POLICY "Users can upload their own avatar"
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
--- Allow anyone to read public avatars (bucket is public)
+-- Allow anyone to read public avatars (only files whose key matches /avatar.*)
 CREATE POLICY "Public read access for avatars"
   ON storage.objects FOR SELECT
   TO public
-  USING (bucket_id = 'avatars');
+  USING (
+    bucket_id = 'avatars'
+    AND name LIKE '%/avatar.%'
+  );
 
 -- Allow authenticated users to update (overwrite) their own avatar
 CREATE POLICY "Users can update their own avatar"
   ON storage.objects FOR UPDATE
   TO authenticated
   USING (
+    bucket_id = 'avatars'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  )
+  WITH CHECK (
     bucket_id = 'avatars'
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
