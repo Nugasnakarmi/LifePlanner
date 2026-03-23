@@ -1,11 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import {
-  createClient,
-  Session,
-  SupabaseClient,
-  User,
-} from '@supabase/supabase-js';
+import { Session, User } from '@supabase/supabase-js';
 import { ToastrService } from 'ngx-toastr';
 import { SupabaseService } from '../supabase/supabase.service';
 @Injectable({
@@ -36,15 +30,17 @@ export class RegisterService {
 
     if (error) {
       this.toastrService.error(error.message);
-      return;
+      return { user: null, session: null };
     }
 
-    if (data) {
+    if (data?.user) {
       this.toastrService.success(
         `Registration successful for ${data.user.email}`
       );
       return data;
     }
+
+    return { user: null, session: null };
   }
 
   // async confirmUser(token: string, tokenId: string) {

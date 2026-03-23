@@ -94,7 +94,7 @@ export class RegisterComponent implements OnInit {
         email.value,
         confirmPassword.value
       );
-      if (this.userDetails.user) {
+      if (this.userDetails?.user) {
         this.registrationSuccess = true;
       }
     }
