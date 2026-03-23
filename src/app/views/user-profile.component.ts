@@ -10,7 +10,6 @@ import { AsyncPipe, NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Subject, takeUntil } from 'rxjs';
 import { selectUserProfile, selectUserProfileSaving } from '../store/user-profile.selector';
-import * as profileActions from '../store/user-profile.actions';
 import { UserProfileService } from '../services/user-profile.service';
 
 @Component({
