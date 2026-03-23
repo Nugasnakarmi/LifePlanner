@@ -27,14 +27,20 @@
     letter-spacing: 0.05em;
   }
 
-  #register-text {
+  #register-text,
+  #forgot-password-text {
     font-size: 0.8em;
     color: rgba(255, 255, 255, 0.75);
 
-    a {
+    button {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
       color: #F9D07A;
       text-decoration: none;
       font-weight: bold;
+      font-size: inherit;
 
       &:hover {
         text-decoration: underline;
@@ -49,10 +55,11 @@
       color: rgba(1, 0, 20, 0.85);
     }
 
-    #register-text {
+    #register-text,
+    #forgot-password-text {
       color: rgba(1, 0, 20, 0.75);
 
-      a {
+      button {
         color: #5C4000;
       }
     }

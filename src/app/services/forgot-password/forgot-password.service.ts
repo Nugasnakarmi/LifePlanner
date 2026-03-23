@@ -10,7 +10,7 @@ export class ForgotPasswordService {
   supabaseService = inject(SupabaseService);
 
   async sendResetEmail(email: string): Promise<boolean> {
-    const redirectTo = `${window.location.origin}/resetPassword`;
+    const redirectTo = new URL('resetPassword', document.baseURI).href;
     const { error } =
       await this.supabaseService.supabase.auth.resetPasswordForEmail(email, {
         redirectTo,
