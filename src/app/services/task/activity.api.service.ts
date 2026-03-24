@@ -4,6 +4,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
 import { Activity, TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 import { TaskActivity } from 'src/app/interfaces/task-activity.interface';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ import { TaskActivity } from 'src/app/interfaces/task-activity.interface';
 export class ActivityApiService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
+  private storageService = inject(StorageService);
 
   async getActivitiesByTaskId(taskId: number): Promise<TaskScopedActivity[]> {
     try {
@@ -119,12 +121,28 @@ export class ActivityApiService {
     }
   }
 
-  async removeActivityFromTask(taskActivityId: number): Promise<boolean> {
+  async removeActivityFromTask(taskActivityId: number, activityId: number): Promise<boolean> {
     try {
+      // Fetch the activity to get media URLs before deletion
+      const { data: activity } = await this.supabaseService.supabase
+        .from('activities')
+        .select('media')
+        .eq('id', activityId)
+        .single();
+
+      // Delete media files from storage (best-effort)
+      const mediaUrls = (activity?.media ?? [])
+        .map((m: any) => m.url)
+        .filter(Boolean);
+      if (mediaUrls.length > 0) {
+        await this.storageService.deleteFiles(mediaUrls);
+      }
+
+      // Delete the activity itself (CASCADE removes task_activities)
       const { error } = await this.supabaseService.supabase
-        .from('task_activities')
+        .from('activities')
         .delete()
-        .eq('id', taskActivityId);
+        .eq('id', activityId);
 
       if (error) {
         throw error;
@@ -142,6 +160,22 @@ export class ActivityApiService {
 
   async deleteActivity(activityId: number): Promise<boolean> {
     try {
+      // Fetch the activity to get media URLs before deletion
+      const { data: activity } = await this.supabaseService.supabase
+        .from('activities')
+        .select('media')
+        .eq('id', activityId)
+        .single();
+
+      // Delete media files from storage (best-effort)
+      const mediaUrls = (activity?.media ?? [])
+        .map((m: any) => m.url)
+        .filter(Boolean);
+      if (mediaUrls.length > 0) {
+        await this.storageService.deleteFiles(mediaUrls);
+      }
+
+      // Delete the activity (CASCADE removes task_activities)
       const { error } = await this.supabaseService.supabase
         .from('activities')
         .delete()

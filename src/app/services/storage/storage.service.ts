@@ -134,6 +134,34 @@ export class StorageService {
   }
 
   /**
+   * Deletes multiple files from the activity-media bucket by their public URLs.
+   * Best-effort: logs errors but does not throw so callers can continue cleanup.
+   */
+  async deleteFiles(publicUrls: string[]): Promise<void> {
+    const keys = publicUrls
+      .map((url) => {
+        const prefix = `/storage/v1/object/public/${BUCKET}/`;
+        const idx = url.indexOf(prefix);
+        return idx === -1 ? null : url.substring(idx + prefix.length);
+      })
+      .filter((key): key is string => key !== null);
+
+    if (keys.length === 0) return;
+
+    try {
+      const { error } = await this.supabaseService.supabase.storage
+        .from(BUCKET)
+        .remove(keys);
+
+      if (error) {
+        console.error('Failed to delete media files:', error);
+      }
+    } catch (error) {
+      console.error('Failed to delete media files:', error);
+    }
+  }
+
+  /**
    * Accepted file types for the file picker.
    * Uses broad categories so mobile browsers show all compatible photos/videos
    * (e.g. HEIC on iOS) instead of filtering them out.

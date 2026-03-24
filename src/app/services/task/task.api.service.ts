@@ -4,6 +4,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskStatus } from 'src/app/enums/task-status.enum';
 import { ToastrService } from 'ngx-toastr';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 export class TaskAPIService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
+  private storageService = inject(StorageService);
 
   async addTask(taskData: IdeaTask): Promise<IdeaTask | null> {
     try {
@@ -99,6 +101,40 @@ export class TaskAPIService {
 
   async deleteTask(id: number): Promise<boolean> {
     try {
+      // Fetch all activities linked to this task with their media
+      const { data: taskActivities } = await this.supabaseService.supabase
+        .from('task_activities')
+        .select('activity_id, activity:activities(id, media)')
+        .eq('task_id', id);
+
+      // Collect media URLs and activity IDs for cleanup
+      const mediaUrls: string[] = [];
+      const activityIds: number[] = [];
+      for (const ta of taskActivities ?? []) {
+        const activity = (ta as any).activity;
+        if (activity) {
+          activityIds.push(activity.id);
+          for (const m of activity.media ?? []) {
+            if (m.url) mediaUrls.push(m.url);
+          }
+        }
+      }
+
+      // Delete media files from storage (best-effort)
+      if (mediaUrls.length > 0) {
+        await this.storageService.deleteFiles(mediaUrls);
+      }
+
+      // Delete activities (CASCADE removes task_activities)
+      if (activityIds.length > 0) {
+        const { error: actError } = await this.supabaseService.supabase
+          .from('activities')
+          .delete()
+          .in('id', activityIds);
+        if (actError) throw actError;
+      }
+
+      // Delete the task
       let { data, error } = await this.supabaseService.supabase
         .from('tasks')
         .delete()

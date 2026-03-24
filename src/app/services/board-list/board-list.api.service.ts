@@ -3,6 +3,7 @@ import { User } from '@supabase/supabase-js';
 import { SupabaseService } from '../supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,7 @@ import { BoardList } from 'src/app/interfaces/board-list.interface';
 export class BoardListApiService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
+  private storageService = inject(StorageService);
 
   async getAllListsForUser(): Promise<BoardList[]> {
     try {
@@ -106,7 +108,43 @@ export class BoardListApiService {
     try {
       const user: User = await this.supabaseService.getUser();
 
-      // Delete all tasks in this list first
+      // Fetch all tasks in this list with their activities and media
+      const { data: tasks } = await this.supabaseService.supabase
+        .from('tasks')
+        .select('id, task_activities(activity_id, activity:activities(id, media))')
+        .eq('boards_lists_id', listId)
+        .eq('user_id', user.id);
+
+      // Collect all media URLs and activity IDs for cleanup
+      const mediaUrls: string[] = [];
+      const activityIds: number[] = [];
+      for (const task of tasks ?? []) {
+        for (const ta of (task as any).task_activities ?? []) {
+          const activity = ta.activity;
+          if (activity) {
+            activityIds.push(activity.id);
+            for (const m of activity.media ?? []) {
+              if (m.url) mediaUrls.push(m.url);
+            }
+          }
+        }
+      }
+
+      // Delete media files from storage (best-effort)
+      if (mediaUrls.length > 0) {
+        await this.storageService.deleteFiles(mediaUrls);
+      }
+
+      // Delete activities (CASCADE removes task_activities)
+      if (activityIds.length > 0) {
+        const { error: actError } = await this.supabaseService.supabase
+          .from('activities')
+          .delete()
+          .in('id', activityIds);
+        if (actError) throw actError;
+      }
+
+      // Delete all tasks in this list
       const { error: tasksError } = await this.supabaseService.supabase
         .from('tasks')
         .delete()
