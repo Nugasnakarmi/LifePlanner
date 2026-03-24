@@ -11,14 +11,16 @@
     <p class="task-description">{{ data.task.description }}</p>
 
     <!-- Activities Section -->
+    @let activities = activities$ | async;
+    @let progress = progress$ | async;
     <div class="activities-section flex-column">
       <div class="activities-header flex-row-space-between">
         <div class="activities-title-row">
           <mat-icon class="activities-icon">checklist</mat-icon>
           <span class="activities-label">Activities</span>
-          @if ((activities$ | async)?.length) {
+          @if (activities?.length) {
             <span class="activity-count">
-              ({{ (progress$ | async)?.completed }}/{{ (progress$ | async)?.total }})
+              ({{ progress?.completed }}/{{ progress?.total }})
             </span>
           }
         </div>
@@ -29,16 +31,16 @@
       </div>
 
       <!-- Progress Bar -->
-      @if ((activities$ | async)?.length) {
+      @if (activities?.length) {
         <div class="progress-container">
           <mat-progress-bar
             mode="determinate"
-            [value]="(progress$ | async)?.percentage"
+            [value]="progress?.percentage"
             class="activity-progress-bar"
           ></mat-progress-bar>
           <span class="progress-label">
-            {{ (progress$ | async)?.percentage }}% complete
-            @if ((progress$ | async)?.allCompleted) {
+            {{ progress?.percentage }}% complete
+            @if (progress?.allCompleted) {
               <mat-icon class="all-done-icon">check_circle</mat-icon>
             }
           </span>
@@ -47,7 +49,7 @@
 
       <!-- Activity List -->
       <div class="activities-list flex-column">
-        @for (activity of activities$ | async; track activity.id) {
+        @for (activity of activities; track activity.id) {
           <div class="activity-item" [class.activity-completed]="activity.completed">
             <!-- Completion toggle -->
             <button
@@ -125,7 +127,7 @@
             </div>
           </div>
         }
-        @if (!(activities$ | async)?.length) {
+        @if (!activities?.length) {
           <p class="no-activities">No activities yet. Add one to track progress.</p>
         }
       </div>

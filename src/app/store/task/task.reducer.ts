@@ -95,27 +95,42 @@ export const tasksReducer = createReducer(
   })),
   on(activityActions.updateActivitySuccess, (state, { activity }) => ({
     ...state,
-    tasks: state.tasks.map((task) => ({
-      ...task,
-      activities: (task.activities ?? []).map((a) =>
-        a.id === activity.id ? { ...a, ...activity } : a
-      ),
-    })),
+    tasks: state.tasks.map((task) => {
+      if (!(task.activities ?? []).some((a) => a.id === activity.id)) {
+        return task;
+      }
+      return {
+        ...task,
+        activities: (task.activities ?? []).map((a) =>
+          a.id === activity.id ? { ...a, ...activity } : a
+        ),
+      };
+    }),
   })),
   on(activityActions.removeActivityFromTaskSuccess, activityActions.deleteActivitySuccess, (state, { activityId }) => ({
     ...state,
-    tasks: state.tasks.map((task) => ({
-      ...task,
-      activities: (task.activities ?? []).filter((a) => a.id !== activityId),
-    })),
+    tasks: state.tasks.map((task) => {
+      if (!(task.activities ?? []).some((a) => a.id === activityId)) {
+        return task;
+      }
+      return {
+        ...task,
+        activities: (task.activities ?? []).filter((a) => a.id !== activityId),
+      };
+    }),
   })),
   on(activityActions.toggleActivityCompleteSuccess, (state, { activityId, completed }) => ({
     ...state,
-    tasks: state.tasks.map((task) => ({
-      ...task,
-      activities: (task.activities ?? []).map((a) =>
-        a.id === activityId ? { ...a, completed } : a
-      ),
-    })),
+    tasks: state.tasks.map((task) => {
+      if (!(task.activities ?? []).some((a) => a.id === activityId)) {
+        return task;
+      }
+      return {
+        ...task,
+        activities: (task.activities ?? []).map((a) =>
+          a.id === activityId ? { ...a, completed } : a
+        ),
+      };
+    }),
   }))
 );

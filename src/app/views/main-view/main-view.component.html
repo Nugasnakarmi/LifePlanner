@@ -66,7 +66,7 @@
             [cdkDropListData]="containerRefs[list.id] ?? []"
             (cdkDropListDropped)="drop($event)"
           >
-            @for(item of containerRefs[list.id] ?? []; track item; let ind =
+            @for(item of containerRefs[list.id] ?? []; track item.id; let ind =
             $index){
             <app-task
               [task]="item"
