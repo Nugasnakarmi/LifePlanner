@@ -1,8 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { ActivityState } from './activity.state.interface';
 import * as activityActions from './activity.actions';
-import * as boardActions from 'src/app/store/board/board.actions';
-import * as boardListActions from 'src/app/store/board-list/board-list.actions';
 import * as taskActions from './task.actions';
 
 export const initialActivityState: ActivityState = {
@@ -59,9 +57,8 @@ export const activityReducer = createReducer(
       a.id === activityId ? { ...a, completed } : a
     ),
   })),
-  // Clear activities when a board, board list, or task is deleted
-  on(boardActions.deleteBoardSuccess, boardListActions.deleteBoardListSuccess,
-    taskActions.taskWasDeletedSuccessfully, (state) => ({
+  // Clear loaded activities when their parent task is deleted
+  on(taskActions.taskWasDeletedSuccessfully, (state) => ({
     ...state,
     activities: [],
   }))
