@@ -46,7 +46,7 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
     this.activityService.progress$
       .pipe(
         takeUntil(this.destroy$),
-        distinctUntilChanged((a, b) => a.percentage === b.percentage && a.allCompleted === b.allCompleted)
+        distinctUntilChanged((a, b) => a.total === b.total && a.percentage === b.percentage && a.allCompleted === b.allCompleted)
       )
       .subscribe((progress) => {
         if (progress.total > 0) {
