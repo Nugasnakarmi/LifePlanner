@@ -67,6 +67,10 @@ export class LoginComponent implements OnInit {
     this.router.navigate(['/register']);
   }
 
+  forgotPassword() {
+    this.router.navigate(['/forgotPassword']);
+  }
+
   keyDown($event): void {
     if ($event.key === 'Enter') {
       this.login();
