@@ -34,6 +34,10 @@ export class RegisterService {
     }
 
     if (data?.user) {
+      if (!data.user.identities?.length) {
+        this.toastrService.error('An account with this email already exists.');
+        return { user: null, session: null };
+      }
       this.toastrService.success(
         `Registration successful for ${data.user.email}`
       );
