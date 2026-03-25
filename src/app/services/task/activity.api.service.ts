@@ -4,6 +4,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
 import { Activity, TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 import { TaskActivity } from 'src/app/interfaces/task-activity.interface';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ import { TaskActivity } from 'src/app/interfaces/task-activity.interface';
 export class ActivityApiService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
+  private storageService = inject(StorageService);
 
   async getActivitiesByTaskId(taskId: number): Promise<TaskScopedActivity[]> {
     try {
@@ -119,12 +121,47 @@ export class ActivityApiService {
     }
   }
 
-  async removeActivityFromTask(taskActivityId: number): Promise<boolean> {
+  async removeActivityFromTask(taskActivityId: number, activityId: number): Promise<boolean> {
     try {
-      const { error } = await this.supabaseService.supabase
+      // Verify the bridge row exists and matches the provided activityId
+      const { data: taskActivity, error: taskActivityError } = await this.supabaseService.supabase
         .from('task_activities')
+        .select('activity_id')
+        .eq('id', taskActivityId)
+        .single();
+
+      if (taskActivityError) {
+        throw taskActivityError;
+      }
+
+      if (!taskActivity || taskActivity.activity_id !== activityId) {
+        throw new Error('Mismatched activity for the given task activity link');
+      }
+
+      // Fetch the activity to get media URLs before deletion
+      const { data: activity, error: fetchError } = await this.supabaseService.supabase
+        .from('activities')
+        .select('media')
+        .eq('id', activityId)
+        .single();
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      // Delete media files from storage (best-effort)
+      const mediaUrls = (activity?.media ?? [])
+        .map((m: any) => m.url)
+        .filter(Boolean);
+      if (mediaUrls.length > 0) {
+        await this.storageService.deleteFiles(mediaUrls);
+      }
+
+      // Delete the activity itself (CASCADE removes task_activities)
+      const { error } = await this.supabaseService.supabase
+        .from('activities')
         .delete()
-        .eq('id', taskActivityId);
+        .eq('id', activityId);
 
       if (error) {
         throw error;
@@ -142,6 +179,26 @@ export class ActivityApiService {
 
   async deleteActivity(activityId: number): Promise<boolean> {
     try {
+      // Fetch the activity to get media URLs before deletion
+      const { data: activity, error: selectError } = await this.supabaseService.supabase
+        .from('activities')
+        .select('media')
+        .eq('id', activityId)
+        .single();
+
+      if (selectError) {
+        throw selectError;
+      }
+
+      // Delete media files from storage (best-effort)
+      const mediaUrls = (activity?.media ?? [])
+        .map((m: any) => m.url)
+        .filter(Boolean);
+      if (mediaUrls.length > 0) {
+        await this.storageService.deleteFiles(mediaUrls);
+      }
+
+      // Delete the activity (CASCADE removes task_activities)
       const { error } = await this.supabaseService.supabase
         .from('activities')
         .delete()

@@ -6,6 +6,7 @@ import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { SupabaseService } from '../supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ import { ToastrService } from 'ngx-toastr';
 export class BoardAPIService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
+  private storageService = inject(StorageService);
 
   //TODO - Convert promises to observables
   async addBoard(boardData: Board): Promise<boolean> {
@@ -61,7 +63,46 @@ export class BoardAPIService {
 
   async deleteBoard(boardId: number): Promise<boolean> {
     try {
-      // Delete all tasks for this board first
+      // Fetch all tasks for this board with their activities and media
+      const { data: tasks, error: tasksFetchError } = await this.supabaseService.supabase
+        .from('tasks')
+        .select('id, task_activities(activity_id, activity:activities(id, media))')
+        .eq('board_id', boardId);
+
+      if (tasksFetchError) {
+        throw tasksFetchError;
+      }
+
+      // Collect all media URLs and activity IDs for cleanup
+      const mediaUrls: string[] = [];
+      const activityIds: number[] = [];
+      for (const task of tasks ?? []) {
+        for (const ta of (task as any).task_activities ?? []) {
+          const activity = ta.activity;
+          if (activity) {
+            activityIds.push(activity.id);
+            for (const m of activity.media ?? []) {
+              if (m.url) mediaUrls.push(m.url);
+            }
+          }
+        }
+      }
+
+      // Delete media files from storage (best-effort)
+      if (mediaUrls.length > 0) {
+        await this.storageService.deleteFiles(mediaUrls);
+      }
+
+      // Delete activities (CASCADE removes task_activities)
+      if (activityIds.length > 0) {
+        const { error: actError } = await this.supabaseService.supabase
+          .from('activities')
+          .delete()
+          .in('id', activityIds);
+        if (actError) throw actError;
+      }
+
+      // Delete all tasks for this board
       const { error: tasksError } = await this.supabaseService.supabase
         .from('tasks')
         .delete()
@@ -70,6 +111,7 @@ export class BoardAPIService {
         throw tasksError;
       }
 
+      // Delete the board (CASCADE deletes board_lists)
       const { error } = await this.supabaseService.supabase
         .from('boards')
         .delete()

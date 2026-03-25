@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { ToastrService } from 'ngx-toastr';
 
 const BUCKET = 'activity-media';
+const STORAGE_PATH_PREFIX = `/storage/v1/object/public/${BUCKET}/`;
 
 const ALLOWED_MIME_TYPES = new Set([
   'image/png',
@@ -112,11 +113,10 @@ export class StorageService {
    */
   async deleteFile(publicUrl: string): Promise<boolean> {
     try {
-      const prefix = `/storage/v1/object/public/${BUCKET}/`;
-      const idx = publicUrl.indexOf(prefix);
+      const idx = publicUrl.indexOf(STORAGE_PATH_PREFIX);
       if (idx === -1) return false;
 
-      const key = publicUrl.substring(idx + prefix.length);
+      const key = publicUrl.substring(idx + STORAGE_PATH_PREFIX.length);
 
       const { error } = await this.supabaseService.supabase.storage
         .from(BUCKET)
@@ -130,6 +130,33 @@ export class StorageService {
     } catch (error: any) {
       this.toastr.error(`Delete failed: ${error?.message ?? error}`);
       return false;
+    }
+  }
+
+  /**
+   * Deletes multiple files from the activity-media bucket by their public URLs.
+   * Best-effort: logs errors but does not throw so callers can continue cleanup.
+   */
+  async deleteFiles(publicUrls: string[]): Promise<void> {
+    const keys = publicUrls
+      .map((url) => {
+        const idx = url.indexOf(STORAGE_PATH_PREFIX);
+        return idx === -1 ? null : url.substring(idx + STORAGE_PATH_PREFIX.length);
+      })
+      .filter((key): key is string => key !== null);
+
+    if (keys.length === 0) return;
+
+    try {
+      const { error } = await this.supabaseService.supabase.storage
+        .from(BUCKET)
+        .remove(keys);
+
+      if (error) {
+        console.error('Failed to delete media files:', error);
+      }
+    } catch (error) {
+      console.error('Failed to delete media files:', error);
     }
   }
 

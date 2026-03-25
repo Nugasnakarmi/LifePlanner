@@ -74,7 +74,7 @@ export class ActivityEffects {
       ofType(activityActions.removeActivityFromTask),
       mergeMap(({ taskActivityId, activityId }) =>
         this.activityApiService
-          .removeActivityFromTask(taskActivityId)
+          .removeActivityFromTask(taskActivityId, activityId)
           .then((success) =>
             success
               ? activityActions.removeActivityFromTaskSuccess({ activityId })
