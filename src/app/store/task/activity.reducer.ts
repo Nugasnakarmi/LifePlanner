@@ -61,6 +61,7 @@ export const activityReducer = createReducer(
   on(taskActions.taskWasDeletedSuccessfully, (state) => ({
     ...state,
     activities: [],
+    loading: false,
   }))
 );
 

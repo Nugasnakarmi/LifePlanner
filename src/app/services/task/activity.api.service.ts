@@ -123,12 +123,31 @@ export class ActivityApiService {
 
   async removeActivityFromTask(taskActivityId: number, activityId: number): Promise<boolean> {
     try {
+      // Verify the bridge row exists and matches the provided activityId
+      const { data: taskActivity, error: taskActivityError } = await this.supabaseService.supabase
+        .from('task_activities')
+        .select('activity_id')
+        .eq('id', taskActivityId)
+        .single();
+
+      if (taskActivityError) {
+        throw taskActivityError;
+      }
+
+      if (!taskActivity || taskActivity.activity_id !== activityId) {
+        throw new Error('Mismatched activity for the given task activity link');
+      }
+
       // Fetch the activity to get media URLs before deletion
-      const { data: activity } = await this.supabaseService.supabase
+      const { data: activity, error: fetchError } = await this.supabaseService.supabase
         .from('activities')
         .select('media')
         .eq('id', activityId)
         .single();
+
+      if (fetchError) {
+        throw fetchError;
+      }
 
       // Delete media files from storage (best-effort)
       const mediaUrls = (activity?.media ?? [])
@@ -161,11 +180,15 @@ export class ActivityApiService {
   async deleteActivity(activityId: number): Promise<boolean> {
     try {
       // Fetch the activity to get media URLs before deletion
-      const { data: activity } = await this.supabaseService.supabase
+      const { data: activity, error: selectError } = await this.supabaseService.supabase
         .from('activities')
         .select('media')
         .eq('id', activityId)
         .single();
+
+      if (selectError) {
+        throw selectError;
+      }
 
       // Delete media files from storage (best-effort)
       const mediaUrls = (activity?.media ?? [])

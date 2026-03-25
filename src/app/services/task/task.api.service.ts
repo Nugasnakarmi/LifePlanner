@@ -102,10 +102,17 @@ export class TaskAPIService {
   async deleteTask(id: number): Promise<boolean> {
     try {
       // Fetch all activities linked to this task with their media
-      const { data: taskActivities } = await this.supabaseService.supabase
+      const {
+        data: taskActivities,
+        error: taskActivitiesError,
+      } = await this.supabaseService.supabase
         .from('task_activities')
         .select('activity_id, activity:activities(id, media)')
         .eq('task_id', id);
+
+      if (taskActivitiesError) {
+        throw taskActivitiesError;
+      }
 
       // Collect media URLs and activity IDs for cleanup
       const mediaUrls: string[] = [];
@@ -148,6 +155,7 @@ export class TaskAPIService {
       return true;
     } catch (error) {
       this.toastRService.error(`Failed to delete task : ${error.message}`);
+      return false;
     }
   }
 

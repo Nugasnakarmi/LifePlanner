@@ -64,10 +64,14 @@ export class BoardAPIService {
   async deleteBoard(boardId: number): Promise<boolean> {
     try {
       // Fetch all tasks for this board with their activities and media
-      const { data: tasks } = await this.supabaseService.supabase
+      const { data: tasks, error: tasksFetchError } = await this.supabaseService.supabase
         .from('tasks')
         .select('id, task_activities(activity_id, activity:activities(id, media))')
         .eq('board_id', boardId);
+
+      if (tasksFetchError) {
+        throw tasksFetchError;
+      }
 
       // Collect all media URLs and activity IDs for cleanup
       const mediaUrls: string[] = [];

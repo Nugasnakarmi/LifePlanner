@@ -109,11 +109,15 @@ export class BoardListApiService {
       const user: User = await this.supabaseService.getUser();
 
       // Fetch all tasks in this list with their activities and media
-      const { data: tasks } = await this.supabaseService.supabase
+      const { data: tasks, error: tasksSelectError } = await this.supabaseService.supabase
         .from('tasks')
         .select('id, task_activities(activity_id, activity:activities(id, media))')
         .eq('boards_lists_id', listId)
         .eq('user_id', user.id);
+
+      if (tasksSelectError) {
+        throw tasksSelectError;
+      }
 
       // Collect all media URLs and activity IDs for cleanup
       const mediaUrls: string[] = [];
