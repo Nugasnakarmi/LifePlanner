@@ -402,13 +402,24 @@
 
 .task-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  flex-direction: column;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: background 0.2s;
+  overflow: hidden;
+
+  &--expanded {
+    border-color: rgba(249, 208, 122, 0.2);
+  }
+}
+
+.task-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
 
   &:hover {
     background: rgba(255, 255, 255, 0.07);
@@ -416,6 +427,8 @@
 }
 
 .task-item-icon {
+  color: rgba(249, 208, 122, 0.6);
+  flex-shrink: 0;
   mat-icon {
     font-size: 18px;
     width: 18px;
@@ -479,6 +492,192 @@
   &:hover {
     color: #ff7878 !important;
   }
+}
+
+// Task expand icon & activity badge
+.task-expand-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.activity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(249, 208, 122, 0.12);
+  border: 1px solid rgba(249, 208, 122, 0.2);
+  color: rgba(249, 208, 122, 0.8);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+  }
+}
+
+// === Task Activities Section ===
+.task-activities-section {
+  padding: 8px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(249, 208, 122, 0.04);
+  border: 1px solid rgba(249, 208, 122, 0.1);
+}
+
+.activity-item-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: rgba(249, 208, 122, 0.5);
+  flex-shrink: 0;
+}
+
+.activity-item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.activity-item-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.activity-item-meta {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.activity-delete-btn {
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  color: rgba(255, 255, 255, 0.25) !important;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #ff7878 !important;
+  }
+}
+
+.add-activity-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px dashed rgba(249, 208, 122, 0.18);
+  background: transparent;
+  color: rgba(249, 208, 122, 0.5);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    border-color: rgba(249, 208, 122, 0.4);
+    color: #F9D07A;
+    background: rgba(249, 208, 122, 0.04);
+  }
+}
+
+.add-activity-form {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(249, 208, 122, 0.04);
+  border: 1px solid rgba(249, 208, 122, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+// Data field rows (key-value pairs inside activity form)
+.data-field-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.data-field-key {
+  flex: 1;
+}
+
+.data-field-value {
+  flex: 1;
+}
+
+.add-data-field-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    border-color: rgba(249, 208, 122, 0.3);
+    color: rgba(249, 208, 122, 0.7);
+  }
+}
+
+// Review step: activity count next to task name
+.review-activity-count {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  color: rgba(249, 208, 122, 0.55);
+  margin-left: 4px;
 }
 
 // === Add Task Form ===
@@ -1034,9 +1233,13 @@
     background: rgba(1, 0, 20, 0.03);
     border-color: rgba(1, 0, 20, 0.07);
 
-    &:hover {
-      background: rgba(1, 0, 20, 0.06);
+    &--expanded {
+      border-color: rgba(92, 64, 0, 0.2);
     }
+  }
+
+  .task-item-header:hover {
+    background: rgba(1, 0, 20, 0.06);
   }
 
   .task-item-icon mat-icon {
@@ -1137,6 +1340,72 @@
   .review-task-list li {
     color: rgba(1, 0, 20, 0.5);
     border-bottom-color: rgba(1, 0, 20, 0.05);
+  }
+
+  .task-expand-icon {
+    color: rgba(1, 0, 20, 0.3);
+  }
+
+  .activity-badge {
+    background: rgba(92, 64, 0, 0.1);
+    border-color: rgba(92, 64, 0, 0.2);
+    color: rgba(92, 64, 0, 0.8);
+  }
+
+  .task-activities-section {
+    border-top-color: rgba(1, 0, 20, 0.06);
+    background: rgba(1, 0, 20, 0.02);
+  }
+
+  .activity-item {
+    background: rgba(92, 64, 0, 0.04);
+    border-color: rgba(92, 64, 0, 0.1);
+  }
+
+  .activity-item-icon {
+    color: rgba(92, 64, 0, 0.5);
+  }
+
+  .activity-item-name {
+    color: rgba(1, 0, 20, 0.85);
+  }
+
+  .activity-item-meta {
+    color: rgba(1, 0, 20, 0.4);
+  }
+
+  .activity-delete-btn {
+    color: rgba(1, 0, 20, 0.25) !important;
+  }
+
+  .add-activity-trigger {
+    border-color: rgba(92, 64, 0, 0.18);
+    color: rgba(92, 64, 0, 0.5);
+
+    &:hover {
+      border-color: rgba(92, 64, 0, 0.4);
+      color: #5C4000;
+      background: rgba(92, 64, 0, 0.04);
+    }
+  }
+
+  .add-activity-form {
+    background: rgba(92, 64, 0, 0.03);
+    border-color: rgba(92, 64, 0, 0.15);
+  }
+
+  .add-data-field-btn {
+    border-color: rgba(1, 0, 20, 0.15);
+    color: rgba(1, 0, 20, 0.4);
+
+    &:hover {
+      border-color: rgba(92, 64, 0, 0.3);
+      color: rgba(92, 64, 0, 0.7);
+    }
+  }
+
+  .review-activity-count {
+    color: rgba(92, 64, 0, 0.55);
   }
 
   .no-tasks-note {

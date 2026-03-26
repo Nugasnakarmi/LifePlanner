@@ -5,6 +5,7 @@ import {
   BoardTemplate,
   BoardTemplateList,
   BoardTemplateTask,
+  TemplateActivity,
 } from 'src/app/interfaces/board-template.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -27,7 +28,7 @@ export class BoardTemplateApiService {
           id, name, description, is_system, user_id,
           board_template_lists (
             id, name, list_type, position,
-            board_template_tasks ( id, name, description, position )
+            board_template_tasks ( id, name, description, position, activities )
           )
         `)
         .or(`is_system.eq.true,user_id.eq.${user.id}`)
@@ -57,6 +58,15 @@ export class BoardTemplateApiService {
                 name: t.name,
                 description: t.description ?? '',
                 position: t.position,
+                activities: ((t.activities ?? []) as any[])
+                  .sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0))
+                  .map(
+                    (a: any, idx: number): TemplateActivity => ({
+                      name: a.name,
+                      data: a.data ?? [],
+                      position: typeof a.position === 'number' ? a.position : idx,
+                    })
+                  ),
               })),
           })),
       }));
@@ -111,6 +121,11 @@ export class BoardTemplateApiService {
             name: t.name,
             description: t.description,
             position: i,
+            activities: (t.activities ?? []).map((a, ai) => ({
+              name: a.name,
+              data: a.data ?? [],
+              position: ai,
+            })),
           }));
 
           const { error: tasksErr } = await this.supabaseService.supabase
@@ -153,6 +168,11 @@ export class BoardTemplateApiService {
           name: t.name,
           description: t.description ?? '',
           position: j,
+          activities: (t.activities ?? []).map((a, k) => ({
+            name: a.name,
+            data: a.data ?? [],
+            position: k,
+          })),
         })),
       }));
 
