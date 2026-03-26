@@ -78,17 +78,102 @@
             @if (expandedListIndex === i) {
               <div class="list-tasks">
                 @for (task of list.tasks; track task.name; let ti = $index) {
-                  <div class="task-item">
-                    <mat-icon class="task-item-icon">task_alt</mat-icon>
-                    <div class="task-item-content">
-                      <div class="task-item-name">{{ task.name }}</div>
-                      @if (task.description) {
-                        <div class="task-item-desc">{{ task.description }}</div>
+                  <div class="task-item" [class.task-item--expanded]="isTaskExpanded(i, ti)">
+                    <!-- Task header row -->
+                    <div class="task-item-header" (click)="toggleTask(i, ti)" tabindex="0"
+                         (keydown.enter)="toggleTask(i, ti)"
+                         (keydown.space)="$event.preventDefault(); toggleTask(i, ti)"
+                         role="button"
+                         [attr.aria-expanded]="isTaskExpanded(i, ti)">
+                      <mat-icon class="task-item-icon">task_alt</mat-icon>
+                      <div class="task-item-content">
+                        <div class="task-item-name">{{ task.name }}</div>
+                        @if (task.description) {
+                          <div class="task-item-desc">{{ task.description }}</div>
+                        }
+                      </div>
+                      @if ((task.activities?.length ?? 0) > 0) {
+                        <span class="activity-badge">
+                          <mat-icon>directions_run</mat-icon>
+                          {{ task.activities!.length }}
+                        </span>
                       }
+                      <mat-icon class="task-expand-icon">{{ isTaskExpanded(i, ti) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                      <button mat-icon-button class="task-delete-btn" (click)="$event.stopPropagation(); removeTask(i, ti)" aria-label="Remove task">
+                        <mat-icon>close</mat-icon>
+                      </button>
                     </div>
-                    <button mat-icon-button class="task-delete-btn" (click)="removeTask(i, ti)" aria-label="Remove task">
-                      <mat-icon>close</mat-icon>
-                    </button>
+
+                    <!-- Activities section (visible when task is expanded) -->
+                    @if (isTaskExpanded(i, ti)) {
+                      <div class="task-activities-section">
+                        @for (activity of (task.activities ?? []); track activity.name; let ai = $index) {
+                          <div class="activity-item">
+                            <mat-icon class="activity-item-icon">directions_run</mat-icon>
+                            <div class="activity-item-content">
+                              <span class="activity-item-name">{{ activity.name }}</span>
+                              @if ((activity.data?.length ?? 0) > 0) {
+                                <span class="activity-item-meta">{{ activity.data!.length }} data field{{ activity.data!.length !== 1 ? 's' : '' }}</span>
+                              }
+                            </div>
+                            <button mat-icon-button class="activity-delete-btn" (click)="removeActivity(i, ti, ai)" aria-label="Remove activity">
+                              <mat-icon>close</mat-icon>
+                            </button>
+                          </div>
+                        }
+
+                        @if (addActivityTarget?.listIndex === i && addActivityTarget?.taskIndex === ti) {
+                          <!-- Inline add-activity form -->
+                          <form [formGroup]="addActivityForm" class="add-activity-form" (ngSubmit)="submitActivity(i, ti)">
+                            <div class="add-task-header">
+                              <mat-icon>directions_run</mat-icon>
+                              <span>New Activity</span>
+                            </div>
+                            <mat-form-field appearance="outline" class="full-width">
+                              <mat-label>Activity Name</mat-label>
+                              <input matInput formControlName="activityName" placeholder="e.g. Daily log" />
+                              <mat-error *ngIf="addActivityForm.get('activityName')?.hasError('required')">Activity name is required</mat-error>
+                              <mat-error *ngIf="addActivityForm.get('activityName')?.hasError('minlength')">At least 2 characters</mat-error>
+                            </mat-form-field>
+
+                            <!-- Optional data fields -->
+                            <div formArrayName="dataFields">
+                              @for (field of addActivityDataFields.controls; track $index; let fi = $index) {
+                                <div [formGroupName]="fi" class="data-field-row">
+                                  <mat-form-field appearance="outline" class="data-field-key">
+                                    <mat-label>Key</mat-label>
+                                    <input matInput formControlName="key" placeholder="e.g. Duration" />
+                                  </mat-form-field>
+                                  <mat-form-field appearance="outline" class="data-field-value">
+                                    <mat-label>Value</mat-label>
+                                    <input matInput formControlName="value" placeholder="e.g. 30 min" />
+                                  </mat-form-field>
+                                  <button mat-icon-button type="button" class="task-delete-btn" (click)="removeActivityDataField(fi)" aria-label="Remove field">
+                                    <mat-icon>close</mat-icon>
+                                  </button>
+                                </div>
+                              }
+                            </div>
+
+                            <button type="button" class="add-data-field-btn" (click)="addActivityDataField()">
+                              <mat-icon>add</mat-icon> Add Data Field
+                            </button>
+
+                            <div class="add-task-actions">
+                              <button mat-stroked-button type="button" (click)="cancelAddActivity()">Cancel</button>
+                              <button mat-raised-button color="primary" type="submit" [disabled]="addActivityForm.invalid">
+                                <mat-icon>add</mat-icon> Add Activity
+                              </button>
+                            </div>
+                          </form>
+                        } @else {
+                          <button class="add-activity-trigger" (click)="showActivityForm(i, ti)">
+                            <mat-icon>add_circle_outline</mat-icon>
+                            Add an Activity
+                          </button>
+                        }
+                      </div>
+                    }
                   </div>
                 }
 
@@ -174,6 +259,13 @@
               <span class="task-summary-count">{{ totalTaskCount }}</span>
               <span class="task-summary-label">Task{{ totalTaskCount !== 1 ? 's' : '' }}</span>
             </div>
+            @if (totalActivityCount > 0) {
+              <div class="task-summary-item">
+                <mat-icon class="task-summary-icon">directions_run</mat-icon>
+                <span class="task-summary-count">{{ totalActivityCount }}</span>
+                <span class="task-summary-label">Activit{{ totalActivityCount !== 1 ? 'ies' : 'y' }}</span>
+              </div>
+            }
           </div>
         }
 
@@ -209,7 +301,7 @@
             <div class="preview-card-desc">{{ infoForm.get('description')?.value }}</div>
           }
           <div class="preview-card-footer">
-            <span class="preview-task-count">{{ totalTaskCount }} task{{ totalTaskCount !== 1 ? 's' : '' }} pre-loaded</span>
+            <span class="preview-task-count">{{ preloadedCountText }}</span>
             <mat-icon class="preview-card-arrow">arrow_forward</mat-icon>
           </div>
         </div>
@@ -228,7 +320,12 @@
                 @if (list.tasks.length > 0) {
                   <ul class="review-task-list">
                     @for (task of list.tasks; track task.name) {
-                      <li>{{ task.name }}</li>
+                      <li>
+                        {{ task.name }}
+                        @if ((task.activities?.length ?? 0) > 0) {
+                          <span class="review-activity-count">· {{ task.activities!.length }} activit{{ task.activities!.length !== 1 ? 'ies' : 'y' }}</span>
+                        }
+                      </li>
                     }
                   </ul>
                 } @else {

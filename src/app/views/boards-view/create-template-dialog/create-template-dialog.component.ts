@@ -2,9 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  FormArray,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
+  UntypedFormControl,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,6 +22,7 @@ import {
   BoardTemplate,
   BoardTemplateList,
   BoardTemplateTask,
+  TemplateActivity,
 } from 'src/app/interfaces/board-template.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
@@ -84,10 +87,19 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   showAddListForm = false;
   /** Index of the list currently expanded to show/add tasks. */
   expandedListIndex: number | null = null;
+  /** Which task is expanded to show its activities. */
+  expandedTask: { listIndex: number; taskIndex: number } | null = null;
+  /** Which task has the add-activity inline form open. */
+  addActivityTarget: { listIndex: number; taskIndex: number } | null = null;
 
   infoForm!: FormGroup;
   addListForm!: FormGroup;
   addTaskForm!: FormGroup;
+  addActivityForm!: FormGroup;
+
+  get addActivityDataFields(): FormArray {
+    return this.addActivityForm.get('dataFields') as FormArray;
+  }
 
   columnTypes: ColumnType[] = [
     { value: IdeaType.goals, label: 'Goals', icon: 'flag' },
@@ -99,6 +111,14 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
   get totalTaskCount(): number {
     return this.lists.reduce((sum, l) => sum + l.tasks.length, 0);
+  }
+
+  get totalActivityCount(): number {
+    return this.lists.reduce(
+      (sum, l) =>
+        sum + l.tasks.reduce((tSum, t) => tSum + (t.activities?.length ?? 0), 0),
+      0
+    );
   }
 
   ngOnInit(): void {
@@ -115,6 +135,11 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     this.addTaskForm = this.fb.group({
       taskName: ['', Validators.required],
       taskDescription: [''],
+    });
+
+    this.addActivityForm = this.fb.group({
+      activityName: new UntypedFormControl('', [Validators.required, Validators.minLength(2)]),
+      dataFields: this.fb.array([]),
     });
 
     if (this.isEditMode && this.editTemplate) {
@@ -197,11 +222,15 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     } else if (this.expandedListIndex !== null && this.expandedListIndex > index) {
       this.expandedListIndex--;
     }
+    this.expandedTask = null;
+    this.cancelAddActivity();
     if (!this.isEditMode) this.persistCache();
   }
 
   toggleList(index: number): void {
     this.expandedListIndex = this.expandedListIndex === index ? null : index;
+    this.expandedTask = null;
+    this.cancelAddActivity();
   }
 
   // ── Task management ───────────────────────────────────────────────────────
@@ -238,7 +267,104 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
   removeTask(listIndex: number, taskIndex: number): void {
     this.lists[listIndex].tasks.splice(taskIndex, 1);
+    // Collapse the expanded task if it was just removed or came after the removed one.
+    if (
+      this.expandedTask?.listIndex === listIndex &&
+      this.expandedTask.taskIndex === taskIndex
+    ) {
+      this.expandedTask = null;
+      this.cancelAddActivity();
+    } else if (
+      this.expandedTask?.listIndex === listIndex &&
+      this.expandedTask.taskIndex > taskIndex
+    ) {
+      this.expandedTask = { listIndex, taskIndex: this.expandedTask.taskIndex - 1 };
+    }
     if (!this.isEditMode) this.persistCache();
+  }
+
+  // ── Activity management ───────────────────────────────────────────────────
+
+  isTaskExpanded(listIndex: number, taskIndex: number): boolean {
+    return (
+      this.expandedTask?.listIndex === listIndex &&
+      this.expandedTask?.taskIndex === taskIndex
+    );
+  }
+
+  toggleTask(listIndex: number, taskIndex: number): void {
+    if (this.isTaskExpanded(listIndex, taskIndex)) {
+      this.expandedTask = null;
+      this.cancelAddActivity();
+    } else {
+      this.expandedTask = { listIndex, taskIndex };
+      this.cancelAddActivity();
+    }
+  }
+
+  showActivityForm(listIndex: number, taskIndex: number): void {
+    this.addActivityTarget = { listIndex, taskIndex };
+    this.addActivityForm.reset({ activityName: '' });
+    while (this.addActivityDataFields.length > 0) {
+      this.addActivityDataFields.removeAt(0);
+    }
+  }
+
+  cancelAddActivity(): void {
+    this.addActivityTarget = null;
+    this.addActivityForm.reset();
+    while (this.addActivityDataFields.length > 0) {
+      this.addActivityDataFields.removeAt(0);
+    }
+  }
+
+  addActivityDataField(): void {
+    this.addActivityDataFields.push(
+      this.fb.group({
+        key: new UntypedFormControl('', [Validators.required]),
+        value: new UntypedFormControl(''),
+      })
+    );
+  }
+
+  removeActivityDataField(index: number): void {
+    this.addActivityDataFields.removeAt(index);
+  }
+
+  submitActivity(listIndex: number, taskIndex: number): void {
+    if (this.addActivityForm.invalid) return;
+    const v = this.addActivityForm.value;
+    const trimmedName = v.activityName?.trim();
+    if (!trimmedName) {
+      this.addActivityForm.get('activityName')?.setErrors({ whitespace: true });
+      return;
+    }
+    const task = this.lists[listIndex].tasks[taskIndex];
+    if (!task.activities) task.activities = [];
+    const activity: TemplateActivity = {
+      name: trimmedName,
+      data: (v.dataFields ?? []).filter((f: any) => f.key?.trim()),
+      position: task.activities.length,
+    };
+    task.activities.push(activity);
+    this.cancelAddActivity();
+    if (!this.isEditMode) this.persistCache();
+  }
+
+  removeActivity(listIndex: number, taskIndex: number, activityIndex: number): void {
+    const task = this.lists[listIndex].tasks[taskIndex];
+    task.activities?.splice(activityIndex, 1);
+    // Re-index positions so they stay contiguous.
+    task.activities?.forEach((a, i) => { a.position = i; });
+    if (!this.isEditMode) this.persistCache();
+  }
+
+  get preloadedCountText(): string {
+    const t = this.totalTaskCount;
+    const a = this.totalActivityCount;
+    const taskPart = `${t} task${t !== 1 ? 's' : ''}`;
+    const actPart = a > 0 ? `, ${a} activit${a !== 1 ? 'ies' : 'y'}` : '';
+    return `${taskPart}${actPart} pre-loaded`;
   }
 
   // ── Save ──────────────────────────────────────────────────────────────────
@@ -264,7 +390,11 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
         name: l.name,
         listType: l.listType,
         position: i,
-        tasks: l.tasks,
+        tasks: l.tasks.map((t, j) => ({
+          ...t,
+          position: j,
+          activities: (t.activities ?? []).map((a, k) => ({ ...a, position: k })),
+        })),
       })),
       isBoardTemplate: true,
     };

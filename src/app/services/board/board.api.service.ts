@@ -150,26 +150,30 @@ export class BoardAPIService {
       const board = boardData as Board;
       boardId = board.id;
 
-      // For each template list, create a board_list column then insert its tasks.
-      for (const [listIndex, list] of (template.lists ?? []).entries()) {
-        const { data: listData, error: listError } = await this.supabaseService.supabase
-          .from('board_lists')
-          .insert({
-            board_id: board.id,
-            name: list.name,
-            position: listIndex,
-            user_id: user.id,
-          })
-          .select()
-          .single();
+        // For each template list, create a board_list column then insert its tasks.
+        for (const [listIndex, list] of (template.lists ?? []).entries()) {
+          const { data: listData, error: listError } = await this.supabaseService.supabase
+            .from('board_lists')
+            .insert({
+              board_id: board.id,
+              name: list.name,
+              position: listIndex,
+              user_id: user.id,
+            })
+            .select()
+            .single();
 
-        if (listError) {
-          throw listError;
-        }
+          if (listError) {
+            throw listError;
+          }
 
-        const boardList = listData as BoardList;
+          const boardList = listData as BoardList;
 
-        if (list.tasks.length > 0) {
+          if (list.tasks.length === 0) continue;
+
+          // Bulk-insert all tasks in this list and capture their IDs.
+          // PostgreSQL's multi-row INSERT...RETURNING preserves insertion order,
+          // so insertedTasks[i].id corresponds to list.tasks[i].
           const taskRows = list.tasks.map((task) => ({
             name: task.name,
             description: task.description,
@@ -180,22 +184,73 @@ export class BoardAPIService {
             boards_lists_id: boardList.id,
           }));
 
-          const { error: tasksError } = await this.supabaseService.supabase
+          const { data: insertedTasks, error: tasksError } = await this.supabaseService.supabase
             .from('tasks')
-            .insert(taskRows);
+            .insert(taskRows)
+            .select('id');
 
-          if (tasksError) {
-            throw tasksError;
+          if (tasksError) throw tasksError;
+
+          // For each task that has template activities, materialise them as real
+          // activities + task_activity bridge rows using batch inserts.
+          for (let taskIdx = 0; taskIdx < list.tasks.length; taskIdx++) {
+            const task = list.tasks[taskIdx];
+            const taskId = (insertedTasks as any[])[taskIdx].id as number;
+            const templateActivities = task.activities ?? [];
+
+            if (templateActivities.length === 0) continue;
+
+            // Batch-insert all activities for this task.
+            const activityRows = templateActivities.map((a) => ({
+              name: a.name,
+              data: a.data ?? [],
+              media: [],
+              user_id: user.id,
+            }));
+
+            const { data: insertedActivities, error: actError } = await this.supabaseService.supabase
+              .from('activities')
+              .insert(activityRows)
+              .select('id');
+
+            if (actError) throw actError;
+
+            // Batch-insert all task_activity bridge rows.
+            const taskActivityRows = (insertedActivities as any[]).map((act, actIdx) => ({
+              task_id: taskId,
+              activity_id: act.id,
+              position: actIdx,
+              completed: false,
+            }));
+
+            const { error: taError } = await this.supabaseService.supabase
+              .from('task_activities')
+              .insert(taskActivityRows);
+
+            if (taError) throw taError;
           }
         }
-      }
 
       this.toastRService.success(`Board "${template.name}" created from template`);
       return true;
     } catch (error) {
-      // Clean up the partially created board. Tasks must be deleted before the board
-      // because tasks.board_id does not have ON DELETE CASCADE.
+      // Clean up the partially created board. Activities and tasks must be
+      // deleted before the board because their FKs do not have ON DELETE CASCADE.
       if (boardId !== null) {
+        const { data: tasksWithActs } = await this.supabaseService.supabase
+          .from('tasks')
+          .select('id, task_activities(activity_id)')
+          .eq('board_id', boardId);
+
+        const activityIds: number[] = [];
+        for (const t of tasksWithActs ?? []) {
+          for (const ta of (t as any).task_activities ?? []) {
+            activityIds.push(ta.activity_id);
+          }
+        }
+        if (activityIds.length > 0) {
+          await this.supabaseService.supabase.from('activities').delete().in('id', activityIds);
+        }
         await this.supabaseService.supabase.from('tasks').delete().eq('board_id', boardId);
         await this.supabaseService.supabase.from('boards').delete().eq('id', boardId);
       }
