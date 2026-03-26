@@ -2,11 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  AbstractControl,
   FormArray,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   UntypedFormControl,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -99,6 +101,11 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
   get addActivityDataFields(): FormArray {
     return this.addActivityForm.get('dataFields') as FormArray;
+  }
+
+  /** Rejects controls whose value is empty or contains only whitespace. */
+  private static noWhitespace(control: AbstractControl): ValidationErrors | null {
+    return (control.value ?? '').trim().length === 0 ? { whitespace: true } : null;
   }
 
   columnTypes: ColumnType[] = [
@@ -267,18 +274,22 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
   removeTask(listIndex: number, taskIndex: number): void {
     this.lists[listIndex].tasks.splice(taskIndex, 1);
-    // Collapse the expanded task if it was just removed or came after the removed one.
-    if (
-      this.expandedTask?.listIndex === listIndex &&
-      this.expandedTask.taskIndex === taskIndex
-    ) {
-      this.expandedTask = null;
-      this.cancelAddActivity();
-    } else if (
-      this.expandedTask?.listIndex === listIndex &&
-      this.expandedTask.taskIndex > taskIndex
-    ) {
-      this.expandedTask = { listIndex, taskIndex: this.expandedTask.taskIndex - 1 };
+    // Update or clear expandedTask.
+    if (this.expandedTask?.listIndex === listIndex) {
+      if (this.expandedTask.taskIndex === taskIndex) {
+        this.expandedTask = null;
+        this.cancelAddActivity();
+      } else if (this.expandedTask.taskIndex > taskIndex) {
+        this.expandedTask = { listIndex, taskIndex: this.expandedTask.taskIndex - 1 };
+      }
+    }
+    // Update or clear addActivityTarget independently of expandedTask.
+    if (this.addActivityTarget?.listIndex === listIndex) {
+      if (this.addActivityTarget.taskIndex === taskIndex) {
+        this.cancelAddActivity();
+      } else if (this.addActivityTarget.taskIndex > taskIndex) {
+        this.addActivityTarget = { listIndex, taskIndex: this.addActivityTarget.taskIndex - 1 };
+      }
     }
     if (!this.isEditMode) this.persistCache();
   }
@@ -321,7 +332,7 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   addActivityDataField(): void {
     this.addActivityDataFields.push(
       this.fb.group({
-        key: new UntypedFormControl('', [Validators.required]),
+        key: new UntypedFormControl('', [Validators.required, CreateTemplateDialogComponent.noWhitespace]),
         value: new UntypedFormControl(''),
       })
     );
@@ -343,7 +354,10 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     if (!task.activities) task.activities = [];
     const activity: TemplateActivity = {
       name: trimmedName,
-      data: (v.dataFields ?? []).filter((f: any) => f.key?.trim()),
+      data: (v.dataFields ?? []).map((f: any) => ({
+        key: (f.key ?? '').trim(),
+        value: (f.value ?? '').trim(),
+      })),
       position: task.activities.length,
     };
     task.activities.push(activity);

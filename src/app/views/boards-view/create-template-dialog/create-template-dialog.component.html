@@ -107,7 +107,7 @@
                     <!-- Activities section (visible when task is expanded) -->
                     @if (isTaskExpanded(i, ti)) {
                       <div class="task-activities-section">
-                        @for (activity of (task.activities ?? []); track activity.name; let ai = $index) {
+                        @for (activity of (task.activities ?? []); track $index; let ai = $index) {
                           <div class="activity-item">
                             <mat-icon class="activity-item-icon">directions_run</mat-icon>
                             <div class="activity-item-content">
@@ -143,6 +143,7 @@
                                   <mat-form-field appearance="outline" class="data-field-key">
                                     <mat-label>Key</mat-label>
                                     <input matInput formControlName="key" placeholder="e.g. Duration" />
+                                    <mat-error *ngIf="addActivityDataFields.at(fi).get('key')?.hasError('required') || addActivityDataFields.at(fi).get('key')?.hasError('whitespace')">Key is required</mat-error>
                                   </mat-form-field>
                                   <mat-form-field appearance="outline" class="data-field-value">
                                     <mat-label>Value</mat-label>

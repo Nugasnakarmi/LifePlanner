@@ -58,13 +58,15 @@ export class BoardTemplateApiService {
                 name: t.name,
                 description: t.description ?? '',
                 position: t.position,
-                activities: ((t.activities ?? []) as any[]).map(
-                  (a: any, idx: number): TemplateActivity => ({
-                    name: a.name,
-                    data: a.data ?? [],
-                    position: idx,
-                  })
-                ),
+                activities: ((t.activities ?? []) as any[])
+                  .sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0))
+                  .map(
+                    (a: any, idx: number): TemplateActivity => ({
+                      name: a.name,
+                      data: a.data ?? [],
+                      position: typeof a.position === 'number' ? a.position : idx,
+                    })
+                  ),
               })),
           })),
       }));

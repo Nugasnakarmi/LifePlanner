@@ -67,7 +67,11 @@ BEGIN
         v_task ->> 'name',
         COALESCE(v_task ->> 'description', ''),
         (v_task ->> 'position')::smallint,
-        COALESCE(v_task -> 'activities', '[]'::jsonb)
+        CASE
+          WHEN jsonb_typeof(v_task -> 'activities') = 'array'
+          THEN v_task -> 'activities'
+          ELSE '[]'::jsonb
+        END
       );
     END LOOP;
   END LOOP;

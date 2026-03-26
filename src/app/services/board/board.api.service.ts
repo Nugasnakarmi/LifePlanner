@@ -130,6 +130,9 @@ export class BoardAPIService {
 
   async addBoardFromTemplate(template: BoardTemplate): Promise<boolean> {
     let boardId: number | null = null;
+    // Track every activity ID we insert so the cleanup path can delete them
+    // even if the task_activities link was never created (orphan guard).
+    const insertedActivityIds: number[] = [];
     try {
       const user: User = await this.supabaseService.getUser();
       const { data: boardData, error: boardError } = await this.supabaseService.supabase
@@ -215,6 +218,10 @@ export class BoardAPIService {
 
             if (actError) throw actError;
 
+            // Record IDs immediately so cleanup can remove them even if the
+            // following task_activities insert fails.
+            insertedActivityIds.push(...(insertedActivities as any[]).map((a) => a.id as number));
+
             // Batch-insert all task_activity bridge rows.
             const taskActivityRows = (insertedActivities as any[]).map((act, actIdx) => ({
               task_id: taskId,
@@ -234,25 +241,40 @@ export class BoardAPIService {
       this.toastRService.success(`Board "${template.name}" created from template`);
       return true;
     } catch (error) {
-      // Clean up the partially created board. Activities and tasks must be
-      // deleted before the board because their FKs do not have ON DELETE CASCADE.
+      // Best-effort cleanup of the partially created board.
+      // Activities and tasks must be deleted before the board because their
+      // FKs do not have ON DELETE CASCADE.
       if (boardId !== null) {
-        const { data: tasksWithActs } = await this.supabaseService.supabase
-          .from('tasks')
-          .select('id, task_activities(activity_id)')
-          .eq('board_id', boardId);
-
-        const activityIds: number[] = [];
-        for (const t of tasksWithActs ?? []) {
-          for (const ta of (t as any).task_activities ?? []) {
-            activityIds.push(ta.activity_id);
+        try {
+          // Delete all activities we managed to insert (linked or not).
+          if (insertedActivityIds.length > 0) {
+            const { error: deleteActivitiesError } = await this.supabaseService.supabase
+              .from('activities')
+              .delete()
+              .in('id', insertedActivityIds);
+            if (deleteActivitiesError) {
+              console.error('Cleanup: failed to delete activities for board', boardId, deleteActivitiesError);
+            }
           }
+
+          const { error: deleteTasksError } = await this.supabaseService.supabase
+            .from('tasks')
+            .delete()
+            .eq('board_id', boardId);
+          if (deleteTasksError) {
+            console.error('Cleanup: failed to delete tasks for board', boardId, deleteTasksError);
+          }
+
+          const { error: deleteBoardError } = await this.supabaseService.supabase
+            .from('boards')
+            .delete()
+            .eq('id', boardId);
+          if (deleteBoardError) {
+            console.error('Cleanup: failed to delete board', boardId, deleteBoardError);
+          }
+        } catch (cleanupError) {
+          console.error('Cleanup: unexpected error for board', boardId, cleanupError);
         }
-        if (activityIds.length > 0) {
-          await this.supabaseService.supabase.from('activities').delete().in('id', activityIds);
-        }
-        await this.supabaseService.supabase.from('tasks').delete().eq('board_id', boardId);
-        await this.supabaseService.supabase.from('boards').delete().eq('id', boardId);
       }
       this.toastRService.error(`Failed to create board from template: ${error?.message ?? String(error)}`);
       return false;
