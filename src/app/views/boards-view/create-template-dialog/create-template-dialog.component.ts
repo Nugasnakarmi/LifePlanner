@@ -8,14 +8,14 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { Actions, ofType } from '@ngrx/effects';
-import { debounceTime, firstValueFrom, map, race, timer } from 'rxjs';
+import { debounceTime, filter, firstValueFrom, map, race, timer } from 'rxjs';
 import {
   BoardTemplate,
   BoardTemplateList,
@@ -29,6 +29,11 @@ import * as boardTemplateActions from 'src/app/store/board-template/board-templa
 interface CreateTemplateCache {
   infoForm: { name: string; description: string };
   lists: Array<{ name: string; listType: IdeaType; position: number; tasks: BoardTemplateTask[] }>;
+}
+
+export interface TemplateDialogData {
+  /** When provided the dialog opens in edit mode pre-populated with this template. */
+  template?: BoardTemplate;
 }
 
 export interface ColumnType {
@@ -60,6 +65,16 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   private formCache = inject(DialogFormCacheService);
   private destroyRef = inject(DestroyRef);
   private actions$ = inject(Actions);
+  private dialogData: TemplateDialogData | null = inject(MAT_DIALOG_DATA, { optional: true });
+
+  /** True when the dialog was opened with an existing template to edit. */
+  get isEditMode(): boolean {
+    return !!this.dialogData?.template;
+  }
+
+  private get editTemplate(): BoardTemplate | undefined {
+    return this.dialogData?.template;
+  }
 
   saving = false;
   private submitting = false;
@@ -102,19 +117,28 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
       taskDescription: [''],
     });
 
-    const cached = this.formCache.load<CreateTemplateCache>(DIALOG_CACHE_KEYS.CREATE_TEMPLATE);
-    if (cached) {
-      this.infoForm.patchValue(cached.infoForm ?? {});
-      this.lists = (cached.lists ?? []).map((l) => ({ ...l, showAddTask: false }));
-    }
+    if (this.isEditMode && this.editTemplate) {
+      // Pre-populate form with the existing template data (no caching in edit mode)
+      this.infoForm.patchValue({
+        name: this.editTemplate.name,
+        description: this.editTemplate.description,
+      });
+      this.lists = (this.editTemplate.lists ?? []).map((l) => ({ ...l, showAddTask: false }));
+    } else {
+      const cached = this.formCache.load<CreateTemplateCache>(DIALOG_CACHE_KEYS.CREATE_TEMPLATE);
+      if (cached) {
+        this.infoForm.patchValue(cached.infoForm ?? {});
+        this.lists = (cached.lists ?? []).map((l) => ({ ...l, showAddTask: false }));
+      }
 
-    this.infoForm.valueChanges
-      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.persistCache());
+      this.infoForm.valueChanges
+        .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.persistCache());
+    }
   }
 
   ngOnDestroy(): void {
-    if (!this.submitting) {
+    if (!this.isEditMode && !this.submitting) {
       // Flush the latest state immediately so no trailing keystrokes are lost
       // (the debounced subscription may not have fired yet when the dialog closes)
       this.persistCache();
@@ -158,7 +182,7 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     this.addListForm.reset({ listType: IdeaType.goals });
     this.showAddListForm = false;
     this.expandedListIndex = this.lists.length - 1;
-    this.persistCache();
+    if (!this.isEditMode) this.persistCache();
   }
 
   cancelAddList(): void {
@@ -173,7 +197,7 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     } else if (this.expandedListIndex !== null && this.expandedListIndex > index) {
       this.expandedListIndex--;
     }
-    this.persistCache();
+    if (!this.isEditMode) this.persistCache();
   }
 
   toggleList(index: number): void {
@@ -209,12 +233,12 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     this.lists[listIndex].tasks.push(task);
     this.lists[listIndex].showAddTask = false;
     this.addTaskForm.reset();
-    this.persistCache();
+    if (!this.isEditMode) this.persistCache();
   }
 
   removeTask(listIndex: number, taskIndex: number): void {
     this.lists[listIndex].tasks.splice(taskIndex, 1);
-    this.persistCache();
+    if (!this.isEditMode) this.persistCache();
   }
 
   // ── Save ──────────────────────────────────────────────────────────────────
@@ -232,7 +256,8 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
     const v = this.infoForm.value;
     const template: BoardTemplate = {
-      id: '',
+      id: this.editTemplate?.id ?? '',
+      dbId: this.editTemplate?.dbId,
       name: v.name.trim(),
       description: v.description?.trim() ?? '',
       lists: this.lists.map((l, i) => ({
@@ -244,25 +269,44 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
       isBoardTemplate: true,
     };
 
-    this.boardTemplateService.saveTemplate(template);
+    let saved: boolean;
 
-    // Wait for the NgRx effect to complete (success or failure) rather than
-    // relying on a fixed-duration timeout that races with the API call.
-    // A fallback timer ensures the dialog is never permanently stuck if the
-    // Supabase request stalls.
-    const saved = await firstValueFrom(
-      race(
-        this.actions$.pipe(
-          ofType(boardTemplateActions.saveBoardTemplateSuccess),
-          map(() => true)
-        ),
-        this.actions$.pipe(
-          ofType(boardTemplateActions.saveBoardTemplateFailure),
-          map(() => false)
-        ),
-        timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(map(() => false))
-      )
-    );
+    if (this.isEditMode) {
+      this.boardTemplateService.editTemplate(template);
+
+      const editDbId = this.editTemplate!.dbId!;
+      saved = await firstValueFrom(
+        race(
+          this.actions$.pipe(
+            ofType(boardTemplateActions.editBoardTemplateSuccess),
+            filter((a) => a.template.dbId === editDbId),
+            map(() => true)
+          ),
+          this.actions$.pipe(
+            ofType(boardTemplateActions.editBoardTemplateFailure),
+            filter((a) => a.dbId === editDbId),
+            map(() => false)
+          ),
+          timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(map(() => false))
+        )
+      );
+    } else {
+      this.boardTemplateService.saveTemplate(template);
+
+      saved = await firstValueFrom(
+        race(
+          this.actions$.pipe(
+            ofType(boardTemplateActions.saveBoardTemplateSuccess),
+            map(() => true)
+          ),
+          this.actions$.pipe(
+            ofType(boardTemplateActions.saveBoardTemplateFailure),
+            map(() => false)
+          ),
+          timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(map(() => false))
+        )
+      );
+    }
 
     this.saving = false;
 

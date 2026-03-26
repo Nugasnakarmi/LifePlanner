@@ -21,7 +21,7 @@ import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
-import { CreateTemplateDialogComponent } from './create-template-dialog/create-template-dialog.component';
+import { CreateTemplateDialogComponent, TemplateDialogData } from './create-template-dialog/create-template-dialog.component';
 
 @Component({
   selector: 'app-boards-view',
@@ -140,6 +140,16 @@ export class BoardsViewComponent implements OnInit {
       if (saved) {
         this.boardTemplateService.loadTemplates();
       }
+    });
+  }
+
+  openEditTemplateDialog(template: BoardTemplate, event: Event): void {
+    event.stopPropagation();
+    const data: TemplateDialogData = { template };
+    this.dialog.open(CreateTemplateDialogComponent, {
+      panelClass: 'create-template-panel',
+      disableClose: false,
+      data,
     });
   }
 

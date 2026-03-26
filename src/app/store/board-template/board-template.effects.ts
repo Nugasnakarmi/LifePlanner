@@ -55,6 +55,22 @@ export class BoardTemplateEffects {
     )
   );
 
+  editBoardTemplate$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.editBoardTemplate),
+      mergeMap(({ template }) =>
+        this.api
+          .updateTemplate(template)
+          .then((updated) =>
+            updated
+              ? actions.editBoardTemplateSuccess({ template: updated })
+              : actions.editBoardTemplateFailure({ error: 'Update returned null', dbId: template.dbId! })
+          )
+          .catch((error) => actions.editBoardTemplateFailure({ error, dbId: template.dbId! }))
+      )
+    )
+  );
+
   clearTemplateDraft$ = createEffect(
     () =>
       this.actions$.pipe(

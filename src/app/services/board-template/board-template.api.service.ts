@@ -137,6 +137,50 @@ export class BoardTemplateApiService {
     }
   }
 
+  async updateTemplate(template: BoardTemplate): Promise<BoardTemplate | null> {
+    try {
+      const dbId = template.dbId;
+      if (!dbId) throw new Error('Template has no database ID');
+
+      // Use an atomic RPC function that updates the header, deletes existing
+      // lists (which cascades to tasks), and re-inserts everything in a single
+      // Postgres transaction — preventing partial-update data loss on failure.
+      const lists = template.lists.map((list, i) => ({
+        name: list.name,
+        listType: list.listType,
+        position: i,
+        tasks: list.tasks.map((t, j) => ({
+          name: t.name,
+          description: t.description ?? '',
+          position: j,
+        })),
+      }));
+
+      const { error } = await this.supabaseService.supabase.rpc(
+        'update_board_template',
+        {
+          p_template_id: dbId,
+          p_name: template.name,
+          p_description: template.description,
+          p_lists: lists,
+        }
+      );
+
+      if (error) throw error;
+
+      this.toastr.success(`Template "${template.name}" updated`);
+      return {
+        ...template,
+        id: `board-${dbId}`,
+        dbId,
+        isBoardTemplate: true,
+      };
+    } catch (error: any) {
+      this.toastr.error(`Failed to update template: ${error?.message ?? error}`);
+      return null;
+    }
+  }
+
   async deleteTemplate(dbId: number): Promise<boolean> {
     try {
       const { error } = await this.supabaseService.supabase

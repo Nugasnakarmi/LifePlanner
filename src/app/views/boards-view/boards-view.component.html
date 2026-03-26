@@ -56,6 +56,9 @@
                 </div>
                 <div class="template-card-header-right">
                   <span class="template-list-count">{{ template.lists.length }} list{{ template.lists.length !== 1 ? 's' : '' }}</span>
+                  <button mat-icon-button class="template-edit-btn" (click)="openEditTemplateDialog(template, $event)" [attr.aria-label]="'Edit template ' + template.name" matTooltip="Edit template">
+                    <mat-icon>edit</mat-icon>
+                  </button>
                   <button mat-icon-button class="template-delete-btn" (click)="deleteBoardTemplate(template, $event)" [attr.aria-label]="'Delete template ' + template.name" matTooltip="Delete template">
                     <mat-icon>delete_outline</mat-icon>
                   </button>

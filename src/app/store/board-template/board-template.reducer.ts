@@ -39,5 +39,17 @@ export const boardTemplateReducer = createReducer(
   on(actions.deleteBoardTemplateSuccess, (state, { dbId }) => ({
     ...state,
     templates: state.templates.filter((t) => t.dbId !== dbId),
+  })),
+
+  on(actions.editBoardTemplate, (state) => ({ ...state, saving: true, error: null })),
+  on(actions.editBoardTemplateSuccess, (state, { template }) => ({
+    ...state,
+    saving: false,
+    templates: state.templates.map((t) => (t.dbId === template.dbId ? template : t)),
+  })),
+  on(actions.editBoardTemplateFailure, (state, { error }) => ({
+    ...state,
+    saving: false,
+    error,
   }))
 );

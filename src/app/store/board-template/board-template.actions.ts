@@ -42,3 +42,18 @@ export const deleteBoardTemplateFailure = createAction(
   '[Board Templates] Delete Failure',
   props<{ error: any }>()
 );
+
+export const editBoardTemplate = createAction(
+  '[Board Templates] Edit',
+  props<{ template: BoardTemplate }>()
+);
+
+export const editBoardTemplateSuccess = createAction(
+  '[Board Templates] Edit Success',
+  props<{ template: BoardTemplate }>()
+);
+
+export const editBoardTemplateFailure = createAction(
+  '[Board Templates] Edit Failure',
+  props<{ error: any; dbId: number }>()
+);
