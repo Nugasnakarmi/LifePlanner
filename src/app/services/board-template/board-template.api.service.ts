@@ -137,6 +137,68 @@ export class BoardTemplateApiService {
     }
   }
 
+  async updateTemplate(template: BoardTemplate): Promise<BoardTemplate | null> {
+    try {
+      const dbId = template.dbId;
+      if (!dbId) throw new Error('Template has no database ID');
+
+      const { error: tplErr } = await this.supabaseService.supabase
+        .from('board_templates')
+        .update({ name: template.name, description: template.description })
+        .eq('id', dbId);
+
+      if (tplErr) throw tplErr;
+
+      // Delete existing lists (cascades to tasks via FK)
+      const { error: delErr } = await this.supabaseService.supabase
+        .from('board_template_lists')
+        .delete()
+        .eq('template_id', dbId);
+
+      if (delErr) throw delErr;
+
+      // Re-insert lists and tasks
+      for (const [listIndex, list] of template.lists.entries()) {
+        const { data: listRow, error: listErr } = await this.supabaseService.supabase
+          .from('board_template_lists')
+          .insert({
+            template_id: dbId,
+            name: list.name,
+            list_type: list.listType,
+            position: listIndex,
+          })
+          .select('id')
+          .single();
+
+        if (listErr) throw listErr;
+
+        const listId = (listRow as any).id as number;
+
+        if (list.tasks.length > 0) {
+          const taskRows = list.tasks.map((t, i) => ({
+            template_id: dbId,
+            template_list_id: listId,
+            name: t.name,
+            description: t.description,
+            position: i,
+          }));
+
+          const { error: tasksErr } = await this.supabaseService.supabase
+            .from('board_template_tasks')
+            .insert(taskRows);
+
+          if (tasksErr) throw tasksErr;
+        }
+      }
+
+      this.toastr.success(`Template "${template.name}" updated`);
+      return { ...template, isBoardTemplate: true, isSystem: false };
+    } catch (error: any) {
+      this.toastr.error(`Failed to update template: ${error?.message ?? error}`);
+      return null;
+    }
+  }
+
   async deleteTemplate(dbId: number): Promise<boolean> {
     try {
       const { error } = await this.supabaseService.supabase

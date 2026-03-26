@@ -28,4 +28,8 @@ export class BoardTemplateService {
   deleteTemplate(dbId: number): void {
     this.store.dispatch(actions.deleteBoardTemplate({ dbId }));
   }
+
+  editTemplate(template: BoardTemplate): void {
+    this.store.dispatch(actions.editBoardTemplate({ template }));
+  }
 }
