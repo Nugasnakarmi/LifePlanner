@@ -149,7 +149,10 @@ export class BoardTemplateApiService {
 
       if (tplErr) throw tplErr;
 
-      // Delete existing lists (cascades to tasks via FK)
+      // Delete existing lists (cascades to tasks via FK). We use a
+      // delete-and-recreate strategy to keep the update logic simple: the
+      // full set of lists/tasks from the dialog is authoritative and is
+      // written back in one pass rather than diffing individual records.
       const { error: delErr } = await this.supabaseService.supabase
         .from('board_template_lists')
         .delete()
