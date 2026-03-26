@@ -64,9 +64,9 @@ export class BoardTemplateEffects {
           .then((updated) =>
             updated
               ? actions.editBoardTemplateSuccess({ template: updated })
-              : actions.editBoardTemplateFailure({ error: 'Update returned null' })
+              : actions.editBoardTemplateFailure({ error: 'Update returned null', dbId: template.dbId! })
           )
-          .catch((error) => actions.editBoardTemplateFailure({ error }))
+          .catch((error) => actions.editBoardTemplateFailure({ error, dbId: template.dbId! }))
       )
     )
   );

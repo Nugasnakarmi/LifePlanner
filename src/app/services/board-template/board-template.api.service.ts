@@ -142,60 +142,39 @@ export class BoardTemplateApiService {
       const dbId = template.dbId;
       if (!dbId) throw new Error('Template has no database ID');
 
-      const { error: tplErr } = await this.supabaseService.supabase
-        .from('board_templates')
-        .update({ name: template.name, description: template.description })
-        .eq('id', dbId);
+      // Use an atomic RPC function that updates the header, deletes existing
+      // lists (which cascades to tasks), and re-inserts everything in a single
+      // Postgres transaction — preventing partial-update data loss on failure.
+      const lists = template.lists.map((list, i) => ({
+        name: list.name,
+        listType: list.listType,
+        position: i,
+        tasks: list.tasks.map((t, j) => ({
+          name: t.name,
+          description: t.description ?? '',
+          position: j,
+        })),
+      }));
 
-      if (tplErr) throw tplErr;
-
-      // Delete existing lists (cascades to tasks via FK). We use a
-      // delete-and-recreate strategy to keep the update logic simple: the
-      // full set of lists/tasks from the dialog is authoritative and is
-      // written back in one pass rather than diffing individual records.
-      const { error: delErr } = await this.supabaseService.supabase
-        .from('board_template_lists')
-        .delete()
-        .eq('template_id', dbId);
-
-      if (delErr) throw delErr;
-
-      // Re-insert lists and tasks
-      for (const [listIndex, list] of template.lists.entries()) {
-        const { data: listRow, error: listErr } = await this.supabaseService.supabase
-          .from('board_template_lists')
-          .insert({
-            template_id: dbId,
-            name: list.name,
-            list_type: list.listType,
-            position: listIndex,
-          })
-          .select('id')
-          .single();
-
-        if (listErr) throw listErr;
-
-        const listId = (listRow as any).id as number;
-
-        if (list.tasks.length > 0) {
-          const taskRows = list.tasks.map((t, i) => ({
-            template_id: dbId,
-            template_list_id: listId,
-            name: t.name,
-            description: t.description,
-            position: i,
-          }));
-
-          const { error: tasksErr } = await this.supabaseService.supabase
-            .from('board_template_tasks')
-            .insert(taskRows);
-
-          if (tasksErr) throw tasksErr;
+      const { error } = await this.supabaseService.supabase.rpc(
+        'update_board_template',
+        {
+          p_template_id: dbId,
+          p_name: template.name,
+          p_description: template.description,
+          p_lists: lists,
         }
-      }
+      );
+
+      if (error) throw error;
 
       this.toastr.success(`Template "${template.name}" updated`);
-      return { ...template, isBoardTemplate: true, isSystem: false };
+      return {
+        ...template,
+        id: `board-${dbId}`,
+        dbId,
+        isBoardTemplate: true,
+      };
     } catch (error: any) {
       this.toastr.error(`Failed to update template: ${error?.message ?? error}`);
       return null;

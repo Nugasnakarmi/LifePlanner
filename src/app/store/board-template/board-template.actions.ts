@@ -55,5 +55,5 @@ export const editBoardTemplateSuccess = createAction(
 
 export const editBoardTemplateFailure = createAction(
   '[Board Templates] Edit Failure',
-  props<{ error: any }>()
+  props<{ error: any; dbId: number }>()
 );

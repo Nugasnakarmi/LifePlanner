@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { Actions, ofType } from '@ngrx/effects';
-import { debounceTime, firstValueFrom, map, race, timer } from 'rxjs';
+import { debounceTime, filter, firstValueFrom, map, race, timer } from 'rxjs';
 import {
   BoardTemplate,
   BoardTemplateList,
@@ -274,14 +274,17 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     if (this.isEditMode) {
       this.boardTemplateService.editTemplate(template);
 
+      const editDbId = this.editTemplate!.dbId!;
       saved = await firstValueFrom(
         race(
           this.actions$.pipe(
             ofType(boardTemplateActions.editBoardTemplateSuccess),
+            filter((a) => a.template.dbId === editDbId),
             map(() => true)
           ),
           this.actions$.pipe(
             ofType(boardTemplateActions.editBoardTemplateFailure),
+            filter((a) => a.dbId === editDbId),
             map(() => false)
           ),
           timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(map(() => false))
