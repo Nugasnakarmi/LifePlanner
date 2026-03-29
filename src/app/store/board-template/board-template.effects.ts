@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { mergeMap, tap } from 'rxjs';
+import { catchError, from, map, mergeMap, of, tap } from 'rxjs';
 import { BoardTemplateApiService } from 'src/app/services/board-template/board-template.api.service';
+import { ToastrService } from 'ngx-toastr';
 import * as actions from './board-template.actions';
 import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 
@@ -10,15 +11,19 @@ export class BoardTemplateEffects {
   private actions$ = inject(Actions);
   private api = inject(BoardTemplateApiService);
   private formCache = inject(DialogFormCacheService);
+  private toastr = inject(ToastrService);
 
   loadBoardTemplates$ = createEffect(() =>
     this.actions$.pipe(
       ofType(actions.loadBoardTemplates),
       mergeMap(() =>
-        this.api
-          .getBoardTemplates()
-          .then((templates) => actions.loadBoardTemplatesSuccess({ templates }))
-          .catch((error) => actions.loadBoardTemplatesFailure({ error }))
+        from(this.api.getBoardTemplates()).pipe(
+          map((templates) => actions.loadBoardTemplatesSuccess({ templates })),
+          catchError((error) => {
+            this.toastr.error('Failed to load templates');
+            return of(actions.loadBoardTemplatesFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -27,14 +32,19 @@ export class BoardTemplateEffects {
     this.actions$.pipe(
       ofType(actions.saveBoardTemplate),
       mergeMap(({ template }) =>
-        this.api
-          .saveTemplate(template)
-          .then((saved) =>
-            saved
-              ? actions.saveBoardTemplateSuccess({ template: saved })
-              : actions.saveBoardTemplateFailure({ error: 'Save returned null' })
-          )
-          .catch((error) => actions.saveBoardTemplateFailure({ error }))
+        from(this.api.saveTemplate(template)).pipe(
+          map((saved) => {
+            if (!saved) {
+              this.toastr.error('Failed to save template');
+              return actions.saveBoardTemplateFailure({ error: 'Save returned null' });
+            }
+            return actions.saveBoardTemplateSuccess({ template: saved });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to save template');
+            return of(actions.saveBoardTemplateFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -43,14 +53,19 @@ export class BoardTemplateEffects {
     this.actions$.pipe(
       ofType(actions.deleteBoardTemplate),
       mergeMap(({ dbId }) =>
-        this.api
-          .deleteTemplate(dbId)
-          .then((ok) =>
-            ok
-              ? actions.deleteBoardTemplateSuccess({ dbId })
-              : actions.deleteBoardTemplateFailure({ error: 'Delete failed' })
-          )
-          .catch((error) => actions.deleteBoardTemplateFailure({ error }))
+        from(this.api.deleteTemplate(dbId)).pipe(
+          map((ok) => {
+            if (!ok) {
+              this.toastr.error('Failed to delete template');
+              return actions.deleteBoardTemplateFailure({ error: 'Delete failed' });
+            }
+            return actions.deleteBoardTemplateSuccess({ dbId });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to delete template');
+            return of(actions.deleteBoardTemplateFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -59,14 +74,19 @@ export class BoardTemplateEffects {
     this.actions$.pipe(
       ofType(actions.editBoardTemplate),
       mergeMap(({ template }) =>
-        this.api
-          .updateTemplate(template)
-          .then((updated) =>
-            updated
-              ? actions.editBoardTemplateSuccess({ template: updated })
-              : actions.editBoardTemplateFailure({ error: 'Update returned null', dbId: template.dbId! })
-          )
-          .catch((error) => actions.editBoardTemplateFailure({ error, dbId: template.dbId! }))
+        from(this.api.updateTemplate(template)).pipe(
+          map((updated) => {
+            if (!updated) {
+              this.toastr.error('Failed to update template');
+              return actions.editBoardTemplateFailure({ error: 'Update returned null', dbId: template.dbId! });
+            }
+            return actions.editBoardTemplateSuccess({ template: updated });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to update template');
+            return of(actions.editBoardTemplateFailure({ error, dbId: template.dbId! }));
+          })
+        )
       )
     )
   );

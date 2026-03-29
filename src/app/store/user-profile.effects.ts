@@ -1,26 +1,31 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { mergeMap } from 'rxjs';
+import { catchError, from, map, mergeMap, of } from 'rxjs';
 import { UserProfileApiService } from 'src/app/services/user-profile.api.service';
+import { ToastrService } from 'ngx-toastr';
 import * as actions from './user-profile.actions';
 
 @Injectable()
 export class UserProfileEffects {
   private actions$ = inject(Actions);
   private api = inject(UserProfileApiService);
+  private toastr = inject(ToastrService);
 
   loadProfile$ = createEffect(() =>
     this.actions$.pipe(
       ofType(actions.loadUserProfile),
       mergeMap(() =>
-        this.api
-          .loadProfile()
-          .then((profile) =>
+        from(this.api.loadProfile()).pipe(
+          map((profile) =>
             profile
               ? actions.loadUserProfileSuccess({ profile })
               : actions.loadUserProfileNotFound()
-          )
-          .catch((error) => actions.loadUserProfileFailure({ error }))
+          ),
+          catchError((error) => {
+            this.toastr.error('Failed to load profile');
+            return of(actions.loadUserProfileFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -29,14 +34,19 @@ export class UserProfileEffects {
     this.actions$.pipe(
       ofType(actions.saveUserProfile),
       mergeMap(({ updates }) =>
-        this.api
-          .saveProfile(updates)
-          .then((profile) =>
-            profile
-              ? actions.saveUserProfileSuccess({ profile })
-              : actions.saveUserProfileFailure({ error: 'Save returned null' })
-          )
-          .catch((error) => actions.saveUserProfileFailure({ error }))
+        from(this.api.saveProfile(updates)).pipe(
+          map((profile) => {
+            if (!profile) {
+              this.toastr.error('Failed to save profile');
+              return actions.saveUserProfileFailure({ error: 'Save returned null' });
+            }
+            return actions.saveUserProfileSuccess({ profile });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to save profile');
+            return of(actions.saveUserProfileFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -45,14 +55,19 @@ export class UserProfileEffects {
     this.actions$.pipe(
       ofType(actions.uploadAvatar),
       mergeMap(({ file }) =>
-        this.api
-          .uploadAvatar(file)
-          .then((avatar_url) =>
-            avatar_url
-              ? actions.uploadAvatarSuccess({ avatar_url })
-              : actions.uploadAvatarFailure({ error: 'Upload returned null' })
-          )
-          .catch((error) => actions.uploadAvatarFailure({ error }))
+        from(this.api.uploadAvatar(file)).pipe(
+          map((avatar_url) => {
+            if (!avatar_url) {
+              this.toastr.error('Failed to upload avatar');
+              return actions.uploadAvatarFailure({ error: 'Upload returned null' });
+            }
+            return actions.uploadAvatarSuccess({ avatar_url });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to upload avatar');
+            return of(actions.uploadAvatarFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -61,14 +76,19 @@ export class UserProfileEffects {
     this.actions$.pipe(
       ofType(actions.removeAvatar),
       mergeMap(() =>
-        this.api
-          .removeAvatar()
-          .then((ok) =>
-            ok
-              ? actions.removeAvatarSuccess()
-              : actions.removeAvatarFailure({ error: 'Remove failed' })
-          )
-          .catch((error) => actions.removeAvatarFailure({ error }))
+        from(this.api.removeAvatar()).pipe(
+          map((ok) => {
+            if (!ok) {
+              this.toastr.error('Failed to remove avatar');
+              return actions.removeAvatarFailure({ error: 'Remove failed' });
+            }
+            return actions.removeAvatarSuccess();
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to remove avatar');
+            return of(actions.removeAvatarFailure({ error }));
+          })
+        )
       )
     )
   );
