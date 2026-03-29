@@ -39,11 +39,13 @@ export class TaskEffects {
       ofType(taskActions.taskWasAdded),
       mergeMap(({ task }) =>
         from(this.taskAPIService.addTask(task)).pipe(
-          map((addedTask: IdeaTask | null) =>
-            addedTask
-              ? taskActions.taskWasAddedSuccessfully({ task: addedTask })
-              : taskActions.taskAddFailed({ error: 'Failed to add task' })
-          ),
+          map((addedTask: IdeaTask | null) => {
+            if (!addedTask) {
+              this.toastr.error('Failed to add task');
+              return taskActions.taskAddFailed({ error: 'Failed to add task' });
+            }
+            return taskActions.taskWasAddedSuccessfully({ task: addedTask });
+          }),
           catchError(() => {
             this.toastr.error('Failed to add task');
             return of(taskActions.taskAddFailed({ error: 'Failed to add task' }));
@@ -59,13 +61,13 @@ export class TaskEffects {
         ofType(taskActions.taskWasUpdated),
         mergeMap(({ task }) =>
           from(this.taskAPIService.editTask(task)).pipe(
-            map((res: boolean) =>
-              res
-                ? taskActions.taskWasUpdatedSuccessfully({ task })
-                : taskActions.taskUpdateFailed({
-                    error: 'Failed to update task',
-                  })
-            ),
+            map((res: boolean) => {
+              if (!res) {
+                this.toastr.error('Failed to update task');
+                return taskActions.taskUpdateFailed({ error: 'Failed to update task' });
+              }
+              return taskActions.taskWasUpdatedSuccessfully({ task });
+            }),
             catchError(() => {
               this.toastr.error('Failed to update task');
               return of(
@@ -85,13 +87,13 @@ export class TaskEffects {
       ofType(taskActions.taskWasDeleted),
       mergeMap(({ taskId }) =>
         from(this.taskAPIService.deleteTask(taskId)).pipe(
-          map((res: boolean) =>
-            res
-              ? taskActions.taskWasDeletedSuccessfully({ taskId })
-              : taskActions.taskDeletionFailed({
-                  error: 'Failed to delete task',
-                })
-          ),
+          map((res: boolean) => {
+            if (!res) {
+              this.toastr.error('Failed to delete task');
+              return taskActions.taskDeletionFailed({ error: 'Failed to delete task' });
+            }
+            return taskActions.taskWasDeletedSuccessfully({ taskId });
+          }),
           catchError(() => {
             this.toastr.error('Failed to delete task');
             return of(

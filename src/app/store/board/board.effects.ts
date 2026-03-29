@@ -10,7 +10,7 @@ import { Board } from 'src/app/interfaces/board.interface';
 @Injectable()
 export class BoardEffects {
   boardAPIService = inject(BoardAPIService);
-  toastRService = inject(ToastrService);
+  toastr = inject(ToastrService);
 
   addBoard$ = createEffect(() =>
     this.actions$.pipe(
@@ -22,7 +22,7 @@ export class BoardEffects {
             boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] })
           ),
           catchError((error) => {
-            this.toastRService.error('Failed to add board');
+            this.toastr.error('Failed to add board');
             return of(boardActions.loadBoardsFailure({ error }));
           })
         )
@@ -39,7 +39,7 @@ export class BoardEffects {
             boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] })
           ),
           catchError((error) => {
-            this.toastRService.error('Failed to load boards');
+            this.toastr.error('Failed to load boards');
             return of(boardActions.loadBoardsFailure({ error }));
           })
         )
@@ -54,13 +54,13 @@ export class BoardEffects {
         from(this.boardAPIService.editBoard(board)).pipe(
           map((updatedBoard: Board | null) => {
             if (!updatedBoard) {
-              this.toastRService.error('Failed to update board');
+              this.toastr.error('Failed to update board');
               return boardActions.boardEditFailed({ error: 'Failed to update board' });
             }
             return boardActions.boardEditedSuccessfully({ board: updatedBoard });
           }),
           catchError((error) => {
-            this.toastRService.error('Failed to update board');
+            this.toastr.error('Failed to update board');
             return of(boardActions.boardEditFailed({ error }));
           })
         )
@@ -75,13 +75,13 @@ export class BoardEffects {
         from(this.boardAPIService.deleteBoard(boardId)).pipe(
           map((success) => {
             if (!success) {
-              this.toastRService.error('Failed to delete board');
+              this.toastr.error('Failed to delete board');
               return boardActions.deleteBoardFailure({ error: 'Failed to delete board' });
             }
             return boardActions.deleteBoardSuccess({ boardId });
           }),
           catchError((error) => {
-            this.toastRService.error('Failed to delete board');
+            this.toastr.error('Failed to delete board');
             return of(boardActions.deleteBoardFailure({ error }));
           })
         )
@@ -99,7 +99,7 @@ export class BoardEffects {
             boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] })
           ),
           catchError((error) => {
-            this.toastRService.error('Failed to create board from template');
+            this.toastr.error('Failed to create board from template');
             return of(boardActions.loadBoardsFailure({ error }));
           })
         )
