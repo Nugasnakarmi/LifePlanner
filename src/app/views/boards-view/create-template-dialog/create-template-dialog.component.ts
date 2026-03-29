@@ -155,7 +155,19 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
         name: this.editTemplate.name,
         description: this.editTemplate.description,
       });
-      this.lists = (this.editTemplate.lists ?? []).map((l) => ({ ...l, showAddTask: false }));
+      // Deep-copy lists so that tasks and activities are mutable local objects.
+      // NgRx deeply freezes all state in development mode, so a shallow spread of
+      // the template's lists would leave `tasks` and their `activities` as frozen
+      // store references — causing TypeError when submitActivity / removeActivity /
+      // submitTask / removeTask try to mutate them.
+      this.lists = (this.editTemplate.lists ?? []).map((l) => ({
+        ...l,
+        showAddTask: false,
+        tasks: (l.tasks ?? []).map((t) => ({
+          ...t,
+          activities: (t.activities ?? []).map((a) => ({ ...a })),
+        })),
+      }));
     } else {
       const cached = this.formCache.load<CreateTemplateCache>(DIALOG_CACHE_KEYS.CREATE_TEMPLATE);
       if (cached) {
