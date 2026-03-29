@@ -5,6 +5,7 @@ import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { TaskStatus } from 'src/app/enums/task-status.enum';
 import { ToastrService } from 'ngx-toastr';
 import { StorageService } from '../storage/storage.service';
+import { InputSanitizerService } from '../sanitizer/input-sanitizer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class TaskAPIService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
   private storageService = inject(StorageService);
+  private sanitizer = inject(InputSanitizerService);
 
   async addTask(taskData: IdeaTask): Promise<IdeaTask | null> {
     try {
@@ -20,8 +22,8 @@ export class TaskAPIService {
       let { data, error } = await this.supabaseService.supabase
         .from('tasks')
         .insert({
-          name: taskData.name,
-          description: taskData.description,
+          name: this.sanitizer.sanitize(taskData.name),
+          description: this.sanitizer.sanitize(taskData.description),
           type: taskData.type,
           completion_status: taskData.completion_status,
           status: taskData.status ?? TaskStatus.Initiated,
@@ -164,8 +166,8 @@ export class TaskAPIService {
       let { data, error } = await this.supabaseService.supabase
         .from('tasks')
         .update({
-          name: taskData.name,
-          description: taskData.description,
+          name: this.sanitizer.sanitize(taskData.name),
+          description: this.sanitizer.sanitize(taskData.description),
           type: taskData.type,
         })
         .eq('id', taskData.id);

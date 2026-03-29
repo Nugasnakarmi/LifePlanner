@@ -4,6 +4,7 @@ import { StorageService } from './storage/storage.service';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
 import { UserPreferences } from '../interfaces/user-preferences.interface';
+import { InputSanitizerService } from './sanitizer/input-sanitizer.service';
 
 const AVATAR_BUCKET = 'avatars';
 
@@ -23,6 +24,7 @@ export class UserProfileApiService {
   private supabaseService = inject(SupabaseService);
   private storageService = inject(StorageService);
   private toastr = inject(ToastrService);
+  private sanitizer = inject(InputSanitizerService);
 
   async loadProfile(): Promise<UserPreferences | null> {
     try {
@@ -49,10 +51,21 @@ export class UserProfileApiService {
       const user = await this.supabaseService.getUser();
       if (!user) return null;
 
+      const sanitizedUpdates: typeof updates = {};
+      if (updates.display_name !== undefined) {
+        sanitizedUpdates.display_name = this.sanitizer.sanitize(updates.display_name);
+      }
+      if (updates.address !== undefined) {
+        sanitizedUpdates.address = this.sanitizer.sanitize(updates.address);
+      }
+      if (updates.avatar_url !== undefined) {
+        sanitizedUpdates.avatar_url = updates.avatar_url;
+      }
+
       const { error } = await this.supabaseService.supabase
         .from('user_preferences')
         .upsert(
-          { user_id: user.id, ...updates },
+          { user_id: user.id, ...sanitizedUpdates },
           { onConflict: 'user_id' }
         );
 
