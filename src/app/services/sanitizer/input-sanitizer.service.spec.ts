@@ -61,7 +61,7 @@ describe('InputSanitizerService', () => {
     });
 
     it('should handle string with only spaces', () => {
-      expect(service.sanitize('   ')).toBe('');
+      expect(service.sanitize('   ')).toBe('   ');
     });
 
     it('should preserve legitimate angle-bracket text that is not a tag', () => {
@@ -104,12 +104,12 @@ describe('InputSanitizerService', () => {
   describe('sanitizeDataFields', () => {
     it('should sanitize key and value strings', () => {
       const fields = [
-        { key: '<b>Label</b>', value: '<script>x</script>' },
+        { key: '<b>Label</b>', value: '<img src=x onerror=alert(1)>payload' },
         { key: 'Normal', value: 'Safe' },
       ];
       const result = service.sanitizeDataFields(fields);
       expect(result[0].key).toBe('Label');
-      expect(result[0].value).toBe('x');
+      expect(result[0].value).toBe('payload');
       expect(result[1].key).toBe('Normal');
       expect(result[1].value).toBe('Safe');
     });

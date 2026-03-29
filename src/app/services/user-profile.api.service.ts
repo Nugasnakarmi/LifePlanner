@@ -51,13 +51,8 @@ export class UserProfileApiService {
       const user = await this.supabaseService.getUser();
       if (!user) return null;
 
-      const sanitizedUpdates: typeof updates = {};
-      if (updates.display_name !== undefined) {
-        sanitizedUpdates.display_name = this.sanitizer.sanitize(updates.display_name);
-      }
-      if (updates.address !== undefined) {
-        sanitizedUpdates.address = this.sanitizer.sanitize(updates.address);
-      }
+      // Sanitize text fields; preserve avatar_url as-is (system-generated URL).
+      const sanitizedUpdates = this.sanitizer.sanitizeObject(updates);
       if (updates.avatar_url !== undefined) {
         sanitizedUpdates.avatar_url = updates.avatar_url;
       }

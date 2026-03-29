@@ -36,8 +36,11 @@ export class InputSanitizerService {
 
   /**
    * Sanitizes every string-valued property of a shallow object.
-   * Non-string values (numbers, booleans, arrays, etc.) are passed through
-   * unchanged.
+   * Non-string values (numbers, booleans, arrays, nested objects) are passed
+   * through unchanged.  Deep/recursive sanitization is intentionally avoided
+   * to prevent unintended data corruption in complex structures (e.g. media
+   * arrays, JSONB payloads); callers should use {@link sanitizeDataFields}
+   * for known nested structures.
    */
   sanitizeObject<T extends Record<string, any>>(obj: T): T {
     if (!obj || typeof obj !== 'object') {
