@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { concatMap, mergeMap, switchMap, withLatestFrom } from 'rxjs';
+import { catchError, concatMap, from, map, mergeMap, of, switchMap, withLatestFrom } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { BoardListApiService } from 'src/app/services/board-list/board-list.api.service';
+import { ToastrService } from 'ngx-toastr';
 import * as boardListActions from './board-list.actions';
 import { selectBoardLists } from './board-list.selector';
 
@@ -10,15 +11,19 @@ import { selectBoardLists } from './board-list.selector';
 export class BoardListEffects {
   boardListApiService = inject(BoardListApiService);
   store = inject(Store);
+  toastr = inject(ToastrService);
 
   loadBoardLists$ = createEffect(() =>
     this.actions$.pipe(
       ofType(boardListActions.loadBoardLists),
       switchMap(({ boardId }) =>
-        this.boardListApiService
-          .getListsByBoardId(boardId)
-          .then((lists) => boardListActions.loadBoardListsSuccess({ lists }))
-          .catch((error) => boardListActions.loadBoardListsFailure({ error }))
+        from(this.boardListApiService.getListsByBoardId(boardId)).pipe(
+          map((lists) => boardListActions.loadBoardListsSuccess({ lists })),
+          catchError((error) => {
+            this.toastr.error('Failed to load lists');
+            return of(boardListActions.loadBoardListsFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -27,10 +32,13 @@ export class BoardListEffects {
     this.actions$.pipe(
       ofType(boardListActions.loadAllBoardListsForUser),
       switchMap(() =>
-        this.boardListApiService
-          .getAllListsForUser()
-          .then((lists) => boardListActions.loadAllBoardListsForUserSuccess({ lists }))
-          .catch((error) => boardListActions.loadAllBoardListsForUserFailure({ error }))
+        from(this.boardListApiService.getAllListsForUser()).pipe(
+          map((lists) => boardListActions.loadAllBoardListsForUserSuccess({ lists })),
+          catchError((error) => {
+            this.toastr.error('Failed to load lists');
+            return of(boardListActions.loadAllBoardListsForUserFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -44,14 +52,19 @@ export class BoardListEffects {
           currentLists.length > 0
             ? Math.max(...currentLists.map((l) => l.position)) + 1
             : 0;
-        return this.boardListApiService
-          .addList(boardId, name, nextPosition)
-          .then((list) =>
-            list
-              ? boardListActions.addBoardListSuccess({ list })
-              : boardListActions.addBoardListFailure({ error: 'Failed to add list' })
-          )
-          .catch((error) => boardListActions.addBoardListFailure({ error }));
+        return from(this.boardListApiService.addList(boardId, name, nextPosition)).pipe(
+          map((list) => {
+            if (!list) {
+              this.toastr.error('Failed to add list');
+              return boardListActions.addBoardListFailure({ error: 'Failed to add list' });
+            }
+            return boardListActions.addBoardListSuccess({ list });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to add list');
+            return of(boardListActions.addBoardListFailure({ error }));
+          })
+        );
       })
     )
   );
@@ -60,14 +73,19 @@ export class BoardListEffects {
     this.actions$.pipe(
       ofType(boardListActions.renameBoardList),
       mergeMap(({ listId, name }) =>
-        this.boardListApiService
-          .updateListName(listId, name)
-          .then((list) =>
-            list
-              ? boardListActions.renameBoardListSuccess({ list })
-              : boardListActions.renameBoardListFailure({ error: 'Failed to rename list' })
-          )
-          .catch((error) => boardListActions.renameBoardListFailure({ error }))
+        from(this.boardListApiService.updateListName(listId, name)).pipe(
+          map((list) => {
+            if (!list) {
+              this.toastr.error('Failed to rename list');
+              return boardListActions.renameBoardListFailure({ error: 'Failed to rename list' });
+            }
+            return boardListActions.renameBoardListSuccess({ list });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to rename list');
+            return of(boardListActions.renameBoardListFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -76,14 +94,19 @@ export class BoardListEffects {
     this.actions$.pipe(
       ofType(boardListActions.deleteBoardList),
       mergeMap(({ listId }) =>
-        this.boardListApiService
-          .deleteList(listId)
-          .then((success) =>
-            success
-              ? boardListActions.deleteBoardListSuccess({ listId })
-              : boardListActions.deleteBoardListFailure({ error: 'Failed to delete list' })
-          )
-          .catch((error) => boardListActions.deleteBoardListFailure({ error }))
+        from(this.boardListApiService.deleteList(listId)).pipe(
+          map((success) => {
+            if (!success) {
+              this.toastr.error('Failed to delete list');
+              return boardListActions.deleteBoardListFailure({ error: 'Failed to delete list' });
+            }
+            return boardListActions.deleteBoardListSuccess({ listId });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to delete list');
+            return of(boardListActions.deleteBoardListFailure({ error }));
+          })
+        )
       )
     )
   );

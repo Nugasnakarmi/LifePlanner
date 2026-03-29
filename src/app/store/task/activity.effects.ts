@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { mergeMap, switchMap, tap } from 'rxjs';
+import { catchError, from, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import { ActivityApiService } from 'src/app/services/task/activity.api.service';
+import { ToastrService } from 'ngx-toastr';
 import * as activityActions from './activity.actions';
 import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
 
@@ -9,19 +10,19 @@ import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dial
 export class ActivityEffects {
   activityApiService = inject(ActivityApiService);
   private formCache = inject(DialogFormCacheService);
+  private toastr = inject(ToastrService);
 
   loadActivities$ = createEffect(() =>
     this.actions$.pipe(
       ofType(activityActions.loadActivities),
       switchMap(({ taskId }) =>
-        this.activityApiService
-          .getActivitiesByTaskId(taskId)
-          .then((activities) =>
-            activityActions.loadActivitiesSuccess({ activities })
-          )
-          .catch((error) =>
-            activityActions.loadActivitiesFailure({ error })
-          )
+        from(this.activityApiService.getActivitiesByTaskId(taskId)).pipe(
+          map((activities) => activityActions.loadActivitiesSuccess({ activities })),
+          catchError((error) => {
+            this.toastr.error('Failed to load activities');
+            return of(activityActions.loadActivitiesFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -30,21 +31,22 @@ export class ActivityEffects {
     this.actions$.pipe(
       ofType(activityActions.addActivityToTask),
       mergeMap(({ taskId, activity, position }) =>
-        this.activityApiService
-          .addActivityToTask(taskId, activity, position)
-          .then((result) =>
-            result
-              ? activityActions.addActivityToTaskSuccess({
-                  activity: result.activity,
-                  taskActivity: result.taskActivity,
-                })
-              : activityActions.addActivityToTaskFailure({
-                  error: 'Failed to add activity to task',
-                })
-          )
-          .catch((error) =>
-            activityActions.addActivityToTaskFailure({ error })
-          )
+        from(this.activityApiService.addActivityToTask(taskId, activity, position)).pipe(
+          map((result) => {
+            if (!result) {
+              this.toastr.error('Failed to add activity');
+              return activityActions.addActivityToTaskFailure({ error: 'Failed to add activity to task' });
+            }
+            return activityActions.addActivityToTaskSuccess({
+              activity: result.activity,
+              taskActivity: result.taskActivity,
+            });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to add activity');
+            return of(activityActions.addActivityToTaskFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -53,18 +55,19 @@ export class ActivityEffects {
     this.actions$.pipe(
       ofType(activityActions.updateActivity),
       mergeMap(({ activity }) =>
-        this.activityApiService
-          .updateActivity(activity)
-          .then((success) =>
-            success
-              ? activityActions.updateActivitySuccess({ activity })
-              : activityActions.updateActivityFailure({
-                  error: 'Failed to update activity',
-                })
-          )
-          .catch((error) =>
-            activityActions.updateActivityFailure({ error })
-          )
+        from(this.activityApiService.updateActivity(activity)).pipe(
+          map((success) => {
+            if (!success) {
+              this.toastr.error('Failed to update activity');
+              return activityActions.updateActivityFailure({ error: 'Failed to update activity' });
+            }
+            return activityActions.updateActivitySuccess({ activity });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to update activity');
+            return of(activityActions.updateActivityFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -73,18 +76,19 @@ export class ActivityEffects {
     this.actions$.pipe(
       ofType(activityActions.removeActivityFromTask),
       mergeMap(({ taskActivityId, activityId }) =>
-        this.activityApiService
-          .removeActivityFromTask(taskActivityId, activityId)
-          .then((success) =>
-            success
-              ? activityActions.removeActivityFromTaskSuccess({ activityId })
-              : activityActions.removeActivityFromTaskFailure({
-                  error: 'Failed to remove activity from task',
-                })
-          )
-          .catch((error) =>
-            activityActions.removeActivityFromTaskFailure({ error })
-          )
+        from(this.activityApiService.removeActivityFromTask(taskActivityId, activityId)).pipe(
+          map((success) => {
+            if (!success) {
+              this.toastr.error('Failed to remove activity');
+              return activityActions.removeActivityFromTaskFailure({ error: 'Failed to remove activity from task' });
+            }
+            return activityActions.removeActivityFromTaskSuccess({ activityId });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to remove activity');
+            return of(activityActions.removeActivityFromTaskFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -93,18 +97,19 @@ export class ActivityEffects {
     this.actions$.pipe(
       ofType(activityActions.deleteActivity),
       mergeMap(({ activityId }) =>
-        this.activityApiService
-          .deleteActivity(activityId)
-          .then((success) =>
-            success
-              ? activityActions.deleteActivitySuccess({ activityId })
-              : activityActions.deleteActivityFailure({
-                  error: 'Failed to delete activity',
-                })
-          )
-          .catch((error) =>
-            activityActions.deleteActivityFailure({ error })
-          )
+        from(this.activityApiService.deleteActivity(activityId)).pipe(
+          map((success) => {
+            if (!success) {
+              this.toastr.error('Failed to delete activity');
+              return activityActions.deleteActivityFailure({ error: 'Failed to delete activity' });
+            }
+            return activityActions.deleteActivitySuccess({ activityId });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to delete activity');
+            return of(activityActions.deleteActivityFailure({ error }));
+          })
+        )
       )
     )
   );
@@ -113,18 +118,19 @@ export class ActivityEffects {
     this.actions$.pipe(
       ofType(activityActions.toggleActivityComplete),
       mergeMap(({ taskActivityId, activityId, completed }) =>
-        this.activityApiService
-          .toggleActivityComplete(taskActivityId, completed)
-          .then((success) =>
-            success
-              ? activityActions.toggleActivityCompleteSuccess({ activityId, completed })
-              : activityActions.toggleActivityCompleteFailure({
-                  error: 'Failed to update activity completion',
-                })
-          )
-          .catch((error) =>
-            activityActions.toggleActivityCompleteFailure({ error })
-          )
+        from(this.activityApiService.toggleActivityComplete(taskActivityId, completed)).pipe(
+          map((success) => {
+            if (!success) {
+              this.toastr.error('Failed to update activity');
+              return activityActions.toggleActivityCompleteFailure({ error: 'Failed to update activity completion' });
+            }
+            return activityActions.toggleActivityCompleteSuccess({ activityId, completed });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to update activity');
+            return of(activityActions.toggleActivityCompleteFailure({ error }));
+          })
+        )
       )
     )
   );

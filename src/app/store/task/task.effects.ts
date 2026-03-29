@@ -2,16 +2,18 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as taskActions from './task.actions';
 import { inject, Injectable } from '@angular/core';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
-import { catchError, map, mergeMap, switchMap, concatMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, concatMap, tap } from 'rxjs/operators';
 import { from, of } from 'rxjs';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 import { DialogService } from 'src/app/services/dialog/dialog.service';
 import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable()
 export class TaskEffects {
   dialogService = inject(DialogService);
   private formCache = inject(DialogFormCacheService);
+  private toastr = inject(ToastrService);
   constructor(
     private actions$: Actions,
     private taskAPIService: TaskAPIService
@@ -23,9 +25,10 @@ export class TaskEffects {
       mergeMap(() =>
         from(this.taskAPIService.getTasks()).pipe(
           map((tasks: IdeaTask[]) => taskActions.loadTaskSuccess({ tasks })),
-          catchError((error: any) =>
-            of(taskActions.loadTasksFailure({ error }))
-          )
+          catchError((error: any) => {
+            this.toastr.error('Failed to load tasks');
+            return of(taskActions.loadTasksFailure({ error }));
+          })
         )
       )
     )
@@ -34,16 +37,17 @@ export class TaskEffects {
   addTask$ = createEffect(() =>
     this.actions$.pipe(
       ofType(taskActions.taskWasAdded),
-      switchMap(({ task }) =>
+      mergeMap(({ task }) =>
         from(this.taskAPIService.addTask(task)).pipe(
           map((addedTask: IdeaTask | null) =>
             addedTask
               ? taskActions.taskWasAddedSuccessfully({ task: addedTask })
               : taskActions.taskAddFailed({ error: 'Failed to add task' })
           ),
-          catchError(() =>
-            of(taskActions.taskAddFailed({ error: 'Failed to add task' }))
-          )
+          catchError(() => {
+            this.toastr.error('Failed to add task');
+            return of(taskActions.taskAddFailed({ error: 'Failed to add task' }));
+          })
         )
       )
     )
@@ -53,7 +57,7 @@ export class TaskEffects {
     () =>
       this.actions$.pipe(
         ofType(taskActions.taskWasUpdated),
-        switchMap(({ task }) =>
+        mergeMap(({ task }) =>
           from(this.taskAPIService.editTask(task)).pipe(
             map((res: boolean) =>
               res
@@ -62,13 +66,14 @@ export class TaskEffects {
                     error: 'Failed to update task',
                   })
             ),
-            catchError(() =>
-              of(
+            catchError(() => {
+              this.toastr.error('Failed to update task');
+              return of(
                 taskActions.taskUpdateFailed({
                   error: 'Failed to update task',
                 })
-              )
-            )
+              );
+            })
           )
         )
       ),
@@ -78,7 +83,7 @@ export class TaskEffects {
   deleteTask$ = createEffect(() =>
     this.actions$.pipe(
       ofType(taskActions.taskWasDeleted),
-      switchMap(({ taskId }) =>
+      mergeMap(({ taskId }) =>
         from(this.taskAPIService.deleteTask(taskId)).pipe(
           map((res: boolean) =>
             res
@@ -87,13 +92,14 @@ export class TaskEffects {
                   error: 'Failed to delete task',
                 })
           ),
-          catchError(() =>
-            of(
+          catchError(() => {
+            this.toastr.error('Failed to delete task');
+            return of(
               taskActions.taskDeletionFailed({
                 error: 'Failed to delete task',
               })
-            )
-          )
+            );
+          })
         )
       )
     )
