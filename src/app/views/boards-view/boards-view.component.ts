@@ -146,10 +146,15 @@ export class BoardsViewComponent implements OnInit {
   openEditTemplateDialog(template: BoardTemplate, event: Event): void {
     event.stopPropagation();
     const data: TemplateDialogData = { template };
-    this.dialog.open(CreateTemplateDialogComponent, {
+    const ref = this.dialog.open(CreateTemplateDialogComponent, {
       panelClass: 'create-template-panel',
       disableClose: false,
       data,
+    });
+    ref.afterClosed().subscribe((saved) => {
+      if (saved) {
+        this.boardTemplateService.loadTemplates();
+      }
     });
   }
 
