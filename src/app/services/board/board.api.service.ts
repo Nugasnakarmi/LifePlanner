@@ -7,6 +7,7 @@ import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { SupabaseService } from '../supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
 import { StorageService } from '../storage/storage.service';
+import { InputSanitizerService } from '../sanitizer/input-sanitizer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class BoardAPIService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
   private storageService = inject(StorageService);
+  private sanitizer = inject(InputSanitizerService);
 
   //TODO - Convert promises to observables
   async addBoard(boardData: Board): Promise<boolean> {
@@ -23,8 +25,8 @@ export class BoardAPIService {
       let { data, error } = await this.supabaseService.supabase
         .from('boards')
         .insert({
-          name: boardData.name,
-          description: boardData.description,
+          name: this.sanitizer.sanitize(boardData.name),
+          description: this.sanitizer.sanitize(boardData.description),
           user_id: user.id,
           created_at: new Date().toISOString(),
         })
@@ -138,8 +140,8 @@ export class BoardAPIService {
       const { data: boardData, error: boardError } = await this.supabaseService.supabase
         .from('boards')
         .insert({
-          name: template.name,
-          description: template.description,
+          name: this.sanitizer.sanitize(template.name),
+          description: this.sanitizer.sanitize(template.description),
           user_id: user.id,
           created_at: new Date().toISOString(),
         })
@@ -159,7 +161,7 @@ export class BoardAPIService {
             .from('board_lists')
             .insert({
               board_id: board.id,
-              name: list.name,
+              name: this.sanitizer.sanitize(list.name),
               position: listIndex,
               user_id: user.id,
             })
@@ -178,8 +180,8 @@ export class BoardAPIService {
           // PostgreSQL's multi-row INSERT...RETURNING preserves insertion order,
           // so insertedTasks[i].id corresponds to list.tasks[i].
           const taskRows = list.tasks.map((task) => ({
-            name: task.name,
-            description: task.description,
+            name: this.sanitizer.sanitize(task.name),
+            description: this.sanitizer.sanitize(task.description),
             type: list.listType,
             completion_status: 0,
             user_id: user.id,
@@ -205,8 +207,8 @@ export class BoardAPIService {
 
             // Batch-insert all activities for this task.
             const activityRows = templateActivities.map((a) => ({
-              name: a.name,
-              data: a.data ?? [],
+              name: this.sanitizer.sanitize(a.name),
+              data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
               media: [],
               user_id: user.id,
             }));
@@ -286,9 +288,8 @@ export class BoardAPIService {
       let { data, error } = await this.supabaseService.supabase
         .from('boards')
         .update({
-          name: boardData.name,
-          description: boardData.description,
-          user_id: boardData.user_id,
+          name: this.sanitizer.sanitize(boardData.name),
+          description: this.sanitizer.sanitize(boardData.description),
         })
         .eq('id', boardData.id)
         .select('*')

@@ -4,6 +4,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { ToastrService } from 'ngx-toastr';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { StorageService } from '../storage/storage.service';
+import { InputSanitizerService } from '../sanitizer/input-sanitizer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ export class BoardListApiService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
   private storageService = inject(StorageService);
+  private sanitizer = inject(InputSanitizerService);
 
   async getAllListsForUser(): Promise<BoardList[]> {
     try {
@@ -58,11 +60,12 @@ export class BoardListApiService {
   async addList(boardId: number, name: string, position: number): Promise<BoardList | null> {
     try {
       const user: User = await this.supabaseService.getUser();
+      const sanitizedName = this.sanitizer.sanitize(name);
       const { data, error } = await this.supabaseService.supabase
         .from('board_lists')
         .insert({
           board_id: boardId,
-          name,
+          name: sanitizedName,
           position,
           user_id: user.id,
         })
@@ -84,9 +87,10 @@ export class BoardListApiService {
   async updateListName(listId: number, name: string): Promise<BoardList | null> {
     try {
       const user: User = await this.supabaseService.getUser();
+      const sanitizedName = this.sanitizer.sanitize(name);
       const { data, error } = await this.supabaseService.supabase
         .from('board_lists')
-        .update({ name })
+        .update({ name: sanitizedName })
         .eq('id', listId)
         .eq('user_id', user.id)
         .select()

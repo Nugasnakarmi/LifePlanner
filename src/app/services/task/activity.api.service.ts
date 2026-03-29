@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Activity, TaskScopedActivity } from 'src/app/interfaces/activity.interface';
 import { TaskActivity } from 'src/app/interfaces/task-activity.interface';
 import { StorageService } from '../storage/storage.service';
+import { InputSanitizerService } from '../sanitizer/input-sanitizer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class ActivityApiService {
   supabaseService = inject(SupabaseService);
   toastRService = inject(ToastrService);
   private storageService = inject(StorageService);
+  private sanitizer = inject(InputSanitizerService);
 
   async getActivitiesByTaskId(taskId: number): Promise<TaskScopedActivity[]> {
     try {
@@ -49,8 +51,8 @@ export class ActivityApiService {
         await this.supabaseService.supabase
           .from('activities')
           .insert({
-            name: activity.name,
-            data: activity.data ?? [],
+            name: this.sanitizer.sanitize(activity.name),
+            data: this.sanitizer.sanitizeDataFields(activity.data) ?? [],
             media: activity.media ?? [],
             user_id: user.id,
           })
@@ -99,8 +101,8 @@ export class ActivityApiService {
       const { error } = await this.supabaseService.supabase
         .from('activities')
         .update({
-          name: activity.name,
-          data: activity.data,
+          name: this.sanitizer.sanitize(activity.name),
+          data: this.sanitizer.sanitizeDataFields(activity.data),
           media: activity.media,
         })
         .eq('id', activity.id);

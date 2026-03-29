@@ -9,11 +9,13 @@ import {
 } from 'src/app/interfaces/board-template.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { SupabaseService } from '../supabase/supabase.service';
+import { InputSanitizerService } from '../sanitizer/input-sanitizer.service';
 
 @Injectable({ providedIn: 'root' })
 export class BoardTemplateApiService {
   private supabaseService = inject(SupabaseService);
   private toastr = inject(ToastrService);
+  private sanitizer = inject(InputSanitizerService);
 
   /**
    * Returns all templates the authenticated user may see:
@@ -84,8 +86,8 @@ export class BoardTemplateApiService {
         .from('board_templates')
         .insert({
           user_id: user.id,
-          name: template.name,
-          description: template.description,
+          name: this.sanitizer.sanitize(template.name),
+          description: this.sanitizer.sanitize(template.description),
         })
         .select('id')
         .single();
@@ -101,7 +103,7 @@ export class BoardTemplateApiService {
           .from('board_template_lists')
           .insert({
             template_id: templateId,
-            name: list.name,
+            name: this.sanitizer.sanitize(list.name),
             list_type: list.listType,
             position: listIndex,
           })
@@ -118,12 +120,12 @@ export class BoardTemplateApiService {
           const taskRows = list.tasks.map((t, i) => ({
             template_id: templateId,
             template_list_id: listId,
-            name: t.name,
-            description: t.description,
+            name: this.sanitizer.sanitize(t.name),
+            description: this.sanitizer.sanitize(t.description),
             position: i,
             activities: (t.activities ?? []).map((a, ai) => ({
-              name: a.name,
-              data: a.data ?? [],
+              name: this.sanitizer.sanitize(a.name),
+              data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
               position: ai,
             })),
           }));
@@ -161,16 +163,16 @@ export class BoardTemplateApiService {
       // lists (which cascades to tasks), and re-inserts everything in a single
       // Postgres transaction — preventing partial-update data loss on failure.
       const lists = template.lists.map((list, i) => ({
-        name: list.name,
+        name: this.sanitizer.sanitize(list.name),
         listType: list.listType,
         position: i,
         tasks: list.tasks.map((t, j) => ({
-          name: t.name,
-          description: t.description ?? '',
+          name: this.sanitizer.sanitize(t.name),
+          description: this.sanitizer.sanitize(t.description ?? ''),
           position: j,
           activities: (t.activities ?? []).map((a, k) => ({
-            name: a.name,
-            data: a.data ?? [],
+            name: this.sanitizer.sanitize(a.name),
+            data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
             position: k,
           })),
         })),
@@ -180,8 +182,8 @@ export class BoardTemplateApiService {
         'update_board_template',
         {
           p_template_id: dbId,
-          p_name: template.name,
-          p_description: template.description,
+          p_name: this.sanitizer.sanitize(template.name),
+          p_description: this.sanitizer.sanitize(template.description),
           p_lists: lists,
         }
       );
