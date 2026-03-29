@@ -16,16 +16,16 @@ describe('InputSanitizerService', () => {
   // ── sanitize() ──────────────────────────────────────────────────────────
 
   describe('sanitize', () => {
-    it('should return empty string for null', () => {
-      expect(service.sanitize(null)).toBe('');
+    it('should return null for null input', () => {
+      expect(service.sanitize(null)).toBeNull();
     });
 
-    it('should return empty string for undefined', () => {
-      expect(service.sanitize(undefined)).toBe('');
+    it('should return undefined for undefined input', () => {
+      expect(service.sanitize(undefined)).toBeUndefined();
     });
 
-    it('should return empty string for non-string input', () => {
-      expect(service.sanitize(42 as any)).toBe('');
+    it('should pass through non-string input unchanged', () => {
+      expect(service.sanitize(42 as any)).toBe(42 as any);
     });
 
     it('should leave plain text unchanged', () => {
@@ -64,7 +64,7 @@ describe('InputSanitizerService', () => {
       expect(service.sanitize('   ')).toBe('   ');
     });
 
-    it('should preserve legitimate angle-bracket text that is not a tag', () => {
+    it('should preserve legitimate angle-bracket math/comparison text', () => {
       expect(service.sanitize('5 < 10 and 10 > 5')).toBe('5 < 10 and 10 > 5');
     });
 
@@ -74,6 +74,10 @@ describe('InputSanitizerService', () => {
 
     it('should strip SVG-based XSS', () => {
       expect(service.sanitize('<svg onload=alert(1)>')).toBe('');
+    });
+
+    it('should strip HTML comments', () => {
+      expect(service.sanitize('before<!-- comment -->after')).toBe('beforeafter');
     });
   });
 
@@ -114,12 +118,12 @@ describe('InputSanitizerService', () => {
       expect(result[1].value).toBe('Safe');
     });
 
-    it('should return empty array for null', () => {
-      expect(service.sanitizeDataFields(null)).toEqual([]);
+    it('should return undefined for null', () => {
+      expect(service.sanitizeDataFields(null)).toBeUndefined();
     });
 
-    it('should return empty array for undefined', () => {
-      expect(service.sanitizeDataFields(undefined)).toEqual([]);
+    it('should return undefined for undefined', () => {
+      expect(service.sanitizeDataFields(undefined)).toBeUndefined();
     });
   });
 });

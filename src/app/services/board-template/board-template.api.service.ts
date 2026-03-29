@@ -125,7 +125,7 @@ export class BoardTemplateApiService {
             position: i,
             activities: (t.activities ?? []).map((a, ai) => ({
               name: this.sanitizer.sanitize(a.name),
-              data: this.sanitizer.sanitizeDataFields(a.data),
+              data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
               position: ai,
             })),
           }));
@@ -172,7 +172,7 @@ export class BoardTemplateApiService {
           position: j,
           activities: (t.activities ?? []).map((a, k) => ({
             name: this.sanitizer.sanitize(a.name),
-            data: this.sanitizer.sanitizeDataFields(a.data),
+            data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
             position: k,
           })),
         })),

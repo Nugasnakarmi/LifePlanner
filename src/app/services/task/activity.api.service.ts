@@ -52,7 +52,7 @@ export class ActivityApiService {
           .from('activities')
           .insert({
             name: this.sanitizer.sanitize(activity.name),
-            data: this.sanitizer.sanitizeDataFields(activity.data),
+            data: this.sanitizer.sanitizeDataFields(activity.data) ?? [],
             media: activity.media ?? [],
             user_id: user.id,
           })

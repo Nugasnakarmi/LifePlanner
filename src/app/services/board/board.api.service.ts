@@ -208,7 +208,7 @@ export class BoardAPIService {
             // Batch-insert all activities for this task.
             const activityRows = templateActivities.map((a) => ({
               name: this.sanitizer.sanitize(a.name),
-              data: this.sanitizer.sanitizeDataFields(a.data),
+              data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
               media: [],
               user_id: user.id,
             }));
@@ -290,7 +290,6 @@ export class BoardAPIService {
         .update({
           name: this.sanitizer.sanitize(boardData.name),
           description: this.sanitizer.sanitize(boardData.description),
-          user_id: boardData.user_id,
         })
         .eq('id', boardData.id)
         .select('*')
