@@ -54,7 +54,7 @@ export class BoardsViewComponent implements OnInit {
   systemTemplates$: Observable<BoardTemplate[]>;
   myTemplates$: Observable<BoardTemplate[]>;
   /** True when any background operation (task load, template load/save) is in progress. */
-  anyLoading$!: Observable<boolean>;
+  anyLoading$: Observable<boolean>;
 
   showNewBoardForm = false;
   showTemplates = false;
