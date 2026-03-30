@@ -35,7 +35,6 @@ export class BoardTemplateEffects {
         from(this.api.saveTemplate(template)).pipe(
           map((saved) => {
             if (!saved) {
-              this.toastr.error('Failed to save template');
               return actions.saveBoardTemplateFailure({ error: 'Save returned null' });
             }
             return actions.saveBoardTemplateSuccess({ template: saved });
@@ -56,7 +55,6 @@ export class BoardTemplateEffects {
         from(this.api.deleteTemplate(dbId)).pipe(
           map((ok) => {
             if (!ok) {
-              this.toastr.error('Failed to delete template');
               return actions.deleteBoardTemplateFailure({ error: 'Delete failed' });
             }
             return actions.deleteBoardTemplateSuccess({ dbId });
@@ -77,7 +75,6 @@ export class BoardTemplateEffects {
         from(this.api.updateTemplate(template)).pipe(
           map((updated) => {
             if (!updated) {
-              this.toastr.error('Failed to update template');
               return actions.editBoardTemplateFailure({ error: 'Update returned null', dbId: template.dbId! });
             }
             return actions.editBoardTemplateSuccess({ template: updated });
