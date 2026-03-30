@@ -80,65 +80,39 @@ export class BoardTemplateApiService {
 
   async saveTemplate(template: BoardTemplate): Promise<BoardTemplate | null> {
     try {
-      const user: User = await this.supabaseService.getUser();
+      // Use an atomic RPC function that inserts the header, lists, and tasks
+      // (with activities) in a single Postgres transaction.  This avoids the
+      // PostgREST ambiguity between the board_template_tasks.activities JSONB
+      // column and the separate `activities` table, which caused silent insert
+      // failures when tasks included activity data.
+      const lists = template.lists.map((list, i) => ({
+        name: this.sanitizer.sanitize(list.name),
+        listType: list.listType,
+        position: i,
+        tasks: list.tasks.map((t, j) => ({
+          name: this.sanitizer.sanitize(t.name),
+          description: this.sanitizer.sanitize(t.description ?? ''),
+          position: j,
+          activities: (t.activities ?? []).map((a, k) => ({
+            name: this.sanitizer.sanitize(a.name),
+            data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
+            position: k,
+          })),
+        })),
+      }));
 
-      const { data: tplRow, error: tplErr } = await this.supabaseService.supabase
-        .from('board_templates')
-        .insert({
-          user_id: user.id,
-          name: this.sanitizer.sanitize(template.name),
-          description: this.sanitizer.sanitize(template.description),
-        })
-        .select('id')
-        .single();
-
-      if (tplErr) {
-        throw tplErr;
-      }
-
-      const templateId = (tplRow as any).id as number;
-
-      for (const [listIndex, list] of template.lists.entries()) {
-        const { data: listRow, error: listErr } = await this.supabaseService.supabase
-          .from('board_template_lists')
-          .insert({
-            template_id: templateId,
-            name: this.sanitizer.sanitize(list.name),
-            list_type: list.listType,
-            position: listIndex,
-          })
-          .select('id')
-          .single();
-
-        if (listErr) {
-          throw listErr;
+      const { data, error } = await this.supabaseService.supabase.rpc(
+        'save_board_template',
+        {
+          p_name: this.sanitizer.sanitize(template.name),
+          p_description: this.sanitizer.sanitize(template.description),
+          p_lists: lists,
         }
+      );
 
-        const listId = (listRow as any).id as number;
+      if (error) throw error;
 
-        if (list.tasks.length > 0) {
-          const taskRows = list.tasks.map((t, i) => ({
-            template_id: templateId,
-            template_list_id: listId,
-            name: this.sanitizer.sanitize(t.name),
-            description: this.sanitizer.sanitize(t.description),
-            position: i,
-            activities: (t.activities ?? []).map((a, ai) => ({
-              name: this.sanitizer.sanitize(a.name),
-              data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
-              position: ai,
-            })),
-          }));
-
-          const { error: tasksErr } = await this.supabaseService.supabase
-            .from('board_template_tasks')
-            .insert(taskRows);
-
-          if (tasksErr) {
-            throw tasksErr;
-          }
-        }
-      }
+      const templateId = data as number;
 
       this.toastr.success(`Template "${template.name}" saved`);
       return {
