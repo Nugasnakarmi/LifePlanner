@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { firstValueFrom, map, Observable } from 'rxjs';
+import { combineLatest, firstValueFrom, map, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
@@ -53,6 +53,8 @@ export class BoardsViewComponent implements OnInit {
   boardTemplates$: Observable<BoardTemplate[]>;
   systemTemplates$: Observable<BoardTemplate[]>;
   myTemplates$: Observable<BoardTemplate[]>;
+  /** True when any background operation (task load, template load/save) is in progress. */
+  anyLoading$: Observable<boolean>;
 
   showNewBoardForm = false;
   showTemplates = false;
@@ -77,6 +79,11 @@ export class BoardsViewComponent implements OnInit {
     this.boardTemplates$ = this.boardTemplateService.templates$;
     this.systemTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isSystem)));
     this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem)));
+    this.anyLoading$ = combineLatest([
+      this.taskService.loading$,
+      this.boardTemplateService.loading$,
+      this.boardTemplateService.saving$,
+    ]).pipe(map(([taskLoading, tplLoading, tplSaving]) => taskLoading || tplLoading || tplSaving));
     this.boardTemplateService.loadTemplates();
     this.boardListService.loadAllLists();
     this.boardListService.allListsGroupedByBoard$

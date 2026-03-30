@@ -82,6 +82,8 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   }
 
   saving = false;
+  /** User-visible error message shown inside the dialog when a save attempt fails. */
+  saveError: string | null = null;
   private submitting = false;
 
   /** Lists accumulate as the user adds them in step 2. */
@@ -401,6 +403,7 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   async save(): Promise<void> {
     if (this.infoForm.invalid || this.saving) return;
     this.saving = true;
+    this.saveError = null;
     this.submitting = true;
 
     // Prevent dismissal via ESC / backdrop / X button while the API call is in flight.
@@ -473,6 +476,7 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     } else {
       // Keep the dialog open so the user can retry; re-enable close so the
       // user can also dismiss manually if desired.
+      this.saveError = 'Failed to save template. Please check your connection and try again.';
       this.dialogRef.disableClose = false;
       this.submitting = false;
     }
