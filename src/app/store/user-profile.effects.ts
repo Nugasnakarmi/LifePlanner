@@ -33,8 +33,8 @@ export class UserProfileEffects {
   saveProfile$ = createEffect(() =>
     this.actions$.pipe(
       ofType(actions.saveUserProfile),
-      mergeMap(({ updates }) =>
-        from(this.api.saveProfile(updates)).pipe(
+      mergeMap(({ updates, silent }) =>
+        from(this.api.saveProfile(updates, { silent })).pipe(
           map((profile) => {
             if (!profile) {
               this.toastr.error('Failed to save profile');

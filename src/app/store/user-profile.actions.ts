@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { UserPreferences } from 'src/app/interfaces/user-preferences.interface';
+import { BoardSortOption } from 'src/app/interfaces/user-preferences.interface';
 
 export const loadUserProfile = createAction('[User Profile] Load');
 
@@ -17,7 +18,7 @@ export const loadUserProfileFailure = createAction(
 
 export const saveUserProfile = createAction(
   '[User Profile] Save',
-  props<{ updates: { display_name?: string; address?: string; avatar_url?: string } }>()
+  props<{ updates: { display_name?: string; address?: string; avatar_url?: string; board_sort?: BoardSortOption }; silent?: boolean }>()
 );
 
 export const saveUserProfileSuccess = createAction(

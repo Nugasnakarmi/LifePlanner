@@ -11,17 +11,34 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, firstValueFrom, map, Observable } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
+import { BoardSortOption } from 'src/app/interfaces/user-preferences.interface';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
+import { UserProfileService } from 'src/app/services/user-profile.service';
 import { CreateTemplateDialogComponent, TemplateDialogData } from './create-template-dialog/create-template-dialog.component';
+
+function sortBoards(boards: Board[], sort: BoardSortOption): Board[] {
+  return [...boards].sort((a, b) => {
+    if (sort === 'name') {
+      return (a.name ?? '').localeCompare(b.name ?? '');
+    } else if (sort === 'updated_at') {
+      const aDate = a.updated_at ?? a.created_at ?? '';
+      const bDate = b.updated_at ?? b.created_at ?? '';
+      return bDate.localeCompare(aDate);
+    } else {
+      return (b.created_at ?? '').localeCompare(a.created_at ?? '');
+    }
+  });
+}
 
 @Component({
   selector: 'app-boards-view',
@@ -33,6 +50,7 @@ import { CreateTemplateDialogComponent, TemplateDialogData } from './create-temp
     MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
     MatTooltipModule,
     ReactiveFormsModule,
   ],
@@ -44,12 +62,13 @@ export class BoardsViewComponent implements OnInit {
   taskService = inject(TaskService);
   boardTemplateService = inject(BoardTemplateService);
   boardListService = inject(BoardListService);
+  userProfileService = inject(UserProfileService);
   router = inject(Router);
   route = inject(ActivatedRoute);
   dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
-  boards$: Observable<Board[]>;
+  sortedBoards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
   systemTemplates$: Observable<BoardTemplate[]>;
   myTemplates$: Observable<BoardTemplate[]>;
@@ -60,6 +79,8 @@ export class BoardsViewComponent implements OnInit {
   showTemplates = false;
   editingBoardId: number | null = null;
   boardListsMap: Record<number, BoardList[]> = {};
+
+  sortControl = new UntypedFormControl('created_at');
 
   newBoardNameControl = new UntypedFormControl('', [
     Validators.required,
@@ -75,7 +96,22 @@ export class BoardsViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
-    this.boards$ = this.boardService.boards$;
+
+    // Build sorted boards stream by combining boards with the user's sort preference
+    this.sortedBoards$ = combineLatest([
+      this.boardService.boards$,
+      this.userProfileService.profile$,
+    ]).pipe(
+      map(([boards, profile]) => {
+        const sort: BoardSortOption = profile?.board_sort ?? 'created_at';
+        // Keep sort control in sync with stored preference
+        if (this.sortControl.value !== sort) {
+          this.sortControl.setValue(sort, { emitEvent: false });
+        }
+        return sortBoards(boards, sort);
+      })
+    );
+
     this.boardTemplates$ = this.boardTemplateService.templates$;
     this.systemTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isSystem)));
     this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem)));
@@ -98,6 +134,10 @@ export class BoardsViewComponent implements OnInit {
           this.router.navigate(['/boards'], { queryParams: {}, replaceUrl: true });
         }
       });
+  }
+
+  onSortChange(sort: BoardSortOption): void {
+    this.userProfileService.saveProfile({ board_sort: sort }, true);
   }
 
   totalTaskCount(template: BoardTemplate): number {
@@ -236,5 +276,4 @@ export class BoardsViewComponent implements OnInit {
     this.boardService.deleteBoard(board.id);
   }
 }
-
 
