@@ -111,7 +111,7 @@
   </div>
   }
 
-  @if(taskService.loading$ | async) {
+  @if(anyLoading$ | async) {
   <div class="loading-container">
     <mat-spinner diameter="48"></mat-spinner>
   </div>

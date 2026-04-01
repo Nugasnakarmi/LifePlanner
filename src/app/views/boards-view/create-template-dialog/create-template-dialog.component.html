@@ -352,6 +352,13 @@
             </ng-container>
           </button>
         </div>
+
+        @if (saveError) {
+          <div class="save-error-banner" role="alert">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ saveError }}</span>
+          </div>
+        }
       </div>
     </mat-step>
 

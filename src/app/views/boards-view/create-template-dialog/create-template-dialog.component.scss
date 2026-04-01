@@ -217,6 +217,26 @@
   z-index: 2;
 }
 
+.save-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-top: 12px;
+  border-radius: 8px;
+  background: rgba(244, 67, 54, 0.12);
+  border: 1px solid rgba(244, 67, 54, 0.4);
+  color: #ef9a9a;
+  font-size: 0.85rem;
+
+  mat-icon {
+    color: #ef5350;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
 // === Material form field overrides inside dialog ===
 ::ng-deep .dialog-container {
   .mat-mdc-form-field {
@@ -1410,5 +1430,15 @@
 
   .no-tasks-note {
     color: rgba(1, 0, 20, 0.4);
+  }
+
+  .save-error-banner {
+    background: rgba(244, 67, 54, 0.08);
+    border-color: rgba(244, 67, 54, 0.3);
+    color: #c62828;
+
+    mat-icon {
+      color: #d32f2f;
+    }
   }
 }

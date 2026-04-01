@@ -82,6 +82,8 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   }
 
   saving = false;
+  /** User-visible error message shown inside the dialog when a save attempt fails. */
+  saveError: string | null = null;
   private submitting = false;
 
   /** Lists accumulate as the user adds them in step 2. */
@@ -401,6 +403,7 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   async save(): Promise<void> {
     if (this.infoForm.invalid || this.saving) return;
     this.saving = true;
+    this.saveError = null;
     this.submitting = true;
 
     // Prevent dismissal via ESC / backdrop / X button while the API call is in flight.
@@ -425,54 +428,61 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
       isBoardTemplate: true,
     };
 
-    let saved: boolean;
+    let result: { saved: boolean; error?: string };
 
     if (this.isEditMode) {
       this.boardTemplateService.editTemplate(template);
 
       const editDbId = this.editTemplate!.dbId!;
-      saved = await firstValueFrom(
+      result = await firstValueFrom(
         race(
           this.actions$.pipe(
             ofType(boardTemplateActions.editBoardTemplateSuccess),
             filter((a) => a.template.dbId === editDbId),
-            map(() => true)
+            map(() => ({ saved: true }) as { saved: boolean; error?: string })
           ),
           this.actions$.pipe(
             ofType(boardTemplateActions.editBoardTemplateFailure),
             filter((a) => a.dbId === editDbId),
-            map(() => false)
+            map((a) => ({ saved: false, error: a.error?.message ?? a.error }))
           ),
-          timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(map(() => false))
+          timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(
+            map(() => ({ saved: false, error: 'Save timed out. Please try again.' }))
+          )
         )
       );
     } else {
       this.boardTemplateService.saveTemplate(template);
 
-      saved = await firstValueFrom(
+      result = await firstValueFrom(
         race(
           this.actions$.pipe(
             ofType(boardTemplateActions.saveBoardTemplateSuccess),
-            map(() => true)
+            map(() => ({ saved: true }) as { saved: boolean; error?: string })
           ),
           this.actions$.pipe(
             ofType(boardTemplateActions.saveBoardTemplateFailure),
-            map(() => false)
+            map((a) => ({ saved: false, error: a.error?.message ?? a.error }))
           ),
-          timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(map(() => false))
+          timer(CreateTemplateDialogComponent.SAVE_TIMEOUT_MS).pipe(
+            map(() => ({ saved: false, error: 'Save timed out. Please try again.' }))
+          )
         )
       );
     }
 
     this.saving = false;
 
-    if (saved) {
+    if (result.saved) {
       // Keep `submitting = true` so that ngOnDestroy does not re-persist the
       // form cache; the clearTemplateDraft$ effect will clear it after success.
       this.dialogRef.close(true);
     } else {
       // Keep the dialog open so the user can retry; re-enable close so the
       // user can also dismiss manually if desired.
+      this.saveError = result.error
+        ? `Failed to save template: ${result.error}`
+        : 'Failed to save template. Please check your connection and try again.';
       this.dialogRef.disableClose = false;
       this.submitting = false;
     }

@@ -1,25 +1,26 @@
 -- ============================================================
--- Atomic RPC: update_board_template (v2 – includes activities)
--- Updates a user-owned template header, then deletes and
--- re-inserts its lists and tasks (with activities) in a single
--- transaction so the template is never left in a
--- partially-updated state.
+-- Atomic RPC: save_board_template
+-- Inserts a new user-owned template together with its lists and
+-- tasks (including activities JSONB) in a single transaction.
+-- Using an RPC avoids PostgREST ambiguity between the
+-- board_template_tasks.activities JSONB column and the separate
+-- activities table, which can cause silent insert failures.
 -- Runs as SECURITY INVOKER so RLS policies on all three
 -- tables are enforced with the caller's identity.
 -- ============================================================
 
-CREATE OR REPLACE FUNCTION public.update_board_template(
-  p_template_id bigint,
+CREATE OR REPLACE FUNCTION public.save_board_template(
   p_name        text,
   p_description text,
   p_lists       jsonb
 )
-RETURNS void
+RETURNS bigint
 LANGUAGE plpgsql
 SECURITY INVOKER
 SET search_path = public, pg_catalog
 AS $$
 DECLARE
+  v_template_id bigint;
   v_list    jsonb;
   v_task    jsonb;
   v_list_id bigint;
@@ -28,21 +29,10 @@ DECLARE
   v_idx_l   integer;
   v_idx_t   integer;
 BEGIN
-  UPDATE board_templates
-  SET name        = p_name,
-      description = p_description
-  WHERE id = p_template_id;
+  INSERT INTO board_templates (user_id, name, description)
+  VALUES (auth.uid(), p_name, p_description)
+  RETURNING id INTO v_template_id;
 
-  -- Raise an error if no rows matched: template does not exist or RLS denied access.
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'Template % not found or access denied', p_template_id;
-  END IF;
-
-  -- Delete existing lists; cascades to board_template_tasks via FK.
-  DELETE FROM board_template_lists
-  WHERE template_id = p_template_id;
-
-  -- Re-insert lists and their tasks (with activities) from the JSON payload.
   IF p_lists IS NOT NULL AND jsonb_typeof(p_lists) != 'array' THEN
     RAISE EXCEPTION 'p_lists must be a JSON array, got %', jsonb_typeof(p_lists);
   END IF;
@@ -56,7 +46,7 @@ BEGIN
 
     INSERT INTO board_template_lists (template_id, name, list_type, position)
     VALUES (
-      p_template_id,
+      v_template_id,
       v_list ->> 'name',
       (v_list ->> 'listType')::smallint,
       (v_list ->> 'position')::smallint
@@ -73,7 +63,7 @@ BEGIN
 
       INSERT INTO board_template_tasks (template_id, template_list_id, name, description, position, activities)
       VALUES (
-        p_template_id,
+        v_template_id,
         v_list_id,
         v_task ->> 'name',
         COALESCE(v_task ->> 'description', ''),
@@ -86,9 +76,11 @@ BEGIN
       );
     END LOOP;
   END LOOP;
+
+  RETURN v_template_id;
 END;
 $$;
 
 -- Allow authenticated users to call the function; deny anonymous access.
-REVOKE EXECUTE ON FUNCTION public.update_board_template FROM PUBLIC;
-GRANT  EXECUTE ON FUNCTION public.update_board_template TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.save_board_template FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.save_board_template TO authenticated;
