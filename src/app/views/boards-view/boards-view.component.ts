@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, firstValueFrom, map, Observable, tap } from 'rxjs';
+import { combineLatest, firstValueFrom, map, Observable, startWith } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
@@ -97,20 +97,25 @@ export class BoardsViewComponent implements OnInit {
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
 
-    // Build sorted boards stream by combining boards with the user's sort preference.
-    // tap keeps the sort control in sync with the stored preference (side-effect separated
-    // from the pure transformation in map).
-    this.sortedBoards$ = combineLatest([
-      this.boardService.boards$,
-      this.userProfileService.profile$,
-    ]).pipe(
-      tap(([, profile]) => {
+    // Sync the sort control from the stored profile preference whenever the profile changes
+    // (covers initial load and successful saves from this or any other session).
+    this.userProfileService.profile$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((profile) => {
         const sort: BoardSortOption = profile?.board_sort ?? 'created_at';
         if (this.sortControl.value !== sort) {
           this.sortControl.setValue(sort, { emitEvent: false });
         }
-      }),
-      map(([boards, profile]) => sortBoards(boards, profile?.board_sort ?? 'created_at'))
+      });
+
+    // Sort boards based on the sort control's current value.
+    // Driving from sortControl.valueChanges (+ startWith) keeps the displayed list
+    // always consistent with what the dropdown shows, even if a profile save fails.
+    this.sortedBoards$ = combineLatest([
+      this.boardService.boards$,
+      this.sortControl.valueChanges.pipe(startWith(this.sortControl.value as BoardSortOption)),
+    ]).pipe(
+      map(([boards, sort]) => sortBoards(boards, sort as BoardSortOption))
     );
 
     this.boardTemplates$ = this.boardTemplateService.templates$;

@@ -53,7 +53,7 @@ export class UserProfileApiService {
       const user = await this.supabaseService.getUser();
       if (!user) return null;
 
-      // Sanitize text fields; preserve avatar_url and board_sort as-is (system-controlled values).
+      // Sanitize free-text fields; preserve avatar_url and board_sort as-is because they are constrained/validated elsewhere.
       const sanitizedUpdates = this.sanitizer.sanitizeObject(updates);
       if (updates.avatar_url !== undefined) {
         sanitizedUpdates.avatar_url = updates.avatar_url;

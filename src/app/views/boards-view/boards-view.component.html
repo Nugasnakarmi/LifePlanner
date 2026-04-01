@@ -12,7 +12,6 @@
       <mat-select
         [formControl]="sortControl"
         (selectionChange)="onSortChange($event.value)"
-        panelClass="boards-sort-panel"
         aria-label="Sort boards by"
         matTooltip="Sort boards">
         <mat-option value="created_at">Newest First</mat-option>
