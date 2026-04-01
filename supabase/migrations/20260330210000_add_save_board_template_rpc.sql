@@ -33,7 +33,14 @@ BEGIN
   VALUES (auth.uid(), p_name, p_description)
   RETURNING id INTO v_template_id;
 
-  v_len_l := COALESCE(jsonb_array_length(p_lists), 0);
+  IF p_lists IS NOT NULL AND jsonb_typeof(p_lists) != 'array' THEN
+    RAISE EXCEPTION 'p_lists must be a JSON array, got %', jsonb_typeof(p_lists);
+  END IF;
+
+  v_len_l := CASE
+               WHEN p_lists IS NULL THEN 0
+               ELSE jsonb_array_length(p_lists)
+             END;
   FOR v_idx_l IN 0 .. v_len_l - 1 LOOP
     v_list := p_lists -> v_idx_l;
 
@@ -46,7 +53,11 @@ BEGIN
     )
     RETURNING id INTO v_list_id;
 
-    v_len_t := COALESCE(jsonb_array_length(v_list -> 'tasks'), 0);
+    v_len_t := CASE
+                 WHEN jsonb_typeof(v_list -> 'tasks') = 'array'
+                 THEN jsonb_array_length(v_list -> 'tasks')
+                 ELSE 0
+               END;
     FOR v_idx_t IN 0 .. v_len_t - 1 LOOP
       v_task := (v_list -> 'tasks') -> v_idx_t;
 
