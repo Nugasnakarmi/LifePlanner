@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { UserPreferences } from '../interfaces/user-preferences.interface';
+import { BoardSortOption, UserPreferences } from '../interfaces/user-preferences.interface';
 import * as actions from '../store/user-profile.actions';
 import {
   selectUserProfile,
@@ -21,8 +21,8 @@ export class UserProfileService {
     this.store.dispatch(actions.loadUserProfile());
   }
 
-  saveProfile(updates: { display_name?: string; address?: string; avatar_url?: string }): void {
-    this.store.dispatch(actions.saveUserProfile({ updates }));
+  saveProfile(updates: { display_name?: string; address?: string; avatar_url?: string; board_sort?: BoardSortOption }, silent?: boolean): void {
+    this.store.dispatch(actions.saveUserProfile({ updates, silent }));
   }
 
   uploadAvatar(file: File): void {

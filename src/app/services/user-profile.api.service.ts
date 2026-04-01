@@ -3,10 +3,12 @@ import { SupabaseService } from './supabase/supabase.service';
 import { StorageService } from './storage/storage.service';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from 'src/environments/environment';
-import { UserPreferences } from '../interfaces/user-preferences.interface';
+import { BoardSortOption, UserPreferences } from '../interfaces/user-preferences.interface';
 import { InputSanitizerService } from './sanitizer/input-sanitizer.service';
 
 const AVATAR_BUCKET = 'avatars';
+
+const PROFILE_FIELDS = 'user_id, app_title, display_name, address, avatar_url, updated_at, board_sort';
 
 const ALLOWED_IMAGE_TYPES = new Set([
   'image/png',
@@ -33,7 +35,7 @@ export class UserProfileApiService {
 
       const { data, error } = await this.supabaseService.supabase
         .from('user_preferences')
-        .select('user_id, app_title, display_name, address, avatar_url, updated_at')
+        .select(PROFILE_FIELDS)
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -46,15 +48,18 @@ export class UserProfileApiService {
     }
   }
 
-  async saveProfile(updates: { display_name?: string; address?: string; avatar_url?: string }): Promise<UserPreferences | null> {
+  async saveProfile(updates: { display_name?: string; address?: string; avatar_url?: string; board_sort?: BoardSortOption }, options?: { silent?: boolean }): Promise<UserPreferences | null> {
     try {
       const user = await this.supabaseService.getUser();
       if (!user) return null;
 
-      // Sanitize text fields; preserve avatar_url as-is (system-generated URL).
+      // Sanitize free-text fields; preserve avatar_url and board_sort as-is because they are constrained/validated elsewhere.
       const sanitizedUpdates = this.sanitizer.sanitizeObject(updates);
       if (updates.avatar_url !== undefined) {
         sanitizedUpdates.avatar_url = updates.avatar_url;
+      }
+      if (updates.board_sort !== undefined) {
+        sanitizedUpdates.board_sort = updates.board_sort;
       }
 
       const { error } = await this.supabaseService.supabase
@@ -66,12 +71,14 @@ export class UserProfileApiService {
 
       if (error) throw error;
 
-      this.toastr.success('Profile updated');
+      if (!options?.silent) {
+        this.toastr.success('Profile updated');
+      }
 
       // Reload the full profile after save
       const { data } = await this.supabaseService.supabase
         .from('user_preferences')
-        .select('user_id, app_title, display_name, address, avatar_url, updated_at')
+        .select(PROFILE_FIELDS)
         .eq('user_id', user.id)
         .maybeSingle();
 

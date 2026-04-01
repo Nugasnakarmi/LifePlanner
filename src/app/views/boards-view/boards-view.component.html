@@ -8,6 +8,17 @@
 <div class="boards-view-container">
   <div class="boards-header">
     <h2 class="boards-title">Your Boards</h2>
+    <div class="boards-sort">
+      <mat-select
+        [formControl]="sortControl"
+        (selectionChange)="onSortChange($event.value)"
+        aria-label="Sort boards by"
+        matTooltip="Sort boards">
+        <mat-option value="created_at">Newest First</mat-option>
+        <mat-option value="updated_at">Recently Modified</mat-option>
+        <mat-option value="name">Name (A–Z)</mat-option>
+      </mat-select>
+    </div>
   </div>
 
   @if(showNewBoardForm) {
@@ -116,7 +127,7 @@
     <mat-spinner diameter="48"></mat-spinner>
   </div>
   } @else {
-  @if(boards$ | async; as boards) {
+  @if(sortedBoards$ | async; as boards) {
   <div class="boards-grid">
     @for(board of boards; track board.id) {
     <div class="board-card"

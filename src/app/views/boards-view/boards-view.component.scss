@@ -109,6 +109,7 @@ $gold: #F9D07A;
 
   @media (max-width: 600px) {
     margin-bottom: 20px;
+    flex-wrap: wrap;
   }
 }
 
@@ -622,6 +623,64 @@ $gold: #F9D07A;
   color: #b07fff;
   border: 1px solid rgba(176, 127, 255, 0.3);
 }
+
+.boards-sort {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+
+  ::ng-deep .mat-mdc-select {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(249, 208, 122, 0.85);
+    border: 1px solid rgba(249, 208, 122, 0.2);
+    border-radius: 8px;
+    padding: 6px 12px;
+    min-width: 160px;
+    background: rgba(249, 208, 122, 0.05);
+    transition: border-color 0.2s, background 0.2s;
+
+    &:hover {
+      border-color: rgba(249, 208, 122, 0.4);
+      background: rgba(249, 208, 122, 0.08);
+    }
+  }
+
+  ::ng-deep .mat-mdc-select-value {
+    color: rgba(249, 208, 122, 0.85);
+  }
+
+  ::ng-deep .mat-mdc-select-arrow {
+    color: rgba(249, 208, 122, 0.6);
+  }
+
+  ::ng-deep .mdc-line-ripple {
+    display: none;
+  }
+}
+
+:host-context(.light-mode) .boards-sort {
+  ::ng-deep .mat-mdc-select {
+    color: #7A5900;
+    border-color: rgba(122, 89, 0, 0.25);
+    background: rgba(122, 89, 0, 0.04);
+
+    &:hover {
+      border-color: rgba(122, 89, 0, 0.45);
+      background: rgba(122, 89, 0, 0.07);
+    }
+  }
+
+  ::ng-deep .mat-mdc-select-value {
+    color: #7A5900;
+  }
+
+  ::ng-deep .mat-mdc-select-arrow {
+    color: rgba(122, 89, 0, 0.6);
+  }
+}
+
 
 :host-context(.light-mode) {
   background: #f5f0ff;
