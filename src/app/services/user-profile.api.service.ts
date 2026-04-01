@@ -8,6 +8,8 @@ import { InputSanitizerService } from './sanitizer/input-sanitizer.service';
 
 const AVATAR_BUCKET = 'avatars';
 
+const PROFILE_FIELDS = 'user_id, app_title, display_name, address, avatar_url, updated_at, board_sort';
+
 const ALLOWED_IMAGE_TYPES = new Set([
   'image/png',
   'image/jpeg',
@@ -33,7 +35,7 @@ export class UserProfileApiService {
 
       const { data, error } = await this.supabaseService.supabase
         .from('user_preferences')
-        .select('user_id, app_title, display_name, address, avatar_url, updated_at, board_sort')
+        .select(PROFILE_FIELDS)
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -76,7 +78,7 @@ export class UserProfileApiService {
       // Reload the full profile after save
       const { data } = await this.supabaseService.supabase
         .from('user_preferences')
-        .select('user_id, app_title, display_name, address, avatar_url, updated_at, board_sort')
+        .select(PROFILE_FIELDS)
         .eq('user_id', user.id)
         .maybeSingle();
 

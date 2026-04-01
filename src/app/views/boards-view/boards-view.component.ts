@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, firstValueFrom, map, Observable } from 'rxjs';
+import { combineLatest, firstValueFrom, map, Observable, tap } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
@@ -97,19 +97,20 @@ export class BoardsViewComponent implements OnInit {
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
 
-    // Build sorted boards stream by combining boards with the user's sort preference
+    // Build sorted boards stream by combining boards with the user's sort preference.
+    // tap keeps the sort control in sync with the stored preference (side-effect separated
+    // from the pure transformation in map).
     this.sortedBoards$ = combineLatest([
       this.boardService.boards$,
       this.userProfileService.profile$,
     ]).pipe(
-      map(([boards, profile]) => {
+      tap(([, profile]) => {
         const sort: BoardSortOption = profile?.board_sort ?? 'created_at';
-        // Keep sort control in sync with stored preference
         if (this.sortControl.value !== sort) {
           this.sortControl.setValue(sort, { emitEvent: false });
         }
-        return sortBoards(boards, sort);
-      })
+      }),
+      map(([boards, profile]) => sortBoards(boards, profile?.board_sort ?? 'created_at'))
     );
 
     this.boardTemplates$ = this.boardTemplateService.templates$;
