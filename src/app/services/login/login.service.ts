@@ -1,13 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import {
-  AuthTokenResponsePassword,
-  createClient,
-  Session,
-  SupabaseClient,
-  User,
-  WeakPassword,
-} from '@supabase/supabase-js';
+import { Session, User, WeakPassword } from '@supabase/supabase-js';
 import { ToastrService } from 'ngx-toastr';
 import { SupabaseService } from '../supabase/supabase.service';
 
@@ -37,7 +29,6 @@ export class LoginService {
           email: loginCredentials.email,
           password: loginCredentials.password,
         });
-      console.log(data);
       if (error) {
         throw error;
       }
@@ -45,6 +36,7 @@ export class LoginService {
       return data;
     } catch (error) {
       this.toastRService.error(`Login error : ${error.message}`, 'Failure');
+      throw error;
     }
   }
 }
