@@ -50,6 +50,10 @@ export class LoginComponent implements OnInit {
   }
 
   async login() {
+    if (this.isLoading) {
+      return;
+    }
+
     this.email.markAsTouched();
     this.password.markAsTouched();
 
@@ -62,7 +66,7 @@ export class LoginComponent implements OnInit {
         });
         if (userSessionDetails?.user) {
           this.userDetails = userSessionDetails.user;
-          this.router.navigate(['/boards']);
+          await this.router.navigate(['/boards']);
         }
       } catch (error) {
         // Error already reported to the user via toast in LoginService
