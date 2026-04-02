@@ -40,8 +40,9 @@
     mat-raised-button
     color="primary"
     (click)="login()"
+    [disabled]="isLoading"
   >
-    Login
+    {{ isLoading ? 'Logging in...' : 'Login' }}
   </button>
   <p id="register-text">
     or...do you need to

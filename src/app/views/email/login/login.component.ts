@@ -24,6 +24,7 @@ export class LoginComponent implements OnInit {
   password = new FormControl('', [Validators.required]);
 
   hide = true;
+  isLoading = false;
   userDetails = null;
   loginService = inject(LoginService);
   router = inject(Router);
@@ -49,18 +50,29 @@ export class LoginComponent implements OnInit {
   }
 
   async login() {
-    let loginCredentials = {
-      email: this.email.value,
-      password: this.password.value,
-    };
+    if (this.isLoading) {
+      return;
+    }
+
+    this.email.markAsTouched();
+    this.password.markAsTouched();
+
     if (this.email.valid && this.password.valid) {
+      this.isLoading = true;
       try {
-        const userSessionDetails = await this.loginService.loginEmailPassword(
-          loginCredentials
-        );
-        this.userDetails = userSessionDetails.user;
-        this.router.navigate(['/boards']);
-      } catch (error) {}
+        const userSessionDetails = await this.loginService.loginEmailPassword({
+          email: this.email.value!,
+          password: this.password.value!,
+        });
+        if (userSessionDetails?.user) {
+          this.userDetails = userSessionDetails.user;
+          await this.router.navigate(['/boards']);
+        }
+      } catch (error) {
+        // Error already reported to the user via toast in LoginService
+      } finally {
+        this.isLoading = false;
+      }
     }
   }
   register() {
@@ -71,7 +83,7 @@ export class LoginComponent implements OnInit {
     this.router.navigate(['/forgotPassword']);
   }
 
-  keyDown($event): void {
+  keyDown($event: KeyboardEvent): void {
     if ($event.key === 'Enter') {
       this.login();
     }
