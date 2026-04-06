@@ -28,6 +28,7 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
   dialogRef = inject(MatDialogRef<TaskDetailComponent>);
 
   activities$: Observable<TaskScopedActivity[]> = this.activityService.activities$;
+  loading$: Observable<boolean> = this.activityService.loading$;
   progress$ = this.activityService.progress$;
 
   private destroy$ = new Subject<void>();

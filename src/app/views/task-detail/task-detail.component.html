@@ -12,6 +12,7 @@
 
     <!-- Activities Section -->
     @let activities = activities$ | async;
+    @let loading = loading$ | async;
     @let progress = progress$ | async;
     <div class="activities-section flex-column">
       <div class="activities-header flex-row-space-between">
@@ -49,6 +50,13 @@
 
       <!-- Activity List -->
       <div class="activities-list flex-column">
+        @if (loading === true && !activities?.length) {
+          <div class="activities-loading">
+            <div class="activity-skeleton"></div>
+            <div class="activity-skeleton"></div>
+            <div class="activity-skeleton"></div>
+          </div>
+        }
         @for (activity of activities; track activity.id) {
           <div class="activity-item" [class.activity-completed]="activity.completed">
             <!-- Completion toggle -->
@@ -127,7 +135,7 @@
             </div>
           </div>
         }
-        @if (!activities?.length) {
+        @if (loading === false && activities?.length === 0) {
           <p class="no-activities">No activities yet. Add one to track progress.</p>
         }
       </div>
