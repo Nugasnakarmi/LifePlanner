@@ -116,7 +116,7 @@ export class StorageService {
   async copyFile(publicUrl: string, userId: string): Promise<string | null> {
     try {
       const idx = publicUrl.indexOf(STORAGE_PATH_PREFIX);
-      if (idx === -1) return publicUrl; // Not a storage URL – return as-is
+      if (idx === -1) return null; // Not a storage URL – cannot copy
 
       const sourceKey = publicUrl.substring(idx + STORAGE_PATH_PREFIX.length);
 

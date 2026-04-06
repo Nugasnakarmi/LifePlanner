@@ -363,7 +363,10 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   }
 
   cancelAddActivity(): void {
-    if (this.uploading) return; // Prevent cancel while upload is in progress
+    if (this.uploading) {
+      this.toastr.info('Please wait for the upload to finish.');
+      return;
+    }
     this.addActivityTarget = null;
     this.addActivityForm.reset();
     while (this.addActivityDataFields.length > 0) {
@@ -533,7 +536,9 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     this.pendingActivityMedia.splice(index, 1);
     // Best-effort cleanup of the uploaded file from storage.
     if (media.url) {
-      this.storageService.deleteFile(media.url).catch(() => {});
+      this.storageService.deleteFile(media.url).catch((err) => {
+        console.error('Failed to clean up pending media file:', media.url, err);
+      });
     }
   }
 

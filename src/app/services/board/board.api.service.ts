@@ -214,7 +214,11 @@ export class BoardAPIService {
               const copiedMedia = [];
               for (const m of (a.media ?? [])) {
                 const newUrl = await this.storageService.copyFile(m.url, user.id);
-                copiedMedia.push({ ...m, url: newUrl ?? m.url });
+                if (newUrl) {
+                  copiedMedia.push({ ...m, url: newUrl });
+                }
+                // If copy failed, skip this media item rather than sharing the
+                // template's storage object (which would break on delete).
               }
               activityRows.push({
                 name: this.sanitizer.sanitize(a.name),
