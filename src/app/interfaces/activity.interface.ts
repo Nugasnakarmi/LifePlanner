@@ -2,6 +2,9 @@ export interface ActivityMedia {
   type: 'image' | 'gif' | 'video';
   url: string;
   name?: string;
+  /** True when this media was inherited from a board template. Shared with the
+   *  template, so storage cleanup is skipped when the board activity is deleted. */
+  fromTemplate?: boolean;
 }
 
 export interface ActivityDataField {

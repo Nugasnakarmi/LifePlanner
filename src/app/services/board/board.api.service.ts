@@ -75,7 +75,7 @@ export class BoardAPIService {
         throw tasksFetchError;
       }
 
-      // Collect all media URLs and activity IDs for cleanup
+      // Collect all media URLs (excluding template-owned) and activity IDs for cleanup
       const mediaUrls: string[] = [];
       const activityIds: number[] = [];
       for (const task of tasks ?? []) {
@@ -84,7 +84,8 @@ export class BoardAPIService {
           if (activity) {
             activityIds.push(activity.id);
             for (const m of activity.media ?? []) {
-              if (m.url) mediaUrls.push(m.url);
+              // Skip template-owned media — shared with the board template
+              if (m.url && !m.fromTemplate) mediaUrls.push(m.url);
             }
           }
         }
@@ -206,27 +207,14 @@ export class BoardAPIService {
             if (templateActivities.length === 0) continue;
 
             // Batch-insert all activities for this task.
-            // Duplicate media files so board activities don't share storage
-            // objects with the template — preventing cascading deletes from
-            // breaking the template's attachments.
-            const activityRows = [];
-            for (const a of templateActivities) {
-              const copiedMedia = [];
-              for (const m of (a.media ?? [])) {
-                const newUrl = await this.storageService.copyFile(m.url, user.id);
-                if (newUrl) {
-                  copiedMedia.push({ ...m, url: newUrl });
-                }
-                // If copy failed, skip this media item rather than sharing the
-                // template's storage object (which would break on delete).
-              }
-              activityRows.push({
-                name: this.sanitizer.sanitize(a.name),
-                data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
-                media: copiedMedia,
-                user_id: user.id,
-              });
-            }
+            // Media URLs are shared with the template; mark them so the delete
+            // flow skips storage cleanup for template-owned files.
+            const activityRows = templateActivities.map((a) => ({
+              name: this.sanitizer.sanitize(a.name),
+              data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
+              media: (a.media ?? []).map((m) => ({ ...m, fromTemplate: true })),
+              user_id: user.id,
+            }));
 
             const { data: insertedActivities, error: actError } = await this.supabaseService.supabase
               .from('activities')
