@@ -359,14 +359,31 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     while (this.addActivityDataFields.length > 0) {
       this.addActivityDataFields.removeAt(0);
     }
-    this.pendingActivityMedia = [];
+    this.cleanupPendingMedia();
   }
 
   cancelAddActivity(): void {
+    if (this.uploading) return; // Prevent cancel while upload is in progress
     this.addActivityTarget = null;
     this.addActivityForm.reset();
     while (this.addActivityDataFields.length > 0) {
       this.addActivityDataFields.removeAt(0);
+    }
+    this.cleanupPendingMedia();
+  }
+
+  /**
+   * Best-effort cleanup: deletes any already-uploaded files from storage
+   * and clears the pending media array. Non-throwing so callers are never blocked.
+   */
+  private cleanupPendingMedia(): void {
+    if (this.pendingActivityMedia.length > 0) {
+      const urls = this.pendingActivityMedia
+        .map((m) => m.url)
+        .filter((u): u is string => !!u);
+      if (urls.length > 0) {
+        this.storageService.deleteFiles(urls); // fire-and-forget, non-throwing
+      }
     }
     this.pendingActivityMedia = [];
   }
@@ -404,7 +421,13 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
       position: task.activities.length,
     };
     task.activities.push(activity);
-    this.cancelAddActivity();
+    // Reset form state without deleting uploaded files (they now belong to the activity).
+    this.addActivityTarget = null;
+    this.addActivityForm.reset();
+    while (this.addActivityDataFields.length > 0) {
+      this.addActivityDataFields.removeAt(0);
+    }
+    this.pendingActivityMedia = [];
     if (!this.isEditMode) this.persistCache();
   }
 
@@ -462,6 +485,9 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
 
   /** Upload one or more files and add them to the pending activity media */
   private async uploadActivityFiles(files: File[]): Promise<void> {
+    // Guard against concurrent uploads racing on shared state.
+    if (this.uploading) return;
+
     const user = await this.supabaseService.getUser();
     if (!user?.id) {
       this.toastr.error('Please sign in again to upload files.');
@@ -501,8 +527,14 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  removePendingMedia(index: number): void {
+  async removePendingMedia(index: number): Promise<void> {
+    const media = this.pendingActivityMedia[index];
+    if (!media) return;
     this.pendingActivityMedia.splice(index, 1);
+    // Best-effort cleanup of the uploaded file from storage.
+    if (media.url) {
+      this.storageService.deleteFile(media.url).catch(() => {});
+    }
   }
 
   /** Check whether a media item is previewable (image or gif) */

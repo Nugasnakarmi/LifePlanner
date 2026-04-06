@@ -246,7 +246,7 @@
                             </div>
 
                             <div class="add-task-actions">
-                              <button mat-stroked-button type="button" (click)="cancelAddActivity()">Cancel</button>
+                              <button mat-stroked-button type="button" (click)="cancelAddActivity()" [disabled]="uploading">Cancel</button>
                               <button mat-raised-button color="primary" type="submit"
                                 [disabled]="addActivityForm.invalid || uploading"
                                 [matTooltip]="uploading ? 'Upload in progress…' : ''"

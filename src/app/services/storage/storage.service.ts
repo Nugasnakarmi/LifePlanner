@@ -109,6 +109,44 @@ export class StorageService {
   }
 
   /**
+   * Copies a file in the activity-media bucket by downloading from its public
+   * URL and re-uploading with a fresh key under the given user's folder.
+   * Returns the new public URL, or null on failure (best-effort).
+   */
+  async copyFile(publicUrl: string, userId: string): Promise<string | null> {
+    try {
+      const idx = publicUrl.indexOf(STORAGE_PATH_PREFIX);
+      if (idx === -1) return publicUrl; // Not a storage URL – return as-is
+
+      const sourceKey = publicUrl.substring(idx + STORAGE_PATH_PREFIX.length);
+
+      // Download the file from storage
+      const { data: blob, error: dlError } = await this.supabaseService.supabase.storage
+        .from(BUCKET)
+        .download(sourceKey);
+
+      if (dlError || !blob) return null;
+
+      // Derive extension from the source key
+      const dotIdx = sourceKey.lastIndexOf('.');
+      const ext = dotIdx > 0 ? sourceKey.substring(dotIdx + 1) : '';
+      const newKey = ext
+        ? `${userId}/${Date.now()}-${crypto.randomUUID()}.${ext}`
+        : `${userId}/${Date.now()}-${crypto.randomUUID()}`;
+
+      const { error: upError } = await this.supabaseService.supabase.storage
+        .from(BUCKET)
+        .upload(newKey, blob, { contentType: blob.type || undefined });
+
+      if (upError) return null;
+
+      return `${environment.SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${newKey}`;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Deletes a file from the activity-media bucket by its public URL.
    */
   async deleteFile(publicUrl: string): Promise<boolean> {

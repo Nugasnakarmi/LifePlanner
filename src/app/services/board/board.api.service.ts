@@ -206,12 +206,23 @@ export class BoardAPIService {
             if (templateActivities.length === 0) continue;
 
             // Batch-insert all activities for this task.
-            const activityRows = templateActivities.map((a) => ({
-              name: this.sanitizer.sanitize(a.name),
-              data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
-              media: a.media ?? [],
-              user_id: user.id,
-            }));
+            // Duplicate media files so board activities don't share storage
+            // objects with the template — preventing cascading deletes from
+            // breaking the template's attachments.
+            const activityRows = [];
+            for (const a of templateActivities) {
+              const copiedMedia = [];
+              for (const m of (a.media ?? [])) {
+                const newUrl = await this.storageService.copyFile(m.url, user.id);
+                copiedMedia.push({ ...m, url: newUrl ?? m.url });
+              }
+              activityRows.push({
+                name: this.sanitizer.sanitize(a.name),
+                data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
+                media: copiedMedia,
+                user_id: user.id,
+              });
+            }
 
             const { data: insertedActivities, error: actError } = await this.supabaseService.supabase
               .from('activities')
