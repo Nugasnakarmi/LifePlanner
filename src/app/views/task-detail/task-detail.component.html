@@ -50,7 +50,7 @@
 
       <!-- Activity List -->
       <div class="activities-list flex-column">
-        @if (loading) {
+        @if (loading === true && !activities?.length) {
           <div class="activities-loading">
             <div class="activity-skeleton"></div>
             <div class="activity-skeleton"></div>
@@ -135,7 +135,7 @@
             </div>
           </div>
         }
-        @if (!loading && !activities?.length) {
+        @if (loading === false && activities?.length === 0) {
           <p class="no-activities">No activities yet. Add one to track progress.</p>
         }
       </div>

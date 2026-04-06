@@ -520,5 +520,10 @@
   }
 
   .no-activities { color: rgba(1, 0, 20, 0.4); }
+
+  .activity-skeleton {
+    background: rgba(15, 23, 42, 0.04);
+    border-color: rgba(15, 23, 42, 0.08);
+  }
 }
 
