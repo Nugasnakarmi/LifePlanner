@@ -1,13 +1,14 @@
 import { IdeaType } from '../enums/idea-type.enum';
-import { ActivityDataField } from './activity.interface';
+import { ActivityDataField, ActivityMedia } from './activity.interface';
 
 /**
  * A lightweight activity definition stored inside a template task.
- * Unlike runtime activities it has no media (uploads don't belong in templates).
+ * May optionally include media (images/videos) uploaded during template creation.
  */
 export interface TemplateActivity {
   name: string;
   data?: ActivityDataField[];
+  media?: ActivityMedia[];
   position: number;
 }
 

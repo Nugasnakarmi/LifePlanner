@@ -66,6 +66,7 @@ export class BoardTemplateApiService {
                     (a: any, idx: number): TemplateActivity => ({
                       name: a.name,
                       data: a.data ?? [],
+                      media: a.media ?? [],
                       position: typeof a.position === 'number' ? a.position : idx,
                     })
                   ),
@@ -96,6 +97,7 @@ export class BoardTemplateApiService {
           activities: (t.activities ?? []).map((a, k) => ({
             name: this.sanitizer.sanitize(a.name),
             data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
+            media: a.media ?? [],
             position: k,
           })),
         })),
@@ -147,6 +149,7 @@ export class BoardTemplateApiService {
           activities: (t.activities ?? []).map((a, k) => ({
             name: this.sanitizer.sanitize(a.name),
             data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
+            media: a.media ?? [],
             position: k,
           })),
         })),

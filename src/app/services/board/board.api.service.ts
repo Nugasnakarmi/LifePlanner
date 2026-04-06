@@ -209,7 +209,7 @@ export class BoardAPIService {
             const activityRows = templateActivities.map((a) => ({
               name: this.sanitizer.sanitize(a.name),
               data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
-              media: [],
+              media: a.media ?? [],
               user_id: user.id,
             }));
 
