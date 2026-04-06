@@ -115,11 +115,30 @@
                               @if ((activity.data?.length ?? 0) > 0) {
                                 <span class="activity-item-meta">{{ activity.data!.length }} data field{{ activity.data!.length !== 1 ? 's' : '' }}</span>
                               }
+                              @if ((activity.media?.length ?? 0) > 0) {
+                                <span class="activity-media-badge" matTooltip="Media attachments">
+                                  <mat-icon>image</mat-icon>
+                                  {{ activity.media!.length }}
+                                </span>
+                              }
                             </div>
                             <button mat-icon-button class="activity-delete-btn" (click)="removeActivity(i, ti, ai)" aria-label="Remove activity">
                               <mat-icon>close</mat-icon>
                             </button>
                           </div>
+                          @if ((activity.media?.length ?? 0) > 0) {
+                            <div class="activity-media-thumbs">
+                              @for (media of activity.media!; track $index) {
+                                @if (isPreviewable(media.type, media.url)) {
+                                  <img class="activity-thumb" [src]="media.url" [alt]="media.name || 'Media'" loading="lazy" />
+                                } @else {
+                                  <div class="activity-thumb activity-thumb--video">
+                                    <mat-icon>videocam</mat-icon>
+                                  </div>
+                                }
+                              }
+                            </div>
+                          }
                         }
 
                         @if (addActivityTarget?.listIndex === i && addActivityTarget?.taskIndex === ti) {
@@ -160,9 +179,78 @@
                               <mat-icon>add</mat-icon> Add Data Field
                             </button>
 
+                            <!-- Image upload zone -->
+                            <div class="activity-upload-section">
+                              <div class="add-task-header">
+                                <mat-icon>image</mat-icon>
+                                <span>Media</span>
+                              </div>
+                              <div
+                                class="activity-upload-zone"
+                                [class.drag-over]="dragOver"
+                                [class.uploading]="uploading"
+                                (dragover)="onActivityDragOver($event)"
+                                (dragleave)="onActivityDragLeave($event)"
+                                (drop)="onActivityDrop($event)"
+                              >
+                                <input
+                                  #activityFileInput
+                                  type="file"
+                                  hidden
+                                  multiple
+                                  [accept]="storageService.acceptedTypes"
+                                  (change)="onActivityFilesSelected($event)"
+                                />
+                                @if (uploading) {
+                                  <mat-progress-bar
+                                    [mode]="uploadFilesTotal > 1 ? 'determinate' : 'indeterminate'"
+                                    [value]="uploadProgress"
+                                    class="upload-progress"
+                                  ></mat-progress-bar>
+                                  <span class="upload-status">
+                                    <mat-icon class="upload-status-icon">hourglass_top</mat-icon>
+                                    Uploading {{ uploadingFileName }}
+                                    @if (uploadFilesTotal > 1) {
+                                      ({{ uploadFileIndex }} of {{ uploadFilesTotal }})
+                                    }
+                                  </span>
+                                } @else {
+                                  <mat-icon class="upload-icon">cloud_upload</mat-icon>
+                                  <span class="upload-label">Drag &amp; drop or</span>
+                                  <button type="button" class="upload-browse-btn" (click)="openActivityFilePicker()">
+                                    Browse
+                                  </button>
+                                }
+                              </div>
+
+                              <!-- Pending media thumbnails -->
+                              @if (pendingActivityMedia.length > 0) {
+                                <div class="pending-media-list">
+                                  @for (media of pendingActivityMedia; track $index; let mi = $index) {
+                                    <div class="pending-media-item">
+                                      @if (isPreviewable(media.type, media.url)) {
+                                        <img class="pending-media-thumb" [src]="media.url" [alt]="media.name || 'Media'" loading="lazy" />
+                                      } @else {
+                                        <div class="pending-media-thumb pending-media-thumb--video">
+                                          <mat-icon>videocam</mat-icon>
+                                        </div>
+                                      }
+                                      <span class="pending-media-name">{{ media.name || 'Media' }}</span>
+                                      <button mat-icon-button type="button" class="pending-media-remove" (click)="removePendingMedia(mi)" aria-label="Remove media">
+                                        <mat-icon>close</mat-icon>
+                                      </button>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            </div>
+
                             <div class="add-task-actions">
-                              <button mat-stroked-button type="button" (click)="cancelAddActivity()">Cancel</button>
-                              <button mat-raised-button color="primary" type="submit" [disabled]="addActivityForm.invalid">
+                              <button mat-stroked-button type="button" (click)="cancelAddActivity()" [disabled]="uploading">Cancel</button>
+                              <button mat-raised-button color="primary" type="submit"
+                                [disabled]="addActivityForm.invalid || uploading"
+                                [matTooltip]="uploading ? 'Upload in progress…' : ''"
+                                matTooltipPosition="above">
                                 <mat-icon>add</mat-icon> Add Activity
                               </button>
                             </div>

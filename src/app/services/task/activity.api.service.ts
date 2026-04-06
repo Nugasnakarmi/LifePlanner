@@ -151,8 +151,11 @@ export class ActivityApiService {
         throw fetchError;
       }
 
-      // Delete media files from storage (best-effort)
+      // Delete media files from storage (best-effort).
+      // Skip template-owned media (fromTemplate flag) — those files are shared
+      // with the board template and must not be removed.
       const mediaUrls = (activity?.media ?? [])
+        .filter((m: any) => !m.fromTemplate)
         .map((m: any) => m.url)
         .filter(Boolean);
       if (mediaUrls.length > 0) {
@@ -192,8 +195,11 @@ export class ActivityApiService {
         throw selectError;
       }
 
-      // Delete media files from storage (best-effort)
+      // Delete media files from storage (best-effort).
+      // Skip template-owned media (fromTemplate flag) — those files are shared
+      // with the board template and must not be removed.
       const mediaUrls = (activity?.media ?? [])
+        .filter((m: any) => !m.fromTemplate)
         .map((m: any) => m.url)
         .filter(Boolean);
       if (mediaUrls.length > 0) {

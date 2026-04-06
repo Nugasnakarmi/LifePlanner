@@ -116,7 +116,7 @@ export class TaskAPIService {
         throw taskActivitiesError;
       }
 
-      // Collect media URLs and activity IDs for cleanup
+      // Collect media URLs (excluding template-owned) and activity IDs for cleanup
       const mediaUrls: string[] = [];
       const activityIds: number[] = [];
       for (const ta of taskActivities ?? []) {
@@ -124,7 +124,8 @@ export class TaskAPIService {
         if (activity) {
           activityIds.push(activity.id);
           for (const m of activity.media ?? []) {
-            if (m.url) mediaUrls.push(m.url);
+            // Skip template-owned media — shared with the board template
+            if (m.url && !m.fromTemplate) mediaUrls.push(m.url);
           }
         }
       }

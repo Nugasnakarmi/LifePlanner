@@ -692,6 +692,208 @@
   }
 }
 
+// === Activity media badge (shown inline on existing activities) ===
+.activity-media-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(249, 208, 122, 0.08);
+  border: 1px solid rgba(249, 208, 122, 0.15);
+  color: rgba(249, 208, 122, 0.7);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+
+  mat-icon {
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+  }
+}
+
+// === Activity media thumbnails (below activity item) ===
+.activity-media-thumbs {
+  display: flex;
+  gap: 6px;
+  padding: 4px 10px 8px 34px;
+  flex-wrap: wrap;
+}
+
+.activity-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid rgba(249, 208, 122, 0.15);
+}
+
+.activity-thumb--video {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(249, 208, 122, 0.15);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: rgba(249, 208, 122, 0.5);
+  }
+}
+
+// === Activity upload zone (inside add-activity form) ===
+.activity-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activity-upload-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px dashed rgba(249, 208, 122, 0.2);
+  background: rgba(0, 0, 0, 0.12);
+  transition: all 0.2s;
+  flex-wrap: wrap;
+  position: relative;
+
+  &.drag-over {
+    border-color: #F9D07A;
+    background: rgba(249, 208, 122, 0.06);
+  }
+
+  &.uploading {
+    border-color: rgba(249, 208, 122, 0.3);
+  }
+}
+
+.upload-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: rgba(249, 208, 122, 0.4);
+}
+
+.upload-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.upload-browse-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #F9D07A;
+  background: transparent;
+  border: 1px solid rgba(249, 208, 122, 0.3);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(249, 208, 122, 0.1);
+    border-color: #F9D07A;
+  }
+}
+
+.upload-progress {
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.upload-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  color: rgba(249, 208, 122, 0.7);
+}
+
+.upload-status-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+// === Pending media list (within add-activity form) ===
+.pending-media-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pending-media-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(249, 208, 122, 0.04);
+  border: 1px solid rgba(249, 208, 122, 0.1);
+}
+
+.pending-media-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 5px;
+  object-fit: cover;
+  border: 1px solid rgba(249, 208, 122, 0.15);
+  flex-shrink: 0;
+}
+
+.pending-media-thumb--video {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: rgba(249, 208, 122, 0.5);
+  }
+}
+
+.pending-media-name {
+  flex: 1;
+  min-width: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pending-media-remove {
+  width: 22px !important;
+  height: 22px !important;
+  line-height: 22px !important;
+  color: rgba(255, 255, 255, 0.25) !important;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: #ff7878 !important;
+  }
+}
+
 // Review step: activity count next to task name
 .review-activity-count {
   font-family: 'Montserrat', sans-serif;
@@ -1421,6 +1623,90 @@
     &:hover {
       border-color: rgba(92, 64, 0, 0.3);
       color: rgba(92, 64, 0, 0.7);
+    }
+  }
+
+  .activity-media-badge {
+    background: rgba(92, 64, 0, 0.08);
+    border-color: rgba(92, 64, 0, 0.15);
+    color: rgba(92, 64, 0, 0.7);
+  }
+
+  .activity-thumb {
+    border-color: rgba(92, 64, 0, 0.15);
+  }
+
+  .activity-thumb--video {
+    background: rgba(1, 0, 20, 0.04);
+    border-color: rgba(92, 64, 0, 0.15);
+
+    mat-icon {
+      color: rgba(92, 64, 0, 0.5);
+    }
+  }
+
+  .activity-upload-zone {
+    border-color: rgba(92, 64, 0, 0.2);
+    background: rgba(1, 0, 20, 0.03);
+
+    &.drag-over {
+      border-color: #5C4000;
+      background: rgba(92, 64, 0, 0.06);
+    }
+
+    &.uploading {
+      border-color: rgba(92, 64, 0, 0.3);
+    }
+  }
+
+  .upload-icon {
+    color: rgba(92, 64, 0, 0.4);
+  }
+
+  .upload-label {
+    color: rgba(1, 0, 20, 0.4);
+  }
+
+  .upload-browse-btn {
+    color: #5C4000;
+    border-color: rgba(92, 64, 0, 0.3);
+
+    &:hover {
+      background: rgba(92, 64, 0, 0.08);
+      border-color: #5C4000;
+    }
+  }
+
+  .upload-status {
+    color: rgba(92, 64, 0, 0.7);
+  }
+
+  .pending-media-item {
+    background: rgba(92, 64, 0, 0.04);
+    border-color: rgba(92, 64, 0, 0.1);
+  }
+
+  .pending-media-thumb {
+    border-color: rgba(92, 64, 0, 0.15);
+  }
+
+  .pending-media-thumb--video {
+    background: rgba(1, 0, 20, 0.04);
+
+    mat-icon {
+      color: rgba(92, 64, 0, 0.5);
+    }
+  }
+
+  .pending-media-name {
+    color: rgba(1, 0, 20, 0.6);
+  }
+
+  .pending-media-remove {
+    color: rgba(1, 0, 20, 0.25) !important;
+
+    &:hover {
+      color: #c62828 !important;
     }
   }
 

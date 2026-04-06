@@ -75,7 +75,7 @@ export class BoardAPIService {
         throw tasksFetchError;
       }
 
-      // Collect all media URLs and activity IDs for cleanup
+      // Collect all media URLs (excluding template-owned) and activity IDs for cleanup
       const mediaUrls: string[] = [];
       const activityIds: number[] = [];
       for (const task of tasks ?? []) {
@@ -84,7 +84,8 @@ export class BoardAPIService {
           if (activity) {
             activityIds.push(activity.id);
             for (const m of activity.media ?? []) {
-              if (m.url) mediaUrls.push(m.url);
+              // Skip template-owned media — shared with the board template
+              if (m.url && !m.fromTemplate) mediaUrls.push(m.url);
             }
           }
         }
@@ -206,10 +207,12 @@ export class BoardAPIService {
             if (templateActivities.length === 0) continue;
 
             // Batch-insert all activities for this task.
+            // Media URLs are shared with the template; mark them so the delete
+            // flow skips storage cleanup for template-owned files.
             const activityRows = templateActivities.map((a) => ({
               name: this.sanitizer.sanitize(a.name),
               data: this.sanitizer.sanitizeDataFields(a.data) ?? [],
-              media: [],
+              media: (a.media ?? []).map((m) => ({ ...m, fromTemplate: true })),
               user_id: user.id,
             }));
 

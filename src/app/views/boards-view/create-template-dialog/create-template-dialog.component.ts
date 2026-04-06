@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -16,8 +16,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Actions, ofType } from '@ngrx/effects';
 import { debounceTime, filter, firstValueFrom, map, race, timer } from 'rxjs';
 import {
@@ -26,9 +28,13 @@ import {
   BoardTemplateTask,
   TemplateActivity,
 } from 'src/app/interfaces/board-template.interface';
+import { ActivityMedia } from 'src/app/interfaces/activity.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
 import { DIALOG_CACHE_KEYS, DialogFormCacheService } from 'src/app/services/dialog-form-cache/dialog-form-cache.service';
+import { StorageService } from 'src/app/services/storage/storage.service';
+import { SupabaseService } from 'src/app/services/supabase/supabase.service';
+import { ToastrService } from 'ngx-toastr';
 import * as boardTemplateActions from 'src/app/store/board-template/board-template.actions';
 
 interface CreateTemplateCache {
@@ -57,8 +63,10 @@ export interface ColumnType {
     MatIconModule,
     MatInputModule,
     MatFormFieldModule,
+    MatProgressBarModule,
     MatSelectModule,
     MatStepperModule,
+    MatTooltipModule,
   ],
   templateUrl: './create-template-dialog.component.html',
   styleUrls: ['./create-template-dialog.component.scss'],
@@ -71,6 +79,11 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
   private actions$ = inject(Actions);
   private dialogData: TemplateDialogData | null = inject(MAT_DIALOG_DATA, { optional: true });
+  storageService = inject(StorageService);
+  private supabaseService = inject(SupabaseService);
+  private toastr = inject(ToastrService);
+
+  @ViewChild('activityFileInput') activityFileInput!: ElementRef<HTMLInputElement>;
 
   /** True when the dialog was opened with an existing template to edit. */
   get isEditMode(): boolean {
@@ -95,6 +108,16 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
   expandedTask: { listIndex: number; taskIndex: number } | null = null;
   /** Which task has the add-activity inline form open. */
   addActivityTarget: { listIndex: number; taskIndex: number } | null = null;
+
+  /** Media items accumulated for the activity currently being added. */
+  pendingActivityMedia: ActivityMedia[] = [];
+  /** Whether a file upload is in progress. */
+  uploading = false;
+  /** Drag-over visual state for the upload zone. */
+  dragOver = false;
+  uploadFileIndex = 0;
+  uploadFilesTotal = 0;
+  uploadingFileName = '';
 
   infoForm!: FormGroup;
   addListForm!: FormGroup;
@@ -167,7 +190,10 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
         showAddTask: false,
         tasks: (l.tasks ?? []).map((t) => ({
           ...t,
-          activities: (t.activities ?? []).map((a) => ({ ...a })),
+          activities: (t.activities ?? []).map((a) => ({
+            ...a,
+            media: a.media ? a.media.map((m) => ({ ...m })) : undefined,
+          })),
         })),
       }));
     } else {
@@ -333,14 +359,36 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     while (this.addActivityDataFields.length > 0) {
       this.addActivityDataFields.removeAt(0);
     }
+    this.cleanupPendingMedia();
   }
 
   cancelAddActivity(): void {
+    if (this.uploading) {
+      this.toastr.info('Please wait for the upload to finish.');
+      return;
+    }
     this.addActivityTarget = null;
     this.addActivityForm.reset();
     while (this.addActivityDataFields.length > 0) {
       this.addActivityDataFields.removeAt(0);
     }
+    this.cleanupPendingMedia();
+  }
+
+  /**
+   * Best-effort cleanup: deletes any already-uploaded files from storage
+   * and clears the pending media array. Non-throwing so callers are never blocked.
+   */
+  private cleanupPendingMedia(): void {
+    if (this.pendingActivityMedia.length > 0) {
+      const urls = this.pendingActivityMedia
+        .map((m) => m.url)
+        .filter((u): u is string => !!u);
+      if (urls.length > 0) {
+        this.storageService.deleteFiles(urls); // fire-and-forget, non-throwing
+      }
+    }
+    this.pendingActivityMedia = [];
   }
 
   addActivityDataField(): void {
@@ -372,10 +420,17 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
         key: (f.key ?? '').trim(),
         value: (f.value ?? '').trim(),
       })),
+      media: this.pendingActivityMedia.length > 0 ? [...this.pendingActivityMedia] : undefined,
       position: task.activities.length,
     };
     task.activities.push(activity);
-    this.cancelAddActivity();
+    // Reset form state without deleting uploaded files (they now belong to the activity).
+    this.addActivityTarget = null;
+    this.addActivityForm.reset();
+    while (this.addActivityDataFields.length > 0) {
+      this.addActivityDataFields.removeAt(0);
+    }
+    this.pendingActivityMedia = [];
     if (!this.isEditMode) this.persistCache();
   }
 
@@ -385,6 +440,112 @@ export class CreateTemplateDialogComponent implements OnInit, OnDestroy {
     // Re-index positions so they stay contiguous.
     task.activities?.forEach((a, i) => { a.position = i; });
     if (!this.isEditMode) this.persistCache();
+  }
+
+  // ── Activity media upload ─────────────────────────────────────────────────
+
+  get uploadProgress(): number {
+    if (this.uploadFilesTotal === 0) return 0;
+    return Math.round((this.uploadFileIndex / this.uploadFilesTotal) * 100);
+  }
+
+  /** Open the native file picker for activity images. */
+  openActivityFilePicker(): void {
+    this.activityFileInput?.nativeElement?.click();
+  }
+
+  /** Handle file input change */
+  async onActivityFilesSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    await this.uploadActivityFiles(Array.from(input.files));
+    input.value = '';
+  }
+
+  /** Handle drag-over */
+  onActivityDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = true;
+  }
+
+  /** Handle drag-leave */
+  onActivityDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+  }
+
+  /** Handle drop */
+  async onActivityDrop(event: DragEvent): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+    const files = event.dataTransfer?.files;
+    if (!files?.length) return;
+    await this.uploadActivityFiles(Array.from(files));
+  }
+
+  /** Upload one or more files and add them to the pending activity media */
+  private async uploadActivityFiles(files: File[]): Promise<void> {
+    // Guard against concurrent uploads racing on shared state.
+    if (this.uploading) return;
+
+    const user = await this.supabaseService.getUser();
+    if (!user?.id) {
+      this.toastr.error('Please sign in again to upload files.');
+      return;
+    }
+
+    const validFiles: File[] = [];
+    for (const file of files) {
+      const error = this.storageService.validateFile(file);
+      if (error) {
+        this.toastr.warning(error);
+      } else {
+        validFiles.push(file);
+      }
+    }
+    if (!validFiles.length) return;
+
+    this.uploading = true;
+    this.uploadFilesTotal = validFiles.length;
+    try {
+      for (let i = 0; i < validFiles.length; i++) {
+        this.uploadFileIndex = i + 1;
+        this.uploadingFileName = validFiles[i].name;
+        const url = await this.storageService.uploadFile(validFiles[i], user.id);
+        if (url) {
+          const mediaType = this.storageService.getMediaType(
+            this.storageService.resolveMimeType(validFiles[i])
+          );
+          this.pendingActivityMedia.push({ type: mediaType, url, name: validFiles[i].name });
+        }
+      }
+    } finally {
+      this.uploading = false;
+      this.uploadFilesTotal = 0;
+      this.uploadFileIndex = 0;
+      this.uploadingFileName = '';
+    }
+  }
+
+  async removePendingMedia(index: number): Promise<void> {
+    const media = this.pendingActivityMedia[index];
+    if (!media) return;
+    this.pendingActivityMedia.splice(index, 1);
+    // Best-effort cleanup of the uploaded file from storage.
+    if (media.url) {
+      this.storageService.deleteFile(media.url).catch((err) => {
+        console.error('Failed to clean up pending media file:', media.url, err);
+      });
+    }
+  }
+
+  /** Check whether a media item is previewable (image or gif) */
+  isPreviewable(type: string | undefined, url: string | undefined): boolean {
+    if (!url) return false;
+    return type === 'image' || type === 'gif';
   }
 
   get preloadedCountText(): string {
