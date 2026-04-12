@@ -133,7 +133,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return jsonResponse({ error: "Missing authorization header" }, 401);
     }
     const token = authHeader.replace("Bearer ", "");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const serviceRoleKey =
+      Deno.env.get("service_role_key") ??
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+      "";
     if (!serviceRoleKey || token !== serviceRoleKey) {
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
