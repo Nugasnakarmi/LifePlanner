@@ -17,9 +17,10 @@
 
 -- --------------------------------------------------------
 -- Helper: check if the current user owns a specific board.
--- SECURITY DEFINER runs as the function owner (postgres/
--- service-role), bypassing RLS on the boards table and
--- breaking the recursive policy chain.
+-- SECURITY DEFINER runs with the privileges of the function
+-- owner. When that owner can read public.boards without the
+-- invoking user's RLS restrictions, this avoids recursive
+-- policy evaluation and breaks the policy chain.
 -- --------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.is_board_owner(p_board_id bigint)
 RETURNS boolean
