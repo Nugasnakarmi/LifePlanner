@@ -6,7 +6,7 @@ import { Actions, ofType } from '@ngrx/effects';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
-import { take } from 'rxjs';
+import { take, timer } from 'rxjs';
 import { SupabaseService } from 'src/app/services/supabase/supabase.service';
 import { PENDING_INVITE_TOKEN_KEY } from 'src/app/services/board/board-invitation.constants';
 import * as collabActions from 'src/app/store/board/board-collaboration.actions';
@@ -72,7 +72,11 @@ export class AcceptInvitationComponent implements OnInit {
       .subscribe((action) => {
         if (action.type === collabActions.acceptInvitationByTokenSuccess.type) {
           this.status = 'success';
-          setTimeout(() => this.router.navigate(['/boards']), SUCCESS_REDIRECT_DELAY_MS);
+          // Use timer + takeUntilDestroyed so the redirect is cancelled if the
+          // component is destroyed before the delay elapses (e.g. manual navigation).
+          timer(SUCCESS_REDIRECT_DELAY_MS)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.router.navigate(['/boards']));
         } else {
           this.status = 'error';
           this.errorMessage =
