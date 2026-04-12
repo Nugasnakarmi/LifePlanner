@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormControl,
   ReactiveFormsModule,
@@ -49,7 +49,7 @@ export interface CollaborationDialogData {
   templateUrl: './board-collaboration-dialog.component.html',
   styleUrls: ['./board-collaboration-dialog.component.scss'],
 })
-export class BoardCollaborationDialogComponent implements OnInit {
+export class BoardCollaborationDialogComponent implements OnInit, OnDestroy {
   private store = inject(Store);
   private dialogRef = inject(MatDialogRef<BoardCollaborationDialogComponent>);
   data: CollaborationDialogData = inject(MAT_DIALOG_DATA);
@@ -64,9 +64,14 @@ export class BoardCollaborationDialogComponent implements OnInit {
   ngOnInit(): void {
     const boardId = this.data.board.id;
     if (boardId) {
+      this.store.dispatch(collabActions.clearCollaboration());
       this.store.dispatch(collabActions.loadCollaborators({ boardId }));
       this.store.dispatch(collabActions.loadInvitations({ boardId }));
     }
+  }
+
+  ngOnDestroy(): void {
+    this.store.dispatch(collabActions.clearCollaboration());
   }
 
   sendInvitation(): void {
@@ -88,7 +93,6 @@ export class BoardCollaborationDialogComponent implements OnInit {
   }
 
   close(): void {
-    this.store.dispatch(collabActions.clearCollaboration());
     this.dialogRef.close();
   }
 }

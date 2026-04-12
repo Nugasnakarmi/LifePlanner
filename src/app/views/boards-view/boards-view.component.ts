@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, filter, firstValueFrom, map, Observable, skip, startWith, take } from 'rxjs';
+import { combineLatest, firstValueFrom, map, Observable, startWith, take } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
@@ -28,6 +28,8 @@ import { CreateTemplateDialogComponent, TemplateDialogData } from './create-temp
 import { BoardCollaborationDialogComponent, CollaborationDialogData } from './board-collaboration-dialog/board-collaboration-dialog.component';
 import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
 import { CollaboratorRole } from 'src/app/interfaces/board-collaborator.interface';
+import { Actions, ofType } from '@ngrx/effects';
+import * as boardActions from 'src/app/store/board/board.actions';
 
 function sortBoards(boards: Board[], sort: BoardSortOption): Board[] {
   return [...boards].sort((a, b) => {
@@ -71,6 +73,7 @@ export class BoardsViewComponent implements OnInit {
   dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
   private collabApi = inject(BoardCollaborationApiService);
+  private actions$ = inject(Actions);
 
   sortedBoards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
@@ -183,20 +186,22 @@ export class BoardsViewComponent implements OnInit {
       const role = (this.newBoardInviteRoleControl.value ?? 'editor') as CollaboratorRole;
 
       if (inviteEmail && this.newBoardInviteEmailControl.valid) {
-        // Listen for the board list to update after creation, then send the invitation
-        this.boardService.boards$.pipe(
-          skip(1),
-          map((boards) => boards.find((b) => b.name === name)),
-          filter((b): b is Board => !!b && !!b.id),
+        // Listen for the addBoardSuccess action to get the created board's ID
+        this.actions$.pipe(
+          ofType(boardActions.addBoardSuccess),
           take(1),
-        ).subscribe((newBoard) => {
-          this.collabApi.sendInvitation(newBoard.id!, inviteEmail, role);
+          takeUntilDestroyed(this.destroyRef),
+        ).subscribe(({ board: createdBoard }) => {
+          if (createdBoard.id) {
+            this.collabApi.sendInvitation(createdBoard.id, inviteEmail, role);
+          }
         });
       }
 
       this.boardService.createBoard(board);
       this.newBoardNameControl.reset();
       this.newBoardInviteEmailControl.reset();
+      this.newBoardInviteRoleControl.reset('editor');
       this.showNewBoardForm = false;
       this.showTemplates = false;
     }

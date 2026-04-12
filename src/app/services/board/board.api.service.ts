@@ -19,7 +19,7 @@ export class BoardAPIService {
   private sanitizer = inject(InputSanitizerService);
 
   //TODO - Convert promises to observables
-  async addBoard(boardData: Board): Promise<boolean> {
+  async addBoard(boardData: Board): Promise<Board | null> {
     try {
       let user: User = await this.supabaseService.getUser();
       let { data, error } = await this.supabaseService.supabase
@@ -39,10 +39,10 @@ export class BoardAPIService {
         throw new Error('Board was not returned after insert');
       }
       this.toastRService.success(`Board ${boardData.name} added successfully`);
-      return true;
+      return data as Board;
     } catch (error) {
       this.toastRService.error(`Failed to add board : ${error?.message ?? String(error)}`);
-      return false;
+      return null;
     }
   }
 

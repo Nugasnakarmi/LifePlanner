@@ -17,10 +17,17 @@ export class BoardEffects {
       ofType(boardActions.addBoard),
       mergeMap(({ board }) =>
         from(this.boardAPIService.addBoard(board)).pipe(
-          mergeMap(() => from(this.boardAPIService.getBoards())),
-          map((fetchedBoards) =>
-            boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] })
-          ),
+          mergeMap((createdBoard) => {
+            if (!createdBoard) {
+              return of(boardActions.loadBoardsFailure({ error: 'Failed to create board' }));
+            }
+            return from(this.boardAPIService.getBoards()).pipe(
+              mergeMap((fetchedBoards) => [
+                boardActions.addBoardSuccess({ board: createdBoard }),
+                boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] }),
+              ])
+            );
+          }),
           catchError((error) => {
             this.toastr.error('Failed to add board');
             return of(boardActions.loadBoardsFailure({ error }));
