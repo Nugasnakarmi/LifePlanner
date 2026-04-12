@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { CreateTemplateDialogComponent } from './views/boards-view/create-template-dialog/create-template-dialog.component';
+import { PENDING_INVITE_TOKEN_KEY } from './services/board/board-invitation.constants';
 
 @Component({
   selector: 'app-root',
@@ -61,9 +62,9 @@ export class AppComponent implements OnInit {
 
   /** If a board invitation token was saved before the user logged in, redirect to the accept page. */
   private redirectPendingInvitation(): void {
-    const token = sessionStorage.getItem('pendingInvitationToken');
+    const token = sessionStorage.getItem(PENDING_INVITE_TOKEN_KEY);
     if (token) {
-      sessionStorage.removeItem('pendingInvitationToken');
+      sessionStorage.removeItem(PENDING_INVITE_TOKEN_KEY);
       this.router.navigate(['/invite'], { queryParams: { token } });
     }
   }

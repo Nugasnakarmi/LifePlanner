@@ -6,11 +6,10 @@ import { Actions, ofType } from '@ngrx/effects';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
+import { take } from 'rxjs';
 import { SupabaseService } from 'src/app/services/supabase/supabase.service';
+import { PENDING_INVITE_TOKEN_KEY } from 'src/app/services/board/board-invitation.constants';
 import * as collabActions from 'src/app/store/board/board-collaboration.actions';
-
-/** Storage key used to preserve the invitation token across a login redirect. */
-const PENDING_INVITE_KEY = 'pendingInvitationToken';
 
 @Component({
   selector: 'app-accept-invitation',
@@ -43,7 +42,7 @@ export class AcceptInvitationComponent implements OnInit {
 
     if (!session) {
       // Save the token so it can be picked up after the user logs in.
-      sessionStorage.setItem(PENDING_INVITE_KEY, token);
+      sessionStorage.setItem(PENDING_INVITE_TOKEN_KEY, token);
       this.status = 'unauthenticated';
       return;
     }
@@ -54,12 +53,14 @@ export class AcceptInvitationComponent implements OnInit {
   private acceptToken(token: string): void {
     this.status = 'loading';
 
+    // Set up the result listener before dispatching so no action is missed.
     this.actions$
       .pipe(
         ofType(
           collabActions.acceptInvitationByTokenSuccess,
           collabActions.acceptInvitationByTokenFailure
         ),
+        take(1),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((action) => {
