@@ -7,6 +7,11 @@ export const addBoard = createAction(
   props<{ board: Board }>()
 );
 
+export const addBoardSuccess = createAction(
+  '[Boards] Board was added successfully',
+  props<{ board: Board }>()
+);
+
 export const loadBoards = createAction('[Boards] Load Boards');
 export const loadBoardsSuccess = createAction(
   '[Boards] Load Boards Success',

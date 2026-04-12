@@ -811,6 +811,15 @@ $gold: #F9D07A;
   .template-delete-btn {
     color: rgba(1, 0, 20, 0.25) !important;
   }
+
+  .new-board-invite {
+    background: rgba(92, 64, 0, 0.03);
+    border-color: rgba(92, 64, 0, 0.1);
+
+    .invite-header {
+      color: #7A5900;
+    }
+  }
 }
 
 // Template list count badge (replaces category badge since category is not in DB)
@@ -822,6 +831,62 @@ $gold: #F9D07A;
   border-radius: 4px;
   padding: 2px 8px;
   white-space: nowrap;
+}
+
+// Invite collaborator section in new board form
+.new-board-invite {
+  margin-top: -16px;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background: rgba(249, 208, 122, 0.03);
+  border: 1px solid rgba(249, 208, 122, 0.08);
+  border-radius: 12px;
+
+  .invite-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(249, 208, 122, 0.7);
+    margin-bottom: 12px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .invite-fields {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+
+    mat-form-field {
+      flex: 1;
+    }
+
+    .role-select {
+      width: 120px;
+      flex: 0 0 120px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 12px 16px;
+
+    .invite-fields {
+      flex-direction: column;
+      gap: 0;
+
+      .role-select {
+        width: 100%;
+        flex: none;
+      }
+    }
+  }
 }
 
 .loading-container {

@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, firstValueFrom, map, Observable, startWith } from 'rxjs';
+import { combineLatest, firstValueFrom, map, Observable, startWith, take } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
@@ -25,6 +25,11 @@ import { BoardTemplateService } from 'src/app/services/board-template/board-temp
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
 import { UserProfileService } from 'src/app/services/user-profile.service';
 import { CreateTemplateDialogComponent, TemplateDialogData } from './create-template-dialog/create-template-dialog.component';
+import { BoardCollaborationDialogComponent, CollaborationDialogData } from './board-collaboration-dialog/board-collaboration-dialog.component';
+import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
+import { CollaboratorRole } from 'src/app/interfaces/board-collaborator.interface';
+import { Actions, ofType } from '@ngrx/effects';
+import * as boardActions from 'src/app/store/board/board.actions';
 
 function sortBoards(boards: Board[], sort: BoardSortOption): Board[] {
   return [...boards].sort((a, b) => {
@@ -67,6 +72,8 @@ export class BoardsViewComponent implements OnInit {
   route = inject(ActivatedRoute);
   dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private collabApi = inject(BoardCollaborationApiService);
+  private actions$ = inject(Actions);
 
   sortedBoards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
@@ -93,6 +100,9 @@ export class BoardsViewComponent implements OnInit {
   ]);
 
   editBoardDescriptionControl = new UntypedFormControl('');
+
+  newBoardInviteEmailControl = new UntypedFormControl('', [Validators.email]);
+  newBoardInviteRoleControl = new UntypedFormControl('editor');
 
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
@@ -171,8 +181,27 @@ export class BoardsViewComponent implements OnInit {
     const name = this.newBoardNameControl.value?.trim();
     if (name && this.newBoardNameControl.valid) {
       const board: Board = { name, description: '' };
+
+      const inviteEmail = this.newBoardInviteEmailControl.value?.trim();
+      const role = (this.newBoardInviteRoleControl.value ?? 'editor') as CollaboratorRole;
+
+      if (inviteEmail && this.newBoardInviteEmailControl.valid) {
+        // Listen for the addBoardSuccess action to get the created board's ID
+        this.actions$.pipe(
+          ofType(boardActions.addBoardSuccess),
+          take(1),
+          takeUntilDestroyed(this.destroyRef),
+        ).subscribe(({ board: createdBoard }) => {
+          if (createdBoard.id) {
+            this.collabApi.sendInvitation(createdBoard.id, inviteEmail, role);
+          }
+        });
+      }
+
       this.boardService.createBoard(board);
       this.newBoardNameControl.reset();
+      this.newBoardInviteEmailControl.reset();
+      this.newBoardInviteRoleControl.reset('editor');
       this.showNewBoardForm = false;
       this.showTemplates = false;
     }
@@ -242,6 +271,17 @@ export class BoardsViewComponent implements OnInit {
   cancelEditBoard(event: Event): void {
     event.stopPropagation();
     this.editingBoardId = null;
+  }
+
+  openShareDialog(board: Board, event: Event): void {
+    event.stopPropagation();
+    const data: CollaborationDialogData = { board };
+    this.dialog.open(BoardCollaborationDialogComponent, {
+      panelClass: 'board-collaboration-panel',
+      data,
+      width: '520px',
+      maxWidth: '95vw',
+    });
   }
 
   /** Prevent page scroll when Space is pressed on a card acting as a button. */
