@@ -47,8 +47,6 @@ export interface CollaborationDialogData {
     MatTooltipModule,
   ],
   styles: [`
-    $gold: #F9D07A;
-
     :host {
       display: block;
       padding: 28px 32px;
@@ -62,18 +60,21 @@ export interface CollaborationDialogData {
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
+    }
 
-      h2 {
-        font-size: 22px;
-        font-weight: 800;
-        margin: 0;
-        letter-spacing: -0.3px;
-      }
+    .dialog-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: -0.3px;
+    }
 
-      .close-btn {
-        color: rgba(255, 255, 255, 0.5);
-        &:hover { color: #fff; }
-      }
+    .dialog-header .close-btn {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .dialog-header .close-btn:hover {
+      color: #fff;
     }
 
     .board-name {
@@ -88,18 +89,18 @@ export interface CollaborationDialogData {
       gap: 8px;
       align-items: flex-start;
       margin-bottom: 28px;
+    }
 
-      mat-form-field {
-        flex: 1;
-      }
+    .invite-section mat-form-field {
+      flex: 1;
+    }
 
-      .role-select {
-        width: 110px;
-      }
+    .invite-section .role-select {
+      width: 110px;
+    }
 
-      .send-btn {
-        margin-top: 4px;
-      }
+    .invite-section .send-btn {
+      margin-top: 4px;
     }
 
     .section-label {
@@ -112,13 +113,13 @@ export interface CollaborationDialogData {
       display: flex;
       align-items: center;
       gap: 6px;
+    }
 
-      mat-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
-        color: rgba(249, 208, 122, 0.5);
-      }
+    .section-label mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: rgba(249, 208, 122, 0.5);
     }
 
     .person-row {
@@ -127,10 +128,10 @@ export interface CollaborationDialogData {
       gap: 12px;
       padding: 10px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
 
-      &:last-child {
-        border-bottom: none;
-      }
+    .person-row:last-child {
+      border-bottom: none;
     }
 
     .avatar-placeholder {
@@ -142,13 +143,13 @@ export interface CollaborationDialogData {
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+    }
 
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        color: rgba(249, 208, 122, 0.6);
-      }
+    .avatar-placeholder mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: rgba(249, 208, 122, 0.6);
     }
 
     .avatar-img {
@@ -162,20 +163,20 @@ export interface CollaborationDialogData {
     .person-info {
       flex: 1;
       min-width: 0;
+    }
 
-      .person-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #fff;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+    .person-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-      .person-status {
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.4);
-      }
+    .person-status {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
     }
 
     .role-badge {
@@ -186,24 +187,24 @@ export interface CollaborationDialogData {
       padding: 3px 10px;
       border-radius: 12px;
       white-space: nowrap;
+    }
 
-      &--editor {
-        background: rgba(72, 149, 239, 0.15);
-        color: #4895ef;
-        border: 1px solid rgba(72, 149, 239, 0.3);
-      }
+    .role-badge--editor {
+      background: rgba(72, 149, 239, 0.15);
+      color: #4895ef;
+      border: 1px solid rgba(72, 149, 239, 0.3);
+    }
 
-      &--viewer {
-        background: rgba(72, 199, 142, 0.15);
-        color: #48c78e;
-        border: 1px solid rgba(72, 199, 142, 0.3);
-      }
+    .role-badge--viewer {
+      background: rgba(72, 199, 142, 0.15);
+      color: #48c78e;
+      border: 1px solid rgba(72, 199, 142, 0.3);
+    }
 
-      &--pending {
-        background: rgba(249, 208, 122, 0.12);
-        color: rgba(249, 208, 122, 0.7);
-        border: 1px solid rgba(249, 208, 122, 0.25);
-      }
+    .role-badge--pending {
+      background: rgba(249, 208, 122, 0.12);
+      color: rgba(249, 208, 122, 0.7);
+      border: 1px solid rgba(249, 208, 122, 0.25);
     }
 
     .action-btn {
@@ -211,16 +212,16 @@ export interface CollaborationDialogData {
       width: 28px;
       height: 28px;
       line-height: 28px;
+    }
 
-      mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-      }
+    .action-btn mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
 
-      &:hover {
-        color: #ff7878;
-      }
+    .action-btn:hover {
+      color: #ff7878;
     }
 
     .empty-message {
@@ -247,25 +248,15 @@ export interface CollaborationDialogData {
 
       .invite-section {
         flex-wrap: wrap;
-
-        mat-form-field { width: 100%; }
-        .role-select { width: 100%; }
       }
-    }
 
-    :host-context(.light-mode) {
-      color: #010014;
+      .invite-section mat-form-field {
+        width: 100%;
+      }
 
-      .dialog-header h2 { color: #010014; }
-      .board-name { color: #7A5900; }
-      .close-btn { color: rgba(1, 0, 20, 0.5); &:hover { color: #010014; } }
-      .section-label { color: rgba(1, 0, 20, 0.35); }
-      .person-info .person-name { color: #010014; }
-      .person-info .person-status { color: rgba(1, 0, 20, 0.4); }
-      .avatar-placeholder { background: rgba(122, 89, 0, 0.1); mat-icon { color: #7A5900; } }
-      .empty-message { color: rgba(1, 0, 20, 0.35); }
-      .action-btn { color: rgba(1, 0, 20, 0.25); }
-      .person-row { border-bottom-color: rgba(1, 0, 20, 0.06); }
+      .invite-section .role-select {
+        width: 100%;
+      }
     }
   `],
   template: `

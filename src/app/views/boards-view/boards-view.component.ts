@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, firstValueFrom, map, Observable, startWith } from 'rxjs';
+import { combineLatest, filter, firstValueFrom, map, Observable, skip, startWith, take } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
@@ -178,21 +178,23 @@ export class BoardsViewComponent implements OnInit {
     const name = this.newBoardNameControl.value?.trim();
     if (name && this.newBoardNameControl.valid) {
       const board: Board = { name, description: '' };
-      this.boardService.createBoard(board);
 
       const inviteEmail = this.newBoardInviteEmailControl.value?.trim();
+      const role = (this.newBoardInviteRoleControl.value ?? 'editor') as CollaboratorRole;
+
       if (inviteEmail && this.newBoardInviteEmailControl.valid) {
-        const role = (this.newBoardInviteRoleControl.value ?? 'editor') as CollaboratorRole;
-        // Send invitation after a short delay to allow the board to be created first
-        setTimeout(async () => {
-          const boards = await firstValueFrom(this.boardService.boards$);
-          const newBoard = boards.find((b) => b.name === name);
-          if (newBoard?.id) {
-            this.collabApi.sendInvitation(newBoard.id, inviteEmail, role);
-          }
-        }, 2000);
+        // Listen for the board list to update after creation, then send the invitation
+        this.boardService.boards$.pipe(
+          skip(1),
+          map((boards) => boards.find((b) => b.name === name)),
+          filter((b): b is Board => !!b && !!b.id),
+          take(1),
+        ).subscribe((newBoard) => {
+          this.collabApi.sendInvitation(newBoard.id!, inviteEmail, role);
+        });
       }
 
+      this.boardService.createBoard(board);
       this.newBoardNameControl.reset();
       this.newBoardInviteEmailControl.reset();
       this.showNewBoardForm = false;
