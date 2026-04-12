@@ -25,7 +25,7 @@ import { BoardTemplateService } from 'src/app/services/board-template/board-temp
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
 import { UserProfileService } from 'src/app/services/user-profile.service';
 import { CreateTemplateDialogComponent, TemplateDialogData } from './create-template-dialog/create-template-dialog.component';
-import { BoardCollaborationDialogComponent, CollaborationDialogData } from './board-collaboration-dialog.component';
+import { BoardCollaborationDialogComponent, CollaborationDialogData } from './board-collaboration-dialog/board-collaboration-dialog.component';
 import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
 import { CollaboratorRole } from 'src/app/interfaces/board-collaborator.interface';
 

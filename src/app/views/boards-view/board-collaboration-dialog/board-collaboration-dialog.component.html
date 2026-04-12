@@ -1,0 +1,109 @@
+<div class="dialog-header">
+  <h2>Share Board</h2>
+  <button mat-icon-button class="close-btn" (click)="close()" aria-label="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+<div class="board-name">{{ data.board.name }}</div>
+
+<div class="invite-section">
+  <mat-form-field appearance="outline">
+    <mat-label>Email address</mat-label>
+    <input matInput [formControl]="emailControl" placeholder="colleague@example.com" (keydown.enter)="sendInvitation()" />
+    @if (emailControl.hasError('email') && !emailControl.hasError('required')) {
+      <mat-error>Please enter a valid email</mat-error>
+    }
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="role-select">
+    <mat-label>Role</mat-label>
+    <mat-select [formControl]="roleControl">
+      <mat-option value="editor">Editor</mat-option>
+      <mat-option value="viewer">Viewer</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button mat-raised-button color="primary" class="send-btn"
+          (click)="sendInvitation()"
+          [disabled]="emailControl.invalid"
+          matTooltip="Send invitation">
+    <mat-icon>send</mat-icon>
+  </button>
+</div>
+
+@if (loading$ | async) {
+  <div class="loading-container">
+    <mat-spinner diameter="32"></mat-spinner>
+  </div>
+} @else {
+  <!-- Collaborators -->
+  @if (collaborators$ | async; as collaborators) {
+    @if (collaborators.length > 0) {
+      <div class="collaborator-list">
+        <div class="section-label">
+          <mat-icon>group</mat-icon>
+          Collaborators
+        </div>
+        @for (collab of collaborators; track collab.id) {
+          <div class="person-row">
+            @if (collab.avatar_url) {
+              <img class="avatar-img" [src]="collab.avatar_url" alt="" />
+            } @else {
+              <div class="avatar-placeholder">
+                <mat-icon>person</mat-icon>
+              </div>
+            }
+            <div class="person-info">
+              <div class="person-name">{{ collab.display_name || 'User' }}</div>
+              <div class="person-status">{{ collab.status }}</div>
+            </div>
+            <span class="role-badge"
+                  [class.role-badge--editor]="collab.role === 'editor'"
+                  [class.role-badge--viewer]="collab.role === 'viewer'"
+                  [class.role-badge--pending]="collab.status === 'pending'">
+              {{ collab.role }}
+            </span>
+            <button mat-icon-button class="action-btn"
+                    (click)="removeCollaborator(collab.id)"
+                    matTooltip="Remove collaborator"
+                    [attr.aria-label]="'Remove ' + (collab.display_name || 'collaborator')">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Pending email invitations -->
+  @if (invitations$ | async; as invitations) {
+    @if (invitations.length > 0) {
+      <div class="invitation-list">
+        <div class="section-label">
+          <mat-icon>mail_outline</mat-icon>
+          Pending Invitations
+        </div>
+        @for (inv of invitations; track inv.id) {
+          <div class="person-row">
+            <div class="avatar-placeholder">
+              <mat-icon>mail</mat-icon>
+            </div>
+            <div class="person-info">
+              <div class="person-name">{{ inv.email }}</div>
+              <div class="person-status">Sent {{ inv.created_at | date:'shortDate' }} · Expires {{ inv.expires_at | date:'shortDate' }}</div>
+            </div>
+            <span class="role-badge role-badge--pending">{{ inv.role }}</span>
+            <button mat-icon-button class="action-btn"
+                    (click)="revokeInvitation(inv.id)"
+                    matTooltip="Revoke invitation"
+                    [attr.aria-label]="'Revoke invitation to ' + inv.email">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if ((collaborators$ | async)?.length === 0 && (invitations$ | async)?.length === 0) {
+    <p class="empty-message">No collaborators yet. Invite someone by email above.</p>
+  }
+}

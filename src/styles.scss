@@ -356,23 +356,6 @@ html.light-mode .board-collaboration-panel {
   .mdc-dialog__surface {
     background: #ffffff !important;
   }
-
-  app-board-collaboration-dialog {
-    color: #010014;
-
-    .dialog-header h2 { color: #010014; }
-    .board-name { color: #7A5900; }
-    .close-btn { color: rgba(1, 0, 20, 0.5); }
-    .close-btn:hover { color: #010014; }
-    .section-label { color: rgba(1, 0, 20, 0.35); }
-    .person-name { color: #010014; }
-    .person-status { color: rgba(1, 0, 20, 0.4); }
-    .avatar-placeholder { background: rgba(122, 89, 0, 0.1); }
-    .avatar-placeholder mat-icon { color: #7A5900; }
-    .empty-message { color: rgba(1, 0, 20, 0.35); }
-    .action-btn { color: rgba(1, 0, 20, 0.25); }
-    .person-row { border-bottom-color: rgba(1, 0, 20, 0.06); }
-  }
 }
 
 @media (forced-colors: active) {
