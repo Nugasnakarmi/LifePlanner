@@ -128,16 +128,23 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   try {
     // ── Auth: only allow service-role calls ──────────────────────
+    // The Supabase Edge runtime already verifies the JWT signature.
+    // We decode the payload and check the role claim directly, which
+    // avoids a fragile string comparison between two copies of the key.
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return jsonResponse({ error: "Missing authorization header" }, 401);
     }
-    const token = authHeader.replace("Bearer ", "");
-    const serviceRoleKey =
-      Deno.env.get("service_role_key") ??
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
-      "";
-    if (!serviceRoleKey || token !== serviceRoleKey) {
+    const token = authHeader.slice("Bearer ".length);
+    let jwtRole: string | undefined;
+    try {
+      const parts = token.split(".");
+      if (parts.length !== 3) throw new Error("malformed JWT");
+      jwtRole = JSON.parse(atob(parts[1])).role;
+    } catch {
+      return jsonResponse({ error: "Unauthorized" }, 401);
+    }
+    if (jwtRole !== "service_role") {
       return jsonResponse({ error: "Unauthorized" }, 401);
     }
 
