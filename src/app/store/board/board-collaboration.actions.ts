@@ -3,6 +3,7 @@ import {
   BoardCollaborator,
   BoardInvitation,
   CollaboratorRole,
+  PendingInvitationWithBoard,
 } from 'src/app/interfaces/board-collaborator.interface';
 
 // ── Load collaborators for a board ────────────────────────
@@ -92,7 +93,7 @@ export const loadPendingInvitations = createAction(
 
 export const loadPendingInvitationsSuccess = createAction(
   '[Board Collaboration] Load Pending Invitations Success',
-  props<{ pendingInvitations: BoardCollaborator[] }>()
+  props<{ pendingInvitations: PendingInvitationWithBoard[] }>()
 );
 
 export const loadPendingInvitationsFailure = createAction(

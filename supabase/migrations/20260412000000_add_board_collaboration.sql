@@ -39,17 +39,20 @@ CREATE TABLE public.board_invitations (
   token       uuid   NOT NULL DEFAULT gen_random_uuid(),
   created_at  timestamptz NOT NULL DEFAULT now(),
   expires_at  timestamptz NOT NULL DEFAULT (now() + interval '7 days'),
-  UNIQUE (board_id, email)
+  UNIQUE (board_id, email),
+  -- Token must be unique so SELECT…INTO in accept_board_invitation() never returns multiple rows
+  UNIQUE (token)
 );
 
 CREATE INDEX idx_board_invitations_board_id ON public.board_invitations (board_id);
 CREATE INDEX idx_board_invitations_email    ON public.board_invitations (email);
-CREATE INDEX idx_board_invitations_token    ON public.board_invitations (token);
 
 -- ============================================================
 -- Helper function: check if the current user is the board owner
 -- or an accepted collaborator with at least the given role.
 -- Role hierarchy: owner > editor > viewer
+-- SECURITY DEFINER with a fixed search_path to prevent hijacking.
+-- Restricted to authenticated users only.
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.has_board_access(
   p_board_id bigint,
@@ -59,6 +62,7 @@ RETURNS boolean
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
+SET search_path = public, pg_catalog
 AS $$
   SELECT EXISTS (
     -- Board owner always has access
@@ -77,6 +81,10 @@ AS $$
           END
   );
 $$;
+
+-- Deny anonymous access; only authenticated users may call this function.
+REVOKE EXECUTE ON FUNCTION public.has_board_access FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.has_board_access TO authenticated;
 
 -- ============================================================
 -- RLS for board_collaborators
@@ -104,26 +112,90 @@ CREATE POLICY "Board owners can insert collaborators"
     )
   );
 
--- Board owners can update collaborator roles; collaborators can accept/decline
-CREATE POLICY "Board owners and invitees can update collaborators"
+-- Board owners can update collaborator roles; collaborators can accept/decline.
+-- A BEFORE UPDATE trigger (below) enforces field-level restrictions:
+-- invitees may only change status/accepted_at; they cannot escalate their role
+-- or reassign the row to a different board.
+
+-- Trigger function: restrict which columns invitees may update.
+-- Board owners bypass the restrictions so they can change roles freely.
+CREATE OR REPLACE FUNCTION public.enforce_board_collaborator_update()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public, pg_catalog
+AS $$
+BEGIN
+  -- Board owners have full update rights.
+  IF EXISTS (
+    SELECT 1
+    FROM public.boards b
+    WHERE b.id = OLD.board_id
+      AND b.user_id = auth.uid()
+  ) THEN
+    RETURN NEW;
+  END IF;
+
+  -- For everyone else the row must belong to the caller.
+  IF OLD.user_id <> auth.uid() THEN
+    RAISE EXCEPTION 'You can only update your own collaborator record';
+  END IF;
+
+  -- Invitees may not change structural fields.
+  IF NEW.board_id    IS DISTINCT FROM OLD.board_id
+  OR NEW.user_id     IS DISTINCT FROM OLD.user_id
+  OR NEW.role        IS DISTINCT FROM OLD.role
+  OR NEW.invited_by  IS DISTINCT FROM OLD.invited_by
+  THEN
+    RAISE EXCEPTION 'Invitees may only update acceptance fields (status, accepted_at)';
+  END IF;
+
+  -- Invitees may only move to accepted or declined.
+  IF NEW.status NOT IN ('accepted', 'declined') THEN
+    RAISE EXCEPTION 'Invitees may only accept or decline invitations';
+  END IF;
+
+  -- Auto-set accepted_at to match the transition.
+  IF NEW.status = 'accepted' THEN
+    NEW.accepted_at := COALESCE(NEW.accepted_at, now());
+  ELSE
+    NEW.accepted_at := NULL;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER enforce_board_collaborator_update_trigger
+  BEFORE UPDATE ON public.board_collaborators
+  FOR EACH ROW
+  EXECUTE FUNCTION public.enforce_board_collaborator_update();
+
+-- Board owners can fully manage collaborator rows on their boards.
+CREATE POLICY "Board owners can update collaborators"
   ON public.board_collaborators FOR UPDATE
   USING (
     EXISTS (
       SELECT 1 FROM public.boards b
       WHERE b.id = board_id AND b.user_id = auth.uid()
     )
-    OR user_id = auth.uid()
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM public.boards b
       WHERE b.id = board_id AND b.user_id = auth.uid()
     )
-    OR user_id = auth.uid()
   );
 
--- Only board owners can remove collaborators
-CREATE POLICY "Board owners can delete collaborators"
+-- Invitees can update their own row; the trigger enforces
+-- that only status/accepted_at fields may change.
+CREATE POLICY "Invitees can update their own collaboration status"
+  ON public.board_collaborators FOR UPDATE
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
+
+-- Board owners can remove any collaborator; collaborators can remove themselves (leave the board).
+CREATE POLICY "Board owners and collaborators can delete collaborators"
   ON public.board_collaborators FOR DELETE
   USING (
     EXISTS (
@@ -300,11 +372,13 @@ CREATE POLICY "Collaborators can view shared board activities"
     )
   );
 
--- Collaborators can insert activities for shared board tasks
+-- Collaborators can insert activities for shared board tasks,
+-- but must set themselves as the owner to preserve activity ownership.
 CREATE POLICY "Collaborators can insert shared board activities"
   ON public.activities FOR INSERT
   WITH CHECK (
     auth.uid() IS NOT NULL
+    AND auth.uid() = user_id
   );
 
 -- Collaborators can update activities linked to shared board tasks
@@ -348,7 +422,9 @@ CREATE POLICY "Collaborators can view shared board task activities"
     )
   );
 
--- Collaborators can insert task_activities for shared board tasks
+-- Collaborators can insert task_activities for shared board tasks.
+-- The activity being linked must be owned by the caller so a collaborator
+-- cannot attach another user's private activity to a shared board.
 CREATE POLICY "Collaborators can insert shared board task activities"
   ON public.task_activities FOR INSERT
   WITH CHECK (
@@ -357,6 +433,11 @@ CREATE POLICY "Collaborators can insert shared board task activities"
       WHERE t.id = task_id
         AND t.board_id IS NOT NULL
         AND public.has_board_access(t.board_id, 'editor')
+    )
+    AND EXISTS (
+      SELECT 1 FROM public.activities a
+      WHERE a.id = activity_id
+        AND a.user_id = auth.uid()
     )
   );
 
@@ -388,16 +469,25 @@ CREATE POLICY "Collaborators can delete shared board task activities"
 -- RPC: Accept a board invitation (token-based)
 -- Validates the token, creates a board_collaborator record,
 -- and deletes the invitation in a single transaction.
+-- SECURITY DEFINER with a fixed search_path to prevent hijacking.
+-- Restricted to authenticated users; returns a structured error for
+-- unauthenticated callers instead of raising an exception.
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.accept_board_invitation(p_token uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_catalog
 AS $$
 DECLARE
   v_invitation record;
   v_collaborator_id bigint;
 BEGIN
+  -- Reject unauthenticated callers early.
+  IF auth.uid() IS NULL THEN
+    RETURN jsonb_build_object('success', false, 'error', 'Authentication required');
+  END IF;
+
   -- Find the invitation
   SELECT * INTO v_invitation
   FROM public.board_invitations
@@ -428,3 +518,7 @@ BEGIN
   );
 END;
 $$;
+
+-- Deny anonymous access; only authenticated users may call this function.
+REVOKE EXECUTE ON FUNCTION public.accept_board_invitation FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.accept_board_invitation TO authenticated;

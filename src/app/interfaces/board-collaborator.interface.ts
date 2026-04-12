@@ -15,6 +15,15 @@ export interface BoardCollaborator {
   avatar_url?: string;
 }
 
+/** BoardCollaborator with the parent board's basic info (used for pending invitations). */
+export interface PendingInvitationWithBoard extends BoardCollaborator {
+  board?: {
+    id: number;
+    name: string;
+    description?: string;
+  };
+}
+
 export interface BoardInvitation {
   id: number;
   board_id: number;

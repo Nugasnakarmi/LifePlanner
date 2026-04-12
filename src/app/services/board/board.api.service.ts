@@ -82,7 +82,10 @@ export class BoardAPIService {
       }
 
       return Array.from(boardMap.values());
-    } catch (error) {}
+    } catch (error: any) {
+      this.toastRService.error(`Failed to fetch boards: ${error?.message ?? error}`);
+      return [];
+    }
   }
 
   async deleteBoard(boardId: number): Promise<boolean> {

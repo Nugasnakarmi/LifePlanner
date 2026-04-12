@@ -7,6 +7,7 @@ import {
   BoardCollaborator,
   BoardInvitation,
   CollaboratorRole,
+  PendingInvitationWithBoard,
 } from 'src/app/interfaces/board-collaborator.interface';
 
 @Injectable({
@@ -24,19 +25,45 @@ export class BoardCollaborationApiService {
     try {
       const { data, error } = await this.supabaseService.supabase
         .from('board_collaborators')
-        .select('*, profile:user_preferences(display_name, avatar_url)')
+        .select('*')
         .eq('board_id', boardId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      return (data ?? []).map((row: any) => ({
-        ...row,
-        display_name: row.profile?.display_name ?? null,
-        avatar_url: row.profile?.avatar_url ?? null,
-        profile: undefined,
-      }));
-    } catch (error) {
+      const collaborators = data ?? [];
+      const userIds = [...new Set(collaborators.map((row: any) => row.user_id).filter(Boolean))];
+
+      let profileMap = new Map<string, { display_name: string | null; avatar_url: string | null }>();
+
+      if (userIds.length > 0) {
+        const { data: profiles, error: profilesError } = await this.supabaseService.supabase
+          .from('user_preferences')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        profileMap = new Map(
+          (profiles ?? []).map((profile: any) => [
+            profile.user_id,
+            {
+              display_name: profile.display_name ?? null,
+              avatar_url: profile.avatar_url ?? null,
+            },
+          ])
+        );
+      }
+
+      return collaborators.map((row: any) => {
+        const profile = profileMap.get(row.user_id);
+        return {
+          ...row,
+          display_name: profile?.display_name ?? null,
+          avatar_url: profile?.avatar_url ?? null,
+        };
+      });
+    } catch (error: any) {
       this.toastr.error(`Failed to load collaborators: ${error?.message ?? error}`);
       return [];
     }
@@ -67,7 +94,7 @@ export class BoardCollaborationApiService {
 
       this.toastr.success('Collaborator added');
       return data as BoardCollaborator;
-    } catch (error) {
+    } catch (error: any) {
       this.toastr.error(`Failed to add collaborator: ${error?.message ?? error}`);
       return null;
     }
@@ -88,7 +115,7 @@ export class BoardCollaborationApiService {
 
       this.toastr.success('Collaborator role updated');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.toastr.error(`Failed to update role: ${error?.message ?? error}`);
       return false;
     }
@@ -106,7 +133,7 @@ export class BoardCollaborationApiService {
 
       this.toastr.success('Collaborator removed');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.toastr.error(`Failed to remove collaborator: ${error?.message ?? error}`);
       return false;
     }
@@ -130,14 +157,14 @@ export class BoardCollaborationApiService {
 
       this.toastr.success(accept ? 'Invitation accepted' : 'Invitation declined');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.toastr.error(`Failed to respond to invitation: ${error?.message ?? error}`);
       return false;
     }
   }
 
-  /** Get pending invitations for the current user. */
-  async getPendingInvitations(): Promise<BoardCollaborator[]> {
+  /** Get pending invitations for the current user, including basic board info. */
+  async getPendingInvitations(): Promise<PendingInvitationWithBoard[]> {
     try {
       const user: User = await this.supabaseService.getUser();
 
@@ -149,8 +176,8 @@ export class BoardCollaborationApiService {
 
       if (error) throw error;
 
-      return (data ?? []) as BoardCollaborator[];
-    } catch (error) {
+      return (data ?? []) as PendingInvitationWithBoard[];
+    } catch (error: any) {
       this.toastr.error(`Failed to load invitations: ${error?.message ?? error}`);
       return [];
     }
@@ -183,7 +210,7 @@ export class BoardCollaborationApiService {
 
       this.toastr.success(`Invitation sent to ${sanitizedEmail}`);
       return data as BoardInvitation;
-    } catch (error) {
+    } catch (error: any) {
       this.toastr.error(`Failed to send invitation: ${error?.message ?? error}`);
       return null;
     }
@@ -201,7 +228,7 @@ export class BoardCollaborationApiService {
       if (error) throw error;
 
       return (data ?? []) as BoardInvitation[];
-    } catch (error) {
+    } catch (error: any) {
       this.toastr.error(`Failed to load invitations: ${error?.message ?? error}`);
       return [];
     }
@@ -219,7 +246,7 @@ export class BoardCollaborationApiService {
 
       this.toastr.success('Invitation revoked');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.toastr.error(`Failed to revoke invitation: ${error?.message ?? error}`);
       return false;
     }
@@ -242,9 +269,10 @@ export class BoardCollaborationApiService {
         this.toastr.error(result.error ?? 'Failed to accept invitation');
       }
       return result;
-    } catch (error) {
+    } catch (error: any) {
       this.toastr.error(`Failed to accept invitation: ${error?.message ?? error}`);
       return { success: false, error: error?.message ?? String(error) };
     }
   }
 }
+
