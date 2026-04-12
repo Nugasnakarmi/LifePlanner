@@ -49,17 +49,39 @@ export class BoardAPIService {
   async getBoards(): Promise<Board[]> {
     try {
       let user: User = await this.supabaseService.getUser();
-      let { data: boards, error } = await this.supabaseService.supabase
+
+      // Fetch own boards
+      let { data: ownBoards, error: ownError } = await this.supabaseService.supabase
         .from('boards')
         .select('*')
         .eq('user_id', user.id);
-      if (error) {
-        throw error;
+      if (ownError) {
+        throw ownError;
       }
 
-      if (boards) {
-        return boards;
+      // Fetch boards shared with the user via accepted collaboration
+      let { data: sharedBoards, error: sharedError } = await this.supabaseService.supabase
+        .from('board_collaborators')
+        .select('board:boards(*)')
+        .eq('user_id', user.id)
+        .eq('status', 'accepted');
+      if (sharedError) {
+        throw sharedError;
       }
+
+      const shared = (sharedBoards ?? [])
+        .map((row: any) => row.board as Board)
+        .filter(Boolean);
+
+      // Merge and deduplicate by id
+      const boardMap = new Map<number, Board>();
+      for (const b of [...(ownBoards ?? []), ...shared]) {
+        if (b.id != null) {
+          boardMap.set(b.id, b);
+        }
+      }
+
+      return Array.from(boardMap.values());
     } catch (error) {}
   }
 
