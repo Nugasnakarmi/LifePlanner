@@ -102,13 +102,13 @@ function buildEmailHtml(
         <span class="role-badge">${escapeHtml(role)}</span>.
       </p>
       <p>Click the button below to accept the invitation:</p>
-      <p><a class="cta" href="${inviteLink}">Accept Invitation</a></p>
+      <p><a class="cta" href="${escapeHtml(inviteLink)}">Accept Invitation</a></p>
       <p style="font-size:13px;color:#666;">
         Or copy and paste this URL into your browser:<br/>
-        <a href="${inviteLink}" style="color:#4f46e5;word-break:break-all;">${inviteLink}</a>
+        <a href="${escapeHtml(inviteLink)}" style="color:#4f46e5;word-break:break-all;">${escapeHtml(inviteLink)}</a>
       </p>
       <p style="font-size:13px;color:#999;">
-        This invitation expires on <strong>${escapeHtml(expiresDate)}</strong>.
+        This invitation expires on <strong>${expiresDate}</strong>.
       </p>
     </div>
     <div class="footer">
