@@ -36,6 +36,28 @@
       Create
     </button>
   </div>
+  <div class="new-board-invite">
+    <div class="invite-header">
+      <mat-icon>person_add</mat-icon>
+      <span>Invite a collaborator (optional)</span>
+    </div>
+    <div class="invite-fields">
+      <mat-form-field appearance="outline">
+        <mat-label>Collaborator email</mat-label>
+        <input matInput [formControl]="newBoardInviteEmailControl" placeholder="colleague@example.com" />
+        @if (newBoardInviteEmailControl.hasError('email')) {
+          <mat-error>Please enter a valid email</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="role-select">
+        <mat-label>Role</mat-label>
+        <mat-select [formControl]="newBoardInviteRoleControl">
+          <mat-option value="editor">Editor</mat-option>
+          <mat-option value="viewer">Viewer</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
 
   <div class="template-section">
     <div class="template-section-header">
@@ -165,6 +187,9 @@
           <button mat-icon-button color="primary" (click)="saveEditBoard(board, $event)" [disabled]="editBoardNameControl.invalid" title="Save" aria-label="Save board changes">
             <mat-icon>check</mat-icon>
           </button>
+          <button mat-icon-button (click)="openShareDialog(board, $event)" title="Share board" aria-label="Share board">
+            <mat-icon>person_add</mat-icon>
+          </button>
           <button mat-icon-button (click)="cancelEditBoard($event)" title="Cancel" aria-label="Cancel editing">
             <mat-icon>close</mat-icon>
           </button>
@@ -184,6 +209,9 @@
       </div>
       }
       <div class="board-card-actions">
+        <button mat-icon-button class="card-action-btn" (click)="openShareDialog(board, $event)" title="Share board" [attr.aria-label]="'Share board ' + board.name">
+          <mat-icon>person_add</mat-icon>
+        </button>
         <button mat-icon-button class="card-action-btn" (click)="startEditBoard(board, $event)" title="Rename board" [attr.aria-label]="'Rename board ' + board.name">
           <mat-icon>edit</mat-icon>
         </button>

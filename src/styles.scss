@@ -319,6 +319,45 @@ html.light-mode .create-template-panel {
   }
 }
 
+// Board collaboration dialog panel
+.board-collaboration-panel {
+  .mat-mdc-dialog-container {
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: hidden;
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
+  }
+
+  .mdc-dialog__surface {
+    border-radius: 16px !important;
+    background: #010014 !important;
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
+    overflow-y: auto !important;
+  }
+
+  @media (max-width: 600px) {
+    .mat-mdc-dialog-container {
+      border-radius: 12px !important;
+      max-height: 95vh !important;
+      max-height: 95dvh !important;
+    }
+
+    .mdc-dialog__surface {
+      border-radius: 12px !important;
+      max-height: 95vh !important;
+      max-height: 95dvh !important;
+    }
+  }
+}
+
+html.light-mode .board-collaboration-panel {
+  .mdc-dialog__surface {
+    background: #ffffff !important;
+  }
+}
+
 @media (forced-colors: active) {
   .has-gradient-text {
     -webkit-text-fill-color: CanvasText !important;

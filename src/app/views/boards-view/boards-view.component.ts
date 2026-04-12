@@ -25,6 +25,9 @@ import { BoardTemplateService } from 'src/app/services/board-template/board-temp
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
 import { UserProfileService } from 'src/app/services/user-profile.service';
 import { CreateTemplateDialogComponent, TemplateDialogData } from './create-template-dialog/create-template-dialog.component';
+import { BoardCollaborationDialogComponent, CollaborationDialogData } from './board-collaboration-dialog.component';
+import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
+import { CollaboratorRole } from 'src/app/interfaces/board-collaborator.interface';
 
 function sortBoards(boards: Board[], sort: BoardSortOption): Board[] {
   return [...boards].sort((a, b) => {
@@ -67,6 +70,7 @@ export class BoardsViewComponent implements OnInit {
   route = inject(ActivatedRoute);
   dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+  private collabApi = inject(BoardCollaborationApiService);
 
   sortedBoards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
@@ -93,6 +97,9 @@ export class BoardsViewComponent implements OnInit {
   ]);
 
   editBoardDescriptionControl = new UntypedFormControl('');
+
+  newBoardInviteEmailControl = new UntypedFormControl('', [Validators.email]);
+  newBoardInviteRoleControl = new UntypedFormControl('editor');
 
   ngOnInit(): void {
     this.taskService.landingPageInitialized();
@@ -172,7 +179,22 @@ export class BoardsViewComponent implements OnInit {
     if (name && this.newBoardNameControl.valid) {
       const board: Board = { name, description: '' };
       this.boardService.createBoard(board);
+
+      const inviteEmail = this.newBoardInviteEmailControl.value?.trim();
+      if (inviteEmail && this.newBoardInviteEmailControl.valid) {
+        const role = (this.newBoardInviteRoleControl.value ?? 'editor') as CollaboratorRole;
+        // Send invitation after a short delay to allow the board to be created first
+        setTimeout(async () => {
+          const boards = await firstValueFrom(this.boardService.boards$);
+          const newBoard = boards.find((b) => b.name === name);
+          if (newBoard?.id) {
+            this.collabApi.sendInvitation(newBoard.id, inviteEmail, role);
+          }
+        }, 2000);
+      }
+
       this.newBoardNameControl.reset();
+      this.newBoardInviteEmailControl.reset();
       this.showNewBoardForm = false;
       this.showTemplates = false;
     }
@@ -242,6 +264,17 @@ export class BoardsViewComponent implements OnInit {
   cancelEditBoard(event: Event): void {
     event.stopPropagation();
     this.editingBoardId = null;
+  }
+
+  openShareDialog(board: Board, event: Event): void {
+    event.stopPropagation();
+    const data: CollaborationDialogData = { board };
+    this.dialog.open(BoardCollaborationDialogComponent, {
+      panelClass: 'board-collaboration-panel',
+      data,
+      width: '520px',
+      maxWidth: '95vw',
+    });
   }
 
   /** Prevent page scroll when Space is pressed on a card acting as a button. */
