@@ -11,6 +11,9 @@ import { SupabaseService } from 'src/app/services/supabase/supabase.service';
 import { PENDING_INVITE_TOKEN_KEY } from 'src/app/services/board/board-invitation.constants';
 import * as collabActions from 'src/app/store/board/board-collaboration.actions';
 
+/** Milliseconds to display the success message before redirecting to /boards. */
+const SUCCESS_REDIRECT_DELAY_MS = 1500;
+
 @Component({
   selector: 'app-accept-invitation',
   standalone: true,
@@ -26,6 +29,9 @@ export class AcceptInvitationComponent implements OnInit {
   private supabaseService = inject(SupabaseService);
   private destroyRef = inject(DestroyRef);
 
+  // Local status is used instead of the store's shared `loading` flag because
+  // that flag covers all collaboration operations and would cause false loading
+  // states from unrelated dispatches (e.g. loadCollaborators).
   status: 'loading' | 'success' | 'error' | 'unauthenticated' = 'loading';
   errorMessage = '';
 
@@ -54,19 +60,19 @@ export class AcceptInvitationComponent implements OnInit {
     this.status = 'loading';
 
     // Set up the result listener before dispatching so no action is missed.
+    // take(1) ensures the subscription completes after the first result.
     this.actions$
       .pipe(
         ofType(
           collabActions.acceptInvitationByTokenSuccess,
           collabActions.acceptInvitationByTokenFailure
         ),
-        take(1),
-        takeUntilDestroyed(this.destroyRef)
+        take(1)
       )
       .subscribe((action) => {
         if (action.type === collabActions.acceptInvitationByTokenSuccess.type) {
           this.status = 'success';
-          setTimeout(() => this.router.navigate(['/boards']), 1500);
+          setTimeout(() => this.router.navigate(['/boards']), SUCCESS_REDIRECT_DELAY_MS);
         } else {
           this.status = 'error';
           this.errorMessage =
