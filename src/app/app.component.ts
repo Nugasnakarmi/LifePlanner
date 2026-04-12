@@ -40,6 +40,7 @@ export class AppComponent implements OnInit {
       this.userEmail = session.user.email;
       await this.appTitleService.loadFromDb();
       this.userProfileService.loadProfile();
+      this.redirectPendingInvitation();
     } else {
       this.appTitleService.reset();
       this.userProfileService.clearProfile();
@@ -50,11 +51,21 @@ export class AppComponent implements OnInit {
       if (session?.user) {
         await this.appTitleService.loadFromDb();
         this.userProfileService.loadProfile();
+        this.redirectPendingInvitation();
       } else {
         this.appTitleService.reset();
         this.userProfileService.clearProfile();
       }
     });
+  }
+
+  /** If a board invitation token was saved before the user logged in, redirect to the accept page. */
+  private redirectPendingInvitation(): void {
+    const token = sessionStorage.getItem('pendingInvitationToken');
+    if (token) {
+      sessionStorage.removeItem('pendingInvitationToken');
+      this.router.navigate(['/invite'], { queryParams: { token } });
+    }
   }
 
   startEditingTitle(): void {

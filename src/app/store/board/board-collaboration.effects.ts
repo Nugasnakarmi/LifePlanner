@@ -3,6 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { from, mergeMap, map, catchError, of, switchMap } from 'rxjs';
 import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
 import * as collabActions from './board-collaboration.actions';
+import * as boardActions from './board.actions';
 
 @Injectable()
 export class BoardCollaborationEffects {
@@ -159,6 +160,36 @@ export class BoardCollaborationEffects {
           ),
           catchError((error) =>
             of(collabActions.revokeInvitationFailure({ error: error?.message ?? String(error) }))
+          )
+        )
+      )
+    )
+  );
+
+  acceptInvitationByToken$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(collabActions.acceptInvitationByToken),
+      mergeMap(({ token }) =>
+        from(this.collabApi.acceptInvitationByToken(token)).pipe(
+          mergeMap((result) => {
+            if (result.success && result.board_id != null) {
+              return [
+                collabActions.acceptInvitationByTokenSuccess({ boardId: result.board_id }),
+                boardActions.loadBoards(),
+              ];
+            }
+            return [
+              collabActions.acceptInvitationByTokenFailure({
+                error: result.error ?? 'Failed to accept invitation',
+              }),
+            ];
+          }),
+          catchError((error) =>
+            of(
+              collabActions.acceptInvitationByTokenFailure({
+                error: error?.message ?? String(error),
+              })
+            )
           )
         )
       )

@@ -1,0 +1,30 @@
+<div class="invite-container">
+  <div class="invite-card">
+    <ng-container *ngIf="status === 'loading'">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="invite-message">Accepting invitation…</p>
+    </ng-container>
+
+    <ng-container *ngIf="status === 'success'">
+      <span class="invite-icon success-icon">✓</span>
+      <h2 class="invite-title">Invitation accepted!</h2>
+      <p class="invite-message">The board has been added to your account. Redirecting…</p>
+    </ng-container>
+
+    <ng-container *ngIf="status === 'error'">
+      <span class="invite-icon error-icon">✕</span>
+      <h2 class="invite-title">Could not accept invitation</h2>
+      <p class="invite-message">{{ errorMessage }}</p>
+      <button mat-stroked-button (click)="goToBoards()">Go to Boards</button>
+    </ng-container>
+
+    <ng-container *ngIf="status === 'unauthenticated'">
+      <span class="invite-icon info-icon">✉</span>
+      <h2 class="invite-title">Log in to accept this invitation</h2>
+      <p class="invite-message">
+        Please log in or create an account. Your invitation will be processed automatically after you sign in.
+      </p>
+      <button mat-flat-button color="primary" (click)="goToLogin()">Log in / Register</button>
+    </ng-container>
+  </div>
+</div>

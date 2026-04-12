@@ -147,6 +147,22 @@ export const revokeInvitationFailure = createAction(
   props<{ error: string }>()
 );
 
+// ── Accept invitation by email token ──────────────────────
+export const acceptInvitationByToken = createAction(
+  '[Board Collaboration] Accept Invitation By Token',
+  props<{ token: string }>()
+);
+
+export const acceptInvitationByTokenSuccess = createAction(
+  '[Board Collaboration] Accept Invitation By Token Success',
+  props<{ boardId: number }>()
+);
+
+export const acceptInvitationByTokenFailure = createAction(
+  '[Board Collaboration] Accept Invitation By Token Failure',
+  props<{ error: string }>()
+);
+
 // ── Clear collaboration state (e.g. when navigating away) ─
 export const clearCollaboration = createAction(
   '[Board Collaboration] Clear'

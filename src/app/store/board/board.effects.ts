@@ -39,7 +39,7 @@ export class BoardEffects {
 
   loadBoards$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(taskActions.landingPageInitialized),
+      ofType(taskActions.landingPageInitialized, boardActions.loadBoards),
       mergeMap(() =>
         from(this.boardAPIService.getBoards()).pipe(
           map((fetchedBoards) =>

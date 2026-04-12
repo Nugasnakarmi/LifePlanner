@@ -92,6 +92,22 @@ export const boardCollaborationReducer = createReducer(
     invitations: state.invitations.filter((i) => i.id !== invitationId),
   })),
 
+  // ── Accept invitation by token ────────────────────────────
+  on(collabActions.acceptInvitationByToken, (state) => ({
+    ...state,
+    loading: true,
+    error: null,
+  })),
+  on(collabActions.acceptInvitationByTokenSuccess, (state) => ({
+    ...state,
+    loading: false,
+  })),
+  on(collabActions.acceptInvitationByTokenFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+  })),
+
   // ── Clear ─────────────────────────────────────────────────
   on(collabActions.clearCollaboration, () => initialCollaborationState),
 );
