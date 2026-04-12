@@ -78,7 +78,7 @@ BEGIN
                  'board_name',   COALESCE(v_board_name, 'Untitled Board'),
                  'inviter_name', COALESCE(v_inviter_name, 'A LifePlanner user'),
                  'role',         NEW.role::text,
-                 'expires_at',   NEW.expires_at::text
+                 'expires_at',   NEW.expires_at
                ),
     headers := jsonb_build_object(
                  'Content-Type',  'application/json',

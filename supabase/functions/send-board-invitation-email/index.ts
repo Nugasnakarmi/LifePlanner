@@ -1,29 +1,14 @@
 // =============================================================
 // Supabase Edge Function: send-board-invitation-email
 //
-// DEPLOYMENT:
-//   1. Create the standard Supabase Edge Function directory:
-//        mkdir -p supabase/functions/send-board-invitation-email
+// Triggered by a Postgres AFTER INSERT trigger on board_invitations
+// via pg_net. Sends an SMTP invitation email to the invitee.
 //
-//   2. Move this file into that directory as index.ts:
-//        mv supabase/send-board-invitation-email.ts \
-//           supabase/functions/send-board-invitation-email/index.ts
+// Required Supabase secrets:
+//   SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, SITE_URL
 //
-//   3. Deploy the function:
-//        supabase functions deploy send-board-invitation-email
-//
-//   4. Set the required secrets (if not already set):
-//        supabase secrets set SMTP_HOST='smtp.example.com'
-//        supabase secrets set SMTP_PORT='587'
-//        supabase secrets set SMTP_USER='your-smtp-user'
-//        supabase secrets set SMTP_PASS='your-smtp-password'
-//        supabase secrets set SMTP_FROM='noreply@yourdomain.com'
-//        supabase secrets set SITE_URL='https://yourapp.com'
-//
-//   5. Store Vault secrets so the database trigger can reach this
-//      function (see the migration file for details):
-//        supabase secrets set project_url='https://<ref>.supabase.co'
-//        supabase secrets set service_role_key='<service-role-key>'
+// The SUPABASE_SERVICE_ROLE_KEY is auto-injected by the Supabase
+// Edge Functions runtime and used to authenticate trigger calls.
 // =============================================================
 
 import nodemailer from "npm:nodemailer@6";
@@ -63,6 +48,19 @@ function jsonResponse(
   });
 }
 
+/** Safely format an expiration date string; returns a fallback on parse failure. */
+function formatExpiresDate(expiresAt: string): string {
+  const date = new Date(expiresAt);
+  if (isNaN(date.getTime())) {
+    return expiresAt || "soon";
+  }
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 function buildEmailHtml(
   inviterName: string,
   boardName: string,
@@ -70,11 +68,7 @@ function buildEmailHtml(
   inviteLink: string,
   expiresAt: string,
 ): string {
-  const expiresDate = new Date(expiresAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const expiresDate = formatExpiresDate(expiresAt);
 
   return `
 <!DOCTYPE html>
@@ -114,7 +108,7 @@ function buildEmailHtml(
         <a href="${inviteLink}" style="color:#4f46e5;word-break:break-all;">${inviteLink}</a>
       </p>
       <p style="font-size:13px;color:#999;">
-        This invitation expires on <strong>${expiresDate}</strong>.
+        This invitation expires on <strong>${escapeHtml(expiresDate)}</strong>.
       </p>
     </div>
     <div class="footer">
@@ -154,9 +148,36 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // ── Build invitation link ───────────────────────────────────
-    const siteUrl = (Deno.env.get("SITE_URL") ?? "http://localhost:4200")
-      .replace(/\/+$/, "");
+    // ── Validate SITE_URL ───────────────────────────────────────
+    const rawSiteUrl = Deno.env.get("SITE_URL")?.trim();
+    if (!rawSiteUrl) {
+      console.error("Missing required environment variable: SITE_URL");
+      return jsonResponse(
+        { error: "Server misconfiguration: SITE_URL is not set" },
+        500,
+      );
+    }
+
+    let siteUrl: string;
+    try {
+      const parsedSiteUrl = new URL(rawSiteUrl);
+      if (
+        parsedSiteUrl.protocol !== "http:" &&
+        parsedSiteUrl.protocol !== "https:"
+      ) {
+        throw new Error("SITE_URL must use http or https");
+      }
+      siteUrl = parsedSiteUrl.toString().replace(/\/+$/, "");
+    } catch (urlError: unknown) {
+      const message =
+        urlError instanceof Error ? urlError.message : String(urlError);
+      console.error(`Invalid SITE_URL configuration: ${message}`);
+      return jsonResponse(
+        { error: "Server misconfiguration: SITE_URL is invalid" },
+        500,
+      );
+    }
+
     const inviteLink = `${siteUrl}/invite?token=${encodeURIComponent(payload.token)}`;
 
     // ── Configure SMTP transport ────────────────────────────────
