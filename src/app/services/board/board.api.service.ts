@@ -59,10 +59,10 @@ export class BoardAPIService {
         throw ownError;
       }
 
-      // Fetch boards shared with the user via accepted collaboration
+      // Fetch boards shared with the user via accepted collaboration (include role for canEdit)
       let { data: sharedBoards, error: sharedError } = await this.supabaseService.supabase
         .from('board_collaborators')
-        .select('board:boards(*)')
+        .select('board:boards(*), role')
         .eq('user_id', user.id)
         .eq('status', 'accepted');
       if (sharedError) {
@@ -70,14 +70,22 @@ export class BoardAPIService {
       }
 
       const shared: Board[] = (sharedBoards ?? [])
-        .map((row: any) => ({ ...(row.board as Board), isCollaborated: true }))
+        .map((row: any) => ({
+          ...(row.board as Board),
+          isCollaborated: true,
+          canEdit: row.role === 'editor' || row.role === 'owner',
+        }))
         .filter((b: Board) => b.id != null);
 
       // Fetch display names of board owners for collaborated boards
       const ownerIds = [...new Set(shared.map((b) => b.user_id).filter((id): id is string => !!id))];
       if (ownerIds.length > 0) {
-        const { data: profiles } = await this.supabaseService.supabase
+        const { data: profiles, error: profilesError } = await this.supabaseService.supabase
           .rpc('get_user_public_profiles', { p_user_ids: ownerIds });
+
+        if (profilesError) {
+          console.error('Failed to fetch owner display names:', profilesError);
+        }
 
         const profileMap = new Map<string, string | null>(
           ((profiles ?? []) as { user_id: string; display_name: string | null }[])
@@ -91,8 +99,8 @@ export class BoardAPIService {
         }
       }
 
-      // Own boards are not collaborated boards
-      const own: Board[] = (ownBoards ?? []).map((b: Board) => ({ ...b, isCollaborated: false }));
+      // Own boards are not collaborated boards; owner can always edit
+      const own: Board[] = (ownBoards ?? []).map((b: Board) => ({ ...b, isCollaborated: false, canEdit: true }));
 
       // Merge: own boards first so they always take precedence over the
       // collaborated copy (a board cannot appear in both arrays because the

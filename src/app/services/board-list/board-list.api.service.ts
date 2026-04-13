@@ -82,13 +82,11 @@ export class BoardListApiService {
 
   async updateListName(listId: number, name: string): Promise<BoardList | null> {
     try {
-      const user: User = await this.supabaseService.getUser();
       const sanitizedName = this.sanitizer.sanitize(name);
       const { data, error } = await this.supabaseService.supabase
         .from('board_lists')
         .update({ name: sanitizedName })
         .eq('id', listId)
-        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -106,14 +104,11 @@ export class BoardListApiService {
 
   async deleteList(listId: number): Promise<boolean> {
     try {
-      const user: User = await this.supabaseService.getUser();
-
       // Fetch all tasks in this list with their activities and media
       const { data: tasks, error: tasksSelectError } = await this.supabaseService.supabase
         .from('tasks')
         .select('id, task_activities(activity_id, activity:activities(id, media))')
-        .eq('boards_lists_id', listId)
-        .eq('user_id', user.id);
+        .eq('boards_lists_id', listId);
 
       if (tasksSelectError) {
         throw tasksSelectError;
@@ -152,8 +147,7 @@ export class BoardListApiService {
       const { error: tasksError } = await this.supabaseService.supabase
         .from('tasks')
         .delete()
-        .eq('boards_lists_id', listId)
-        .eq('user_id', user.id);
+        .eq('boards_lists_id', listId);
 
       if (tasksError) {
         throw tasksError;
@@ -162,8 +156,7 @@ export class BoardListApiService {
       const { error } = await this.supabaseService.supabase
         .from('board_lists')
         .delete()
-        .eq('id', listId)
-        .eq('user_id', user.id);
+        .eq('id', listId);
 
       if (error) {
         throw error;

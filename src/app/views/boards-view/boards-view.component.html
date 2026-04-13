@@ -223,7 +223,7 @@
       }
     </div>
     } @empty {
-    <p class="no-boards-message">No boards yet. Create one to get started!</p>
+    <p class="no-boards-message">No personal boards yet. Create one to get started!</p>
     }
   </div>
   }
@@ -295,11 +295,13 @@
           }
         </div>
         }
+        @if(board.canEdit) {
         <div class="board-card-actions">
           <button mat-icon-button class="card-action-btn" (click)="startEditBoard(board, $event)" title="Rename board" [attr.aria-label]="'Rename board ' + board.name">
             <mat-icon>edit</mat-icon>
           </button>
         </div>
+        }
         }
       </div>
       }

@@ -9,4 +9,6 @@ export interface Board {
   isCollaborated?: boolean;
   /** Display name of the board owner; only set for collaborated boards. */
   ownerDisplayName?: string;
+  /** True when the current user may edit (rename/modify) this board. Always true for owners. */
+  canEdit?: boolean;
 }
