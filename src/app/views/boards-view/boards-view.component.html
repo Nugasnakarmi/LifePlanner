@@ -149,9 +149,10 @@
     <mat-spinner diameter="48"></mat-spinner>
   </div>
   } @else {
-  @if(sortedBoards$ | async; as boards) {
+  <!-- ── Own boards ─────────────────────────────────────────── -->
+  @if(sortedOwnBoards$ | async; as ownBoards) {
   <div class="boards-grid">
-    @for(board of boards; track board.id) {
+    @for(board of ownBoards; track board.id) {
     <div class="board-card"
       [attr.role]="editingBoardId !== board.id ? 'button' : null"
       [attr.aria-label]="editingBoardId !== board.id ? ('Open board ' + board.name) : null"
@@ -225,6 +226,86 @@
     <p class="no-boards-message">No boards yet. Create one to get started!</p>
     }
   </div>
+  }
+
+  <!-- ── Collaborated boards ───────────────────────────────── -->
+  @if(sortedCollaboratedBoards$ | async; as collabBoards) {
+  @if(collabBoards.length > 0) {
+  <div class="collaborated-section">
+    <div class="collaborated-section-header">
+      <mat-icon>group</mat-icon>
+      <span>Shared With You</span>
+    </div>
+    <div class="boards-grid">
+      @for(board of collabBoards; track board.id) {
+      <div class="board-card board-card--collaborated"
+        [attr.role]="editingBoardId !== board.id ? 'button' : null"
+        [attr.aria-label]="editingBoardId !== board.id ? ('Open shared board ' + board.name) : null"
+        (click)="editingBoardId !== board.id && selectBoard(board)"
+        [attr.tabindex]="editingBoardId !== board.id ? 0 : null"
+        (keydown.enter)="activateBoardCard(board, $event)"
+        (keydown.space)="onCardKeydownSpace($event)"
+        (keyup.space)="activateBoardCard(board, $event)">
+        @if(editingBoardId === board.id) {
+        <div class="board-card-edit" (click)="$event.stopPropagation()">
+          <mat-form-field appearance="outline" class="edit-name-field">
+            <mat-label>Board name</mat-label>
+            <input
+              matInput
+              [formControl]="editBoardNameControl"
+              placeholder="Board name"
+              (keydown.enter)="saveEditBoard(board, $event)"
+              (keydown.escape)="cancelEditBoard($event)"
+              autofocus
+            />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="edit-description-field">
+            <mat-label>Description (optional)</mat-label>
+            <textarea
+              matInput
+              [formControl]="editBoardDescriptionControl"
+              placeholder="Add a description..."
+              rows="2"
+              (keydown.escape)="cancelEditBoard($event)"
+            ></textarea>
+          </mat-form-field>
+          <div class="edit-actions">
+            <button mat-icon-button color="primary" (click)="saveEditBoard(board, $event)" [disabled]="editBoardNameControl.invalid" title="Save" aria-label="Save board changes">
+              <mat-icon>check</mat-icon>
+            </button>
+            <button mat-icon-button (click)="cancelEditBoard($event)" title="Cancel" aria-label="Cancel editing">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+        } @else {
+        <div class="board-card-owner-badge">
+          <mat-icon>person</mat-icon>
+          <span>{{ board.ownerDisplayName ?? 'Shared board' }}</span>
+        </div>
+        <div class="board-card-name">{{ board.name }}</div>
+        @if(board.description) {
+        <div class="board-card-description">{{ board.description }}</div>
+        }
+        @let boardLists = boardListsMap[board.id] ?? [];
+        @if(boardLists.length > 0) {
+        <div class="board-card-lists">
+          @for(list of boardLists; track list.id) {
+            <span class="board-list-chip">{{ list.name }}</span>
+          }
+        </div>
+        }
+        <div class="board-card-actions">
+          <button mat-icon-button class="card-action-btn" (click)="startEditBoard(board, $event)" title="Rename board" [attr.aria-label]="'Rename board ' + board.name">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+  }
   }
   }
 </div>

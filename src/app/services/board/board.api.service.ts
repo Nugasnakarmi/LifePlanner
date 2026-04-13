@@ -69,14 +69,35 @@ export class BoardAPIService {
         throw sharedError;
       }
 
-      const shared = (sharedBoards ?? [])
-        .map((row: any) => row.board as Board)
-        .filter(Boolean);
+      const shared: Board[] = (sharedBoards ?? [])
+        .map((row: any) => ({ ...(row.board as Board), isCollaborated: true }))
+        .filter((b: Board) => b.id != null);
 
-      // Merge and deduplicate by id
+      // Fetch display names of board owners for collaborated boards
+      const ownerIds = [...new Set(shared.map((b) => b.user_id).filter((id): id is string => !!id))];
+      if (ownerIds.length > 0) {
+        const { data: profiles } = await this.supabaseService.supabase
+          .rpc('get_user_public_profiles', { p_user_ids: ownerIds });
+
+        const profileMap = new Map<string, string | null>(
+          ((profiles ?? []) as { user_id: string; display_name: string | null }[])
+            .map((p) => [p.user_id, p.display_name])
+        );
+
+        for (const b of shared) {
+          if (b.user_id) {
+            b.ownerDisplayName = profileMap.get(b.user_id) ?? undefined;
+          }
+        }
+      }
+
+      // Own boards are not collaborated boards
+      const own: Board[] = (ownBoards ?? []).map((b: Board) => ({ ...b, isCollaborated: false }));
+
+      // Merge and deduplicate by id (own boards take precedence)
       const boardMap = new Map<number, Board>();
-      for (const b of [...(ownBoards ?? []), ...shared]) {
-        if (b.id != null) {
+      for (const b of [...own, ...shared]) {
+        if (b.id != null && !boardMap.has(b.id)) {
           boardMap.set(b.id, b);
         }
       }

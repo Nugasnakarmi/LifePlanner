@@ -76,6 +76,8 @@ export class BoardsViewComponent implements OnInit {
   private actions$ = inject(Actions);
 
   sortedBoards$: Observable<Board[]>;
+  sortedOwnBoards$: Observable<Board[]>;
+  sortedCollaboratedBoards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
   systemTemplates$: Observable<BoardTemplate[]>;
   myTemplates$: Observable<BoardTemplate[]>;
@@ -123,6 +125,20 @@ export class BoardsViewComponent implements OnInit {
     // always consistent with what the dropdown shows, even if a profile save fails.
     this.sortedBoards$ = combineLatest([
       this.boardService.boards$,
+      this.sortControl.valueChanges.pipe(startWith(this.sortControl.value as BoardSortOption)),
+    ]).pipe(
+      map(([boards, sort]) => sortBoards(boards, sort as BoardSortOption))
+    );
+
+    this.sortedOwnBoards$ = combineLatest([
+      this.boardService.ownBoards$,
+      this.sortControl.valueChanges.pipe(startWith(this.sortControl.value as BoardSortOption)),
+    ]).pipe(
+      map(([boards, sort]) => sortBoards(boards, sort as BoardSortOption))
+    );
+
+    this.sortedCollaboratedBoards$ = combineLatest([
+      this.boardService.collaboratedBoards$,
       this.sortControl.valueChanges.pipe(startWith(this.sortControl.value as BoardSortOption)),
     ]).pipe(
       map(([boards, sort]) => sortBoards(boards, sort as BoardSortOption))

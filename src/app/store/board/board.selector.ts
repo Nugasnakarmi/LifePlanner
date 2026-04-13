@@ -15,3 +15,13 @@ export const selectSelectedBoard = createSelector(
   selectBoardFeature,
   (state) => state.selectedBoard
 );
+
+export const selectOwnBoards = createSelector(
+  selectBoards,
+  (boards) => boards.filter((b) => !b.isCollaborated)
+);
+
+export const selectCollaboratedBoards = createSelector(
+  selectBoards,
+  (boards) => boards.filter((b) => b.isCollaborated)
+);
