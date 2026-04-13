@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { from, mergeMap, map, catchError, of, switchMap } from 'rxjs';
+import { from, mergeMap, map, catchError, of, switchMap, filter } from 'rxjs';
 import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
 import * as collabActions from './board-collaboration.actions';
 import * as boardActions from './board.actions';
@@ -193,6 +193,64 @@ export class BoardCollaborationEffects {
           )
         )
       )
+    )
+  );
+
+  // ── Pending email invitations (invitee-facing) ──────────
+
+  loadPendingEmailInvitations$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(collabActions.loadPendingEmailInvitations),
+      switchMap(() =>
+        from(this.collabApi.getMyPendingEmailInvitations()).pipe(
+          map((invitations) =>
+            collabActions.loadPendingEmailInvitationsSuccess({ invitations })
+          ),
+          catchError((error) =>
+            of(collabActions.loadPendingEmailInvitationsFailure({ error: error?.message ?? String(error) }))
+          )
+        )
+      )
+    )
+  );
+
+  respondToEmailInvitation$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(collabActions.respondToEmailInvitation),
+      mergeMap(({ invitationId, accept }) =>
+        from(this.collabApi.respondToEmailInvitation(invitationId, accept)).pipe(
+          mergeMap((result) => {
+            if (result.success) {
+              const actions: any[] = [
+                collabActions.respondToEmailInvitationSuccess({
+                  invitationId,
+                  accepted: accept,
+                  boardId: result.board_id,
+                }),
+              ];
+              if (accept) {
+                actions.push(boardActions.loadBoards());
+              }
+              return actions;
+            }
+            return [collabActions.respondToEmailInvitationFailure({
+              error: result.error ?? 'Failed to respond to invitation',
+            })];
+          }),
+          catchError((error) =>
+            of(collabActions.respondToEmailInvitationFailure({ error: error?.message ?? String(error) }))
+          )
+        )
+      )
+    )
+  );
+
+  /** Reload boards after accepting a direct collaboration invitation. */
+  reloadBoardsAfterDirectAccept$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(collabActions.respondToInvitationSuccess),
+      filter(({ accepted }) => accepted),
+      map(() => boardActions.loadBoards())
     )
   );
 }
