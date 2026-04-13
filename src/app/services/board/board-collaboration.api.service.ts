@@ -224,6 +224,7 @@ export class BoardCollaborationApiService {
         .from('board_invitations')
         .select('*')
         .eq('board_id', boardId)
+        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
