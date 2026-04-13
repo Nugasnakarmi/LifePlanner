@@ -73,7 +73,7 @@ export class BoardAPIService {
         .map((row: any) => ({
           ...(row.board as Board),
           isCollaborated: true,
-          canEdit: row.role === 'editor' || row.role === 'owner',
+          canEdit: row.role !== 'viewer',
         }))
         .filter((b: Board) => b.id != null);
 
