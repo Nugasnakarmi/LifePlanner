@@ -17,11 +17,9 @@ export class BoardListApiService {
 
   async getAllListsForUser(): Promise<BoardList[]> {
     try {
-      const user: User = await this.supabaseService.getUser();
       const { data, error } = await this.supabaseService.supabase
         .from('board_lists')
         .select('*')
-        .eq('user_id', user.id)
         .order('board_id', { ascending: true })
         .order('position', { ascending: true });
 
@@ -38,12 +36,10 @@ export class BoardListApiService {
 
   async getListsByBoardId(boardId: number): Promise<BoardList[]> {
     try {
-      const user: User = await this.supabaseService.getUser();
       const { data, error } = await this.supabaseService.supabase
         .from('board_lists')
         .select('*')
         .eq('board_id', boardId)
-        .eq('user_id', user.id)
         .order('position', { ascending: true });
 
       if (error) {
