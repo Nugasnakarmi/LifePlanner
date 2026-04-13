@@ -8,6 +8,44 @@
 ALTER TABLE public.board_invitations
   ADD COLUMN status public.invitation_status NOT NULL DEFAULT 'pending';
 
+-- Replace the old all-rows UNIQUE(board_id, email) rule with a
+-- partial unique index so historical accepted/declined invitations
+-- do not block re-inviting the same email to the same board.
+DO $$
+DECLARE
+  board_email_unique_constraint_name text;
+BEGIN
+  SELECT con.conname
+    INTO board_email_unique_constraint_name
+  FROM pg_constraint con
+  JOIN pg_class rel
+    ON rel.oid = con.conrelid
+  JOIN pg_namespace nsp
+    ON nsp.oid = rel.relnamespace
+  JOIN unnest(con.conkey) WITH ORDINALITY AS cols(attnum, ord)
+    ON TRUE
+  JOIN pg_attribute att
+    ON att.attrelid = rel.oid
+   AND att.attnum = cols.attnum
+  WHERE nsp.nspname = 'public'
+    AND rel.relname = 'board_invitations'
+    AND con.contype = 'u'
+  GROUP BY con.conname
+  HAVING array_agg(att.attname ORDER BY cols.ord) = ARRAY['board_id', 'email'];
+
+  IF board_email_unique_constraint_name IS NOT NULL THEN
+    EXECUTE format(
+      'ALTER TABLE public.board_invitations DROP CONSTRAINT %I',
+      board_email_unique_constraint_name
+    );
+  END IF;
+END
+$$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS board_invitations_pending_board_id_email_idx
+  ON public.board_invitations (board_id, email)
+  WHERE status = 'pending';
+
 -- 2. RLS: allow invited users to see their own invitations by matching email
 CREATE POLICY "Invitees can view their own invitations"
   ON public.board_invitations FOR SELECT
@@ -165,6 +203,11 @@ BEGIN
 
   IF NOT FOUND THEN
     RETURN jsonb_build_object('success', false, 'error', 'Invitation not found or expired');
+  END IF;
+
+  -- Verify the caller's email matches the invitation email
+  IF v_invitation.email <> (auth.jwt() ->> 'email') THEN
+    RETURN jsonb_build_object('success', false, 'error', 'This invitation was sent to a different email address');
   END IF;
 
   -- Upsert into board_collaborators

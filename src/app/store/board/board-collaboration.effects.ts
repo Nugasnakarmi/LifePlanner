@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { Action } from '@ngrx/store';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { from, mergeMap, map, catchError, of, switchMap, filter } from 'rxjs';
 import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
@@ -221,7 +222,7 @@ export class BoardCollaborationEffects {
         from(this.collabApi.respondToEmailInvitation(invitationId, accept)).pipe(
           mergeMap((result) => {
             if (result.success) {
-              const actions: any[] = [
+              const actions: Action[] = [
                 collabActions.respondToEmailInvitationSuccess({
                   invitationId,
                   accepted: accept,
