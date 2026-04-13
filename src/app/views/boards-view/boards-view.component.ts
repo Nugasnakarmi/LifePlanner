@@ -75,7 +75,8 @@ export class BoardsViewComponent implements OnInit {
   private collabApi = inject(BoardCollaborationApiService);
   private actions$ = inject(Actions);
 
-  sortedBoards$: Observable<Board[]>;
+  sortedOwnBoards$: Observable<Board[]>;
+  sortedCollaboratedBoards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
   systemTemplates$: Observable<BoardTemplate[]>;
   myTemplates$: Observable<BoardTemplate[]>;
@@ -118,11 +119,18 @@ export class BoardsViewComponent implements OnInit {
         }
       });
 
-    // Sort boards based on the sort control's current value.
+    // Sort own and collaborated boards by the sort control's current value.
     // Driving from sortControl.valueChanges (+ startWith) keeps the displayed list
     // always consistent with what the dropdown shows, even if a profile save fails.
-    this.sortedBoards$ = combineLatest([
-      this.boardService.boards$,
+    this.sortedOwnBoards$ = combineLatest([
+      this.boardService.ownBoards$,
+      this.sortControl.valueChanges.pipe(startWith(this.sortControl.value as BoardSortOption)),
+    ]).pipe(
+      map(([boards, sort]) => sortBoards(boards, sort as BoardSortOption))
+    );
+
+    this.sortedCollaboratedBoards$ = combineLatest([
+      this.boardService.collaboratedBoards$,
       this.sortControl.valueChanges.pipe(startWith(this.sortControl.value as BoardSortOption)),
     ]).pipe(
       map(([boards, sort]) => sortBoards(boards, sort as BoardSortOption))

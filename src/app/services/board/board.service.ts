@@ -3,7 +3,12 @@ import { Board } from 'src/app/interfaces/board.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { selectBoards, selectSelectedBoard } from 'src/app/store/board/board.selector';
+import {
+  selectBoards,
+  selectCollaboratedBoards,
+  selectOwnBoards,
+  selectSelectedBoard,
+} from 'src/app/store/board/board.selector';
 import * as boardActions from 'src/app/store/board/board.actions';
 
 @Injectable({
@@ -17,6 +22,8 @@ export class BoardService {
   }
 
   boards$: Observable<Board[]> = this.store.select(selectBoards);
+  ownBoards$: Observable<Board[]> = this.store.select(selectOwnBoards);
+  collaboratedBoards$: Observable<Board[]> = this.store.select(selectCollaboratedBoards);
   selectedBoard$: Observable<Board | null> = this.store.select(selectSelectedBoard);
 
   getBoards(): void {

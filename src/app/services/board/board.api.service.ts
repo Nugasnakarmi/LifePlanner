@@ -59,24 +59,58 @@ export class BoardAPIService {
         throw ownError;
       }
 
-      // Fetch boards shared with the user via accepted collaboration
+      // Fetch boards shared with the user via accepted collaboration (include role for canEdit)
       let { data: sharedBoards, error: sharedError } = await this.supabaseService.supabase
         .from('board_collaborators')
-        .select('board:boards(*)')
+        .select('board:boards(*), role')
         .eq('user_id', user.id)
         .eq('status', 'accepted');
       if (sharedError) {
         throw sharedError;
       }
 
-      const shared = (sharedBoards ?? [])
-        .map((row: any) => row.board as Board)
-        .filter(Boolean);
+      const shared: Board[] = (sharedBoards ?? [])
+        .map((row: any) => ({
+          ...(row.board as Board),
+          isCollaborated: true,
+          canEdit: row.role !== 'viewer',
+        }))
+        .filter((b: Board) => b.id != null);
 
-      // Merge and deduplicate by id
+      // Fetch display names of board owners for collaborated boards
+      const ownerIds = [...new Set(shared.map((b) => b.user_id).filter((id): id is string => !!id))];
+      if (ownerIds.length > 0) {
+        const { data: profiles, error: profilesError } = await this.supabaseService.supabase
+          .rpc('get_user_public_profiles', { p_user_ids: ownerIds });
+
+        if (profilesError) {
+          console.error('Failed to fetch owner display names:', profilesError);
+        }
+
+        const profileMap = new Map<string, string | null>(
+          ((profiles ?? []) as { user_id: string; display_name: string | null }[])
+            .map((p) => [p.user_id, p.display_name])
+        );
+
+        for (const b of shared) {
+          if (b.user_id) {
+            b.ownerDisplayName = profileMap.get(b.user_id) ?? undefined;
+          }
+        }
+      }
+
+      // Own boards are not collaborated boards; owner can always edit
+      const own: Board[] = (ownBoards ?? []).map((b: Board) => ({ ...b, isCollaborated: false, canEdit: true }));
+
+      // Merge: own boards first so they always take precedence over the
+      // collaborated copy (a board cannot appear in both arrays because the
+      // own-boards query filters by user_id = current user and the
+      // collaborated query filters by board_collaborators where user_id =
+      // current user and status = 'accepted'; a user cannot be their own
+      // collaborator).  First-occurrence wins via the has() guard.
       const boardMap = new Map<number, Board>();
-      for (const b of [...(ownBoards ?? []), ...shared]) {
-        if (b.id != null) {
+      for (const b of [...own, ...shared]) {
+        if (b.id != null && !boardMap.has(b.id)) {
           boardMap.set(b.id, b);
         }
       }
