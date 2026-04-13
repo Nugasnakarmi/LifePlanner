@@ -1,0 +1,64 @@
+.invite-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.invite-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 48px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(249, 208, 122, 0.1);
+  border-radius: 12px;
+  color: #fff;
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+}
+
+.invite-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.invite-message {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5;
+}
+
+.invite-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.success-icon {
+  color: #4ade80;
+}
+
+.error-icon {
+  color: #f87171;
+}
+
+.info-icon {
+  color: #93c5fd;
+}
+
+:host-context(.light-mode) {
+  .invite-card {
+    color: #010014;
+    background-color: rgba(249, 208, 122, 0.1);
+    border-color: rgba(92, 64, 0, 0.15);
+  }
+
+  .invite-message {
+    color: rgba(1, 0, 20, 0.65);
+  }
+}

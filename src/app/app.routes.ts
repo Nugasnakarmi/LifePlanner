@@ -8,6 +8,7 @@ import { LandingPageComponent } from './views/landing-page/landing-page.componen
 import { BoardsViewComponent } from './views/boards-view/boards-view.component';
 import { TaskDashboardComponent } from './views/task-dashboard/task-dashboard.component';
 import { UserProfileComponent } from './views/user-profile.component';
+import { AcceptInvitationComponent } from './views/accept-invitation/accept-invitation.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -20,5 +21,7 @@ export const routes: Routes = [
   { path: 'resetPassword', component: ResetPasswordComponent },
   { path: 'forgotPassword', component: ForgotPasswordComponent },
   { path: 'register', component: RegisterComponent },
+  // Invitation acceptance — no auth guard so unauthenticated users can reach it and be prompted to log in.
+  { path: 'invite', component: AcceptInvitationComponent },
   { path: '**', redirectTo: '' },
 ];

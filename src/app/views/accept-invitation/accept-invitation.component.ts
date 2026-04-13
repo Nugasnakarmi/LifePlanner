@@ -1,0 +1,97 @@
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NgIf } from '@angular/common';
+import { take, timer } from 'rxjs';
+import { SupabaseService } from 'src/app/services/supabase/supabase.service';
+import { PENDING_INVITE_TOKEN_KEY } from 'src/app/services/board/board-invitation.constants';
+import * as collabActions from 'src/app/store/board/board-collaboration.actions';
+
+/** Milliseconds to display the success message before redirecting to /boards. */
+const SUCCESS_REDIRECT_DELAY_MS = 1500;
+
+@Component({
+  selector: 'app-accept-invitation',
+  standalone: true,
+  imports: [NgIf, MatButtonModule, MatProgressSpinnerModule],
+  templateUrl: './accept-invitation.component.html',
+  styleUrls: ['./accept-invitation.component.scss'],
+})
+export class AcceptInvitationComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private store = inject(Store);
+  private actions$ = inject(Actions);
+  private supabaseService = inject(SupabaseService);
+  private destroyRef = inject(DestroyRef);
+
+  // Local status is used instead of the store's shared `loading` flag because
+  // that flag covers all collaboration operations and would cause false loading
+  // states from unrelated dispatches (e.g. loadCollaborators).
+  status: 'loading' | 'success' | 'error' | 'unauthenticated' = 'loading';
+  errorMessage = '';
+
+  async ngOnInit(): Promise<void> {
+    const token = this.route.snapshot.queryParamMap.get('token');
+
+    if (!token) {
+      this.status = 'error';
+      this.errorMessage = 'Invalid invitation link: missing token.';
+      return;
+    }
+
+    const session = await this.supabaseService.getSession();
+
+    if (!session) {
+      // Save the token so it can be picked up after the user logs in.
+      sessionStorage.setItem(PENDING_INVITE_TOKEN_KEY, token);
+      this.status = 'unauthenticated';
+      return;
+    }
+
+    this.acceptToken(token);
+  }
+
+  private acceptToken(token: string): void {
+    this.status = 'loading';
+
+    // Set up the result listener before dispatching so no action is missed.
+    // take(1) ensures the subscription completes after the first result.
+    this.actions$
+      .pipe(
+        ofType(
+          collabActions.acceptInvitationByTokenSuccess,
+          collabActions.acceptInvitationByTokenFailure
+        ),
+        take(1)
+      )
+      .subscribe((action) => {
+        if (action.type === collabActions.acceptInvitationByTokenSuccess.type) {
+          this.status = 'success';
+          // Use timer + takeUntilDestroyed so the redirect is cancelled if the
+          // component is destroyed before the delay elapses (e.g. manual navigation).
+          timer(SUCCESS_REDIRECT_DELAY_MS)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => this.router.navigate(['/boards']));
+        } else {
+          this.status = 'error';
+          this.errorMessage =
+            (action as ReturnType<typeof collabActions.acceptInvitationByTokenFailure>).error;
+        }
+      });
+
+    this.store.dispatch(collabActions.acceptInvitationByToken({ token }));
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/']);
+  }
+
+  goToBoards(): void {
+    this.router.navigate(['/boards']);
+  }
+}
