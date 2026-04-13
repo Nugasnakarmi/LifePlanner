@@ -94,7 +94,12 @@ export class BoardAPIService {
       // Own boards are not collaborated boards
       const own: Board[] = (ownBoards ?? []).map((b: Board) => ({ ...b, isCollaborated: false }));
 
-      // Merge and deduplicate by id (own boards take precedence)
+      // Merge: own boards first so they always take precedence over the
+      // collaborated copy (a board cannot appear in both arrays because the
+      // own-boards query filters by user_id = current user and the
+      // collaborated query filters by board_collaborators where user_id =
+      // current user and status = 'accepted'; a user cannot be their own
+      // collaborator).  First-occurrence wins via the has() guard.
       const boardMap = new Map<number, Board>();
       for (const b of [...own, ...shared]) {
         if (b.id != null && !boardMap.has(b.id)) {

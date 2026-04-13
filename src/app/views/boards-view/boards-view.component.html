@@ -281,7 +281,7 @@
         } @else {
         <div class="board-card-owner-badge">
           <mat-icon>person</mat-icon>
-          <span>{{ board.ownerDisplayName ?? 'Shared board' }}</span>
+          <span>{{ board.ownerDisplayName ?? 'Unknown owner' }}</span>
         </div>
         <div class="board-card-name">{{ board.name }}</div>
         @if(board.description) {
