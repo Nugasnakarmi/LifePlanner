@@ -3,6 +3,7 @@ import {
   BoardCollaborator,
   BoardInvitation,
   CollaboratorRole,
+  PendingEmailInvitation,
   PendingInvitationWithBoard,
 } from 'src/app/interfaces/board-collaborator.interface';
 
@@ -160,6 +161,37 @@ export const acceptInvitationByTokenSuccess = createAction(
 
 export const acceptInvitationByTokenFailure = createAction(
   '[Board Collaboration] Accept Invitation By Token Failure',
+  props<{ error: string }>()
+);
+
+// ── Load pending email invitations for current user ────────
+export const loadPendingEmailInvitations = createAction(
+  '[Board Collaboration] Load Pending Email Invitations'
+);
+
+export const loadPendingEmailInvitationsSuccess = createAction(
+  '[Board Collaboration] Load Pending Email Invitations Success',
+  props<{ invitations: PendingEmailInvitation[] }>()
+);
+
+export const loadPendingEmailInvitationsFailure = createAction(
+  '[Board Collaboration] Load Pending Email Invitations Failure',
+  props<{ error: string }>()
+);
+
+// ── Respond to email invitation (accept/decline) ─────────
+export const respondToEmailInvitation = createAction(
+  '[Board Collaboration] Respond To Email Invitation',
+  props<{ invitationId: number; accept: boolean }>()
+);
+
+export const respondToEmailInvitationSuccess = createAction(
+  '[Board Collaboration] Respond To Email Invitation Success',
+  props<{ invitationId: number; accepted: boolean; boardId?: number }>()
+);
+
+export const respondToEmailInvitationFailure = createAction(
+  '[Board Collaboration] Respond To Email Invitation Failure',
   props<{ error: string }>()
 );
 

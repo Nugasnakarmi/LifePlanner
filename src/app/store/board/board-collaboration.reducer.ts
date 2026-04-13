@@ -6,6 +6,7 @@ export const initialCollaborationState: BoardCollaborationState = {
   collaborators: [],
   invitations: [],
   pendingInvitations: [],
+  pendingEmailInvitations: [],
   loading: false,
   error: null,
 };
@@ -105,6 +106,32 @@ export const boardCollaborationReducer = createReducer(
   on(collabActions.acceptInvitationByTokenFailure, (state, { error }) => ({
     ...state,
     loading: false,
+    error,
+  })),
+
+  // ── Load pending email invitations ──────────────────────
+  on(collabActions.loadPendingEmailInvitations, (state) => ({
+    ...state,
+    loading: true,
+  })),
+  on(collabActions.loadPendingEmailInvitationsSuccess, (state, { invitations }) => ({
+    ...state,
+    pendingEmailInvitations: invitations,
+    loading: false,
+  })),
+  on(collabActions.loadPendingEmailInvitationsFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+  })),
+
+  // ── Respond to email invitation ─────────────────────────
+  on(collabActions.respondToEmailInvitationSuccess, (state, { invitationId }) => ({
+    ...state,
+    pendingEmailInvitations: state.pendingEmailInvitations.filter((i) => i.id !== invitationId),
+  })),
+  on(collabActions.respondToEmailInvitationFailure, (state, { error }) => ({
+    ...state,
     error,
   })),
 

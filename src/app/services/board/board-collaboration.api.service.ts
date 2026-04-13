@@ -7,6 +7,7 @@ import {
   BoardCollaborator,
   BoardInvitation,
   CollaboratorRole,
+  PendingEmailInvitation,
   PendingInvitationWithBoard,
 } from 'src/app/interfaces/board-collaborator.interface';
 
@@ -223,6 +224,7 @@ export class BoardCollaborationApiService {
         .from('board_invitations')
         .select('*')
         .eq('board_id', boardId)
+        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -271,6 +273,50 @@ export class BoardCollaborationApiService {
       return result;
     } catch (error: any) {
       this.toastr.error(`Failed to accept invitation: ${error?.message ?? error}`);
+      return { success: false, error: error?.message ?? String(error) };
+    }
+  }
+
+  // ── Invitee-facing Email Invitations ───────────────────────
+
+  /** Get pending email invitations for the current user (matched by JWT email). */
+  async getMyPendingEmailInvitations(): Promise<PendingEmailInvitation[]> {
+    try {
+      const { data, error } = await this.supabaseService.supabase
+        .rpc('get_my_pending_email_invitations');
+
+      if (error) throw error;
+
+      return (data ?? []) as PendingEmailInvitation[];
+    } catch (error: any) {
+      this.toastr.error(`Failed to load invitations: ${error?.message ?? error}`);
+      return [];
+    }
+  }
+
+  /** Accept or decline an email invitation by its ID (RPC). */
+  async respondToEmailInvitation(
+    invitationId: number,
+    accept: boolean
+  ): Promise<{ success: boolean; board_id?: number; error?: string }> {
+    try {
+      const { data, error } = await this.supabaseService.supabase
+        .rpc('respond_to_board_invitation', {
+          p_invitation_id: invitationId,
+          p_accept: accept,
+        });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; board_id?: number; error?: string };
+      if (result.success) {
+        this.toastr.success(accept ? 'Invitation accepted!' : 'Invitation declined');
+      } else {
+        this.toastr.error(result.error ?? 'Failed to respond to invitation');
+      }
+      return result;
+    } catch (error: any) {
+      this.toastr.error(`Failed to respond to invitation: ${error?.message ?? error}`);
       return { success: false, error: error?.message ?? String(error) };
     }
   }

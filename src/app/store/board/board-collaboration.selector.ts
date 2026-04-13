@@ -34,3 +34,9 @@ export const selectAcceptedCollaborators = createSelector(
   selectCollaborators,
   (collaborators) => collaborators.filter((c) => c.status === 'accepted')
 );
+
+/** Pending email invitations for the current user. */
+export const selectPendingEmailInvitations = createSelector(
+  selectBoardCollaborationFeature,
+  (state) => state.pendingEmailInvitations
+);

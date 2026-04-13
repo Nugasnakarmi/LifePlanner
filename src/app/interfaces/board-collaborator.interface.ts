@@ -31,6 +31,19 @@ export interface BoardInvitation {
   role: CollaboratorRole;
   invited_by: string;
   token: string;
+  status: InvitationStatus;
   created_at: string;
   expires_at: string;
+}
+
+/** Pending email invitation visible to the invitee (returned by the RPC). */
+export interface PendingEmailInvitation {
+  id: number;
+  board_id: number;
+  role: CollaboratorRole;
+  created_at: string;
+  expires_at: string;
+  board_name: string;
+  board_description?: string;
+  inviter_display_name?: string;
 }

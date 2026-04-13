@@ -14,10 +14,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { combineLatest, firstValueFrom, map, Observable, startWith, take } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
+import { PendingEmailInvitation, PendingInvitationWithBoard } from 'src/app/interfaces/board-collaborator.interface';
 import { BoardSortOption } from 'src/app/interfaces/user-preferences.interface';
 import { BoardService } from 'src/app/services/board/board.service';
 import { TaskService } from 'src/app/services/task/task.service';
@@ -30,6 +32,8 @@ import { BoardCollaborationApiService } from 'src/app/services/board/board-colla
 import { CollaboratorRole } from 'src/app/interfaces/board-collaborator.interface';
 import { Actions, ofType } from '@ngrx/effects';
 import * as boardActions from 'src/app/store/board/board.actions';
+import * as collabActions from 'src/app/store/board/board-collaboration.actions';
+import { selectPendingEmailInvitations, selectPendingInvitations } from 'src/app/store/board/board-collaboration.selector';
 
 function sortBoards(boards: Board[], sort: BoardSortOption): Board[] {
   return [...boards].sort((a, b) => {
@@ -74,12 +78,15 @@ export class BoardsViewComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private collabApi = inject(BoardCollaborationApiService);
   private actions$ = inject(Actions);
+  private store = inject(Store);
 
   sortedOwnBoards$: Observable<Board[]>;
   sortedCollaboratedBoards$: Observable<Board[]>;
   boardTemplates$: Observable<BoardTemplate[]>;
   systemTemplates$: Observable<BoardTemplate[]>;
   myTemplates$: Observable<BoardTemplate[]>;
+  pendingEmailInvitations$: Observable<PendingEmailInvitation[]>;
+  pendingDirectInvitations$: Observable<PendingInvitationWithBoard[]>;
   /** True when any background operation (task load, template load/save) is in progress. */
   anyLoading$: Observable<boolean>;
 
@@ -149,6 +156,12 @@ export class BoardsViewComponent implements OnInit {
     this.boardListService.allListsGroupedByBoard$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((grouped) => { this.boardListsMap = grouped; });
+
+    // Load pending invitations for the current user
+    this.store.dispatch(collabActions.loadPendingInvitations());
+    this.store.dispatch(collabActions.loadPendingEmailInvitations());
+    this.pendingEmailInvitations$ = this.store.select(selectPendingEmailInvitations);
+    this.pendingDirectInvitations$ = this.store.select(selectPendingInvitations);
 
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -328,6 +341,30 @@ export class BoardsViewComponent implements OnInit {
     }
 
     this.boardService.deleteBoard(board.id);
+  }
+
+  acceptEmailInvitation(invitation: PendingEmailInvitation): void {
+    this.store.dispatch(
+      collabActions.respondToEmailInvitation({ invitationId: invitation.id, accept: true })
+    );
+  }
+
+  declineEmailInvitation(invitation: PendingEmailInvitation): void {
+    this.store.dispatch(
+      collabActions.respondToEmailInvitation({ invitationId: invitation.id, accept: false })
+    );
+  }
+
+  acceptDirectInvitation(invitation: PendingInvitationWithBoard): void {
+    this.store.dispatch(
+      collabActions.respondToInvitation({ collaboratorId: invitation.id, accept: true })
+    );
+  }
+
+  declineDirectInvitation(invitation: PendingInvitationWithBoard): void {
+    this.store.dispatch(
+      collabActions.respondToInvitation({ collaboratorId: invitation.id, accept: false })
+    );
   }
 }
 
