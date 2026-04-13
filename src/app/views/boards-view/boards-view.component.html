@@ -149,6 +149,75 @@
     <mat-spinner diameter="48"></mat-spinner>
   </div>
   } @else {
+
+  <!-- ── Pending invitations ─────────────────────────────────── -->
+  @if(pendingEmailInvitations$ | async; as emailInvites) {
+  @if(pendingDirectInvitations$ | async; as directInvites) {
+  @if(emailInvites.length > 0 || directInvites.length > 0) {
+  <div class="pending-invitations-section">
+    <div class="pending-invitations-header">
+      <mat-icon>mail_outline</mat-icon>
+      <span>Pending Invitations</span>
+    </div>
+    <div class="pending-invitations-grid">
+      @for(invite of emailInvites; track invite.id) {
+      <div class="invitation-card">
+        <div class="invitation-card-inviter">
+          <mat-icon>person</mat-icon>
+          <span>{{ invite.inviter_display_name ?? 'Someone' }}</span>
+        </div>
+        <div class="invitation-card-message">invited you to collaborate on</div>
+        <div class="invitation-card-board-name">{{ invite.board_name }}</div>
+        @if(invite.board_description) {
+        <div class="invitation-card-board-description">{{ invite.board_description }}</div>
+        }
+        <div class="invitation-card-meta">
+          <span class="invitation-role-badge" [class.invitation-role-badge--editor]="invite.role === 'editor'" [class.invitation-role-badge--viewer]="invite.role === 'viewer'">{{ invite.role }}</span>
+        </div>
+        <div class="invitation-card-actions">
+          <button mat-raised-button color="primary" class="invitation-accept-btn" (click)="acceptEmailInvitation(invite)" aria-label="Accept invitation">
+            <mat-icon>check</mat-icon>
+            Accept
+          </button>
+          <button mat-stroked-button class="invitation-decline-btn" (click)="declineEmailInvitation(invite)" aria-label="Decline invitation">
+            <mat-icon>close</mat-icon>
+            Decline
+          </button>
+        </div>
+      </div>
+      }
+      @for(invite of directInvites; track invite.id) {
+      <div class="invitation-card">
+        <div class="invitation-card-inviter">
+          <mat-icon>person</mat-icon>
+          <span>{{ invite.display_name ?? 'Someone' }}</span>
+        </div>
+        <div class="invitation-card-message">invited you to collaborate on</div>
+        <div class="invitation-card-board-name">{{ invite.board?.name ?? 'a board' }}</div>
+        @if(invite.board?.description) {
+        <div class="invitation-card-board-description">{{ invite.board.description }}</div>
+        }
+        <div class="invitation-card-meta">
+          <span class="invitation-role-badge" [class.invitation-role-badge--editor]="invite.role === 'editor'" [class.invitation-role-badge--viewer]="invite.role === 'viewer'">{{ invite.role }}</span>
+        </div>
+        <div class="invitation-card-actions">
+          <button mat-raised-button color="primary" class="invitation-accept-btn" (click)="acceptDirectInvitation(invite)" aria-label="Accept invitation">
+            <mat-icon>check</mat-icon>
+            Accept
+          </button>
+          <button mat-stroked-button class="invitation-decline-btn" (click)="declineDirectInvitation(invite)" aria-label="Decline invitation">
+            <mat-icon>close</mat-icon>
+            Decline
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+  }
+  }
+
   <!-- ── Own boards ─────────────────────────────────────────── -->
   @if(sortedOwnBoards$ | async; as ownBoards) {
   <div class="boards-grid">
