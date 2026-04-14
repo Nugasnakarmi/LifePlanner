@@ -5,8 +5,9 @@
 
 -- 1. Add status column to board_invitations
 --    Reuses the existing invitation_status enum (pending, accepted, declined).
+--    IF NOT EXISTS makes this re-runnable if the migration was previously interrupted.
 ALTER TABLE public.board_invitations
-  ADD COLUMN status public.invitation_status NOT NULL DEFAULT 'pending';
+  ADD COLUMN IF NOT EXISTS status public.invitation_status NOT NULL DEFAULT 'pending';
 
 -- Replace the old all-rows UNIQUE(board_id, email) rule with a
 -- partial unique index so historical accepted/declined invitations
@@ -47,6 +48,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS board_invitations_pending_board_id_email_idx
   WHERE status = 'pending';
 
 -- 2. RLS: allow invited users to see their own invitations by matching email
+--    DROP + recreate so this is safe to re-run after an interrupted migration.
+DROP POLICY IF EXISTS "Invitees can view their own invitations" ON public.board_invitations;
 CREATE POLICY "Invitees can view their own invitations"
   ON public.board_invitations FOR SELECT
   USING (
