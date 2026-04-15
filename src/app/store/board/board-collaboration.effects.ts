@@ -254,4 +254,16 @@ export class BoardCollaborationEffects {
       map(() => boardActions.loadBoards())
     )
   );
+
+  /** Reload pending invitations when boards are loaded successfully.
+   *  This ensures users see new invitations when navigating to boards page. */
+  reloadInvitationsAfterBoardsLoad$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(boardActions.loadBoardsSuccess),
+      mergeMap(() => [
+        collabActions.loadPendingInvitations(),
+        collabActions.loadPendingEmailInvitations(),
+      ])
+    )
+  );
 }
