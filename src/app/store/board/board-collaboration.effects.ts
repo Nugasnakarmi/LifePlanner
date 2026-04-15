@@ -256,11 +256,12 @@ export class BoardCollaborationEffects {
   );
 
   /** Reload pending invitations when boards are loaded successfully.
-   *  This ensures users see new invitations when navigating to boards page. */
+   *  This ensures users see new invitations when navigating to boards page.
+   *  Uses switchMap to cancel pending invitation loads if boards are reloaded. */
   reloadInvitationsAfterBoardsLoad$ = createEffect(() =>
     this.actions$.pipe(
       ofType(boardActions.loadBoardsSuccess),
-      mergeMap(() => [
+      switchMap(() => [
         collabActions.loadPendingInvitations(),
         collabActions.loadPendingEmailInvitations(),
       ])
