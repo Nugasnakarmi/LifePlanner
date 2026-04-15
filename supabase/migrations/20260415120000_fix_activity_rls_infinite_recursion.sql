@@ -41,14 +41,15 @@ STABLE
 SECURITY DEFINER
 SET search_path = public, pg_catalog
 AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM public.task_activities ta
-    JOIN public.tasks t ON t.id = ta.task_id
-    WHERE ta.activity_id = p_activity_id
-      AND t.board_id IS NOT NULL
-      AND public.has_board_access(t.board_id, p_min_role)
-  );
+  SELECT auth.uid() IS NOT NULL
+    AND EXISTS (
+      SELECT 1
+      FROM public.task_activities ta
+      JOIN public.tasks t ON t.id = ta.task_id
+      WHERE ta.activity_id = p_activity_id
+        AND t.board_id IS NOT NULL
+        AND public.has_board_access(t.board_id, p_min_role)
+    );
 $$;
 
 REVOKE EXECUTE ON FUNCTION public.activity_has_board_access FROM PUBLIC;
