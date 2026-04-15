@@ -4,7 +4,7 @@ import { BoardAPIService } from 'src/app/services/board/board.api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as boardActions from './board.actions';
 import * as taskActions from '../task/task.actions';
-import { catchError, from, map, mergeMap, of } from 'rxjs';
+import { catchError, from, map, mergeMap, of, switchMap } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 
 @Injectable()
@@ -40,7 +40,7 @@ export class BoardEffects {
   loadBoards$ = createEffect(() =>
     this.actions$.pipe(
       ofType(taskActions.landingPageInitialized, boardActions.loadBoards),
-      mergeMap(() =>
+      switchMap(() =>
         from(this.boardAPIService.getBoards()).pipe(
           map((fetchedBoards) =>
             boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] })
