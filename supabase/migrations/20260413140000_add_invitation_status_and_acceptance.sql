@@ -32,7 +32,7 @@ BEGIN
     AND rel.relname = 'board_invitations'
     AND con.contype = 'u'
   GROUP BY con.conname
-  HAVING array_agg(att.attname ORDER BY cols.ord) = ARRAY['board_id', 'email'];
+  HAVING array_agg(att.attname::text ORDER BY cols.ord) = ARRAY['board_id', 'email'];
 
   IF board_email_unique_constraint_name IS NOT NULL THEN
     EXECUTE format(
