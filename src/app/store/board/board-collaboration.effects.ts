@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Action } from '@ngrx/store';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { from, mergeMap, map, catchError, of, switchMap, filter } from 'rxjs';
+import { from, mergeMap, map, catchError, of, switchMap, filter, exhaustMap } from 'rxjs';
 import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
 import * as collabActions from './board-collaboration.actions';
 import * as boardActions from './board.actions';
@@ -99,10 +99,13 @@ export class BoardCollaborationEffects {
     )
   );
 
+  /** Load pending direct invitations for the current user.
+   *  Uses exhaustMap to ignore new load requests while a previous one is in flight,
+   *  preventing redundant API calls. */
   loadPendingInvitations$ = createEffect(() =>
     this.actions$.pipe(
       ofType(collabActions.loadPendingInvitations),
-      switchMap(() =>
+      exhaustMap(() =>
         from(this.collabApi.getPendingInvitations()).pipe(
           map((pendingInvitations) =>
             collabActions.loadPendingInvitationsSuccess({ pendingInvitations })
@@ -199,10 +202,13 @@ export class BoardCollaborationEffects {
 
   // ── Pending email invitations (invitee-facing) ──────────
 
+  /** Load pending email invitations for the current user.
+   *  Uses exhaustMap to ignore new load requests while a previous one is in flight,
+   *  preventing redundant API calls. */
   loadPendingEmailInvitations$ = createEffect(() =>
     this.actions$.pipe(
       ofType(collabActions.loadPendingEmailInvitations),
-      switchMap(() =>
+      exhaustMap(() =>
         from(this.collabApi.getMyPendingEmailInvitations()).pipe(
           map((invitations) =>
             collabActions.loadPendingEmailInvitationsSuccess({ invitations })
