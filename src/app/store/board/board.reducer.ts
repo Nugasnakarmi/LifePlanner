@@ -36,13 +36,21 @@ export const boardsReducer = createReducer(
     ...state,
     loading: false,
   })),
-  on(boardActions.boardEditedSuccessfully, (state, { board }) => ({
-    ...state,
-    boards: [...state.boards.map((b) => (b.id === board.id ? board : b))],
-    selectedBoard:
-      state.selectedBoard?.id === board.id ? board : state.selectedBoard,
-    loading: false,
-  })),
+  on(boardActions.boardEditedSuccessfully, (state, { board }) => {
+    // The API returns only database columns (name, description, etc.).
+    // Merge with the existing board entry to preserve client-side collaboration
+    // properties (isCollaborated, canEdit, ownerDisplayName) that are not
+    // stored in the database, so collaborated boards stay in "Shared With You".
+    const existingBoard = state.boards.find((b) => b.id === board.id);
+    const mergedBoard: Board = existingBoard ? { ...existingBoard, ...board } : board;
+    return {
+      ...state,
+      boards: [...state.boards.map((b) => (b.id === board.id ? mergedBoard : b))],
+      selectedBoard:
+        state.selectedBoard?.id === board.id ? mergedBoard : state.selectedBoard,
+      loading: false,
+    };
+  }),
   on(boardActions.selectBoard, (state, { board }) => ({
     ...state,
     selectedBoard: board,
