@@ -15,13 +15,16 @@ export interface BoardCollaborator {
   avatar_url?: string;
 }
 
-/** BoardCollaborator with the parent board's basic info (used for pending invitations). */
-export interface PendingInvitationWithBoard extends BoardCollaborator {
-  board?: {
-    id: number;
-    name: string;
-    description?: string;
-  };
+/** Pending direct invitation visible to the invitee (returned by the RPC). */
+export interface PendingInvitationWithBoard {
+  id: number;
+  board_id: number;
+  role: CollaboratorRole;
+  invited_by?: string;
+  created_at: string;
+  board_name: string;
+  board_description?: string;
+  inviter_display_name: string;
 }
 
 export interface BoardInvitation {
@@ -45,5 +48,5 @@ export interface PendingEmailInvitation {
   expires_at: string;
   board_name: string;
   board_description?: string;
-  inviter_display_name?: string;
+  inviter_display_name: string;
 }
