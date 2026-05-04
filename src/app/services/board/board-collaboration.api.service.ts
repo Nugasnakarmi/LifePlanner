@@ -164,16 +164,11 @@ export class BoardCollaborationApiService {
     }
   }
 
-  /** Get pending invitations for the current user, including basic board info. */
+  /** Get pending direct invitations for the current user, including board info and inviter name. */
   async getPendingInvitations(): Promise<PendingInvitationWithBoard[]> {
     try {
-      const user: User = await this.supabaseService.getUser();
-
       const { data, error } = await this.supabaseService.supabase
-        .from('board_collaborators')
-        .select('*, board:boards(id, name, description)')
-        .eq('user_id', user.id)
-        .eq('status', 'pending');
+        .rpc('get_my_pending_direct_invitations');
 
       if (error) throw error;
 
