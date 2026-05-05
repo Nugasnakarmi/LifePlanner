@@ -198,10 +198,21 @@ export class BoardsViewComponent implements OnInit {
     this.showTemplates = !this.showTemplates;
   }
 
+  private formatDateOrdinal(date: Date): string {
+    const day = date.getDate();
+    const suffix =
+      day >= 11 && day <= 13
+        ? 'th'
+        : ['th', 'st', 'nd', 'rd', 'th'][Math.min(day % 10, 4)];
+    const month = date.toLocaleString('en-US', { month: 'long' });
+    const year = date.getFullYear();
+    return `${day}${suffix} ${month}, ${year}`;
+  }
+
   createBoard(): void {
     const name = this.newBoardNameControl.value?.trim();
     if (name && this.newBoardNameControl.valid) {
-      const board: Board = { name, description: '' };
+      const board: Board = { name, description: this.formatDateOrdinal(new Date()) };
 
       const inviteEmail = this.newBoardInviteEmailControl.value?.trim();
       const role = (this.newBoardInviteRoleControl.value ?? 'editor') as CollaboratorRole;
