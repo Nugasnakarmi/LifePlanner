@@ -18,17 +18,32 @@ export class BoardAPIService {
   private storageService = inject(StorageService);
   private sanitizer = inject(InputSanitizerService);
 
+  private formatDateOrdinal(date: Date): string {
+    const day = date.getDate();
+    const suffix =
+      day >= 11 && day <= 13
+        ? 'th'
+        : ['th', 'st', 'nd', 'rd', 'th'][Math.min(day % 10, 4)];
+    const month = date.toLocaleString('en-US', { month: 'long' });
+    const year = date.getFullYear();
+    return `${day}${suffix} ${month}, ${year}`;
+  }
+
   //TODO - Convert promises to observables
   async addBoard(boardData: Board): Promise<Board | null> {
     try {
+      const now = new Date();
+      const description = boardData.description?.trim()
+        ? boardData.description
+        : this.formatDateOrdinal(now);
       let user: User = await this.supabaseService.getUser();
       let { data, error } = await this.supabaseService.supabase
         .from('boards')
         .insert({
           name: this.sanitizer.sanitize(boardData.name),
-          description: this.sanitizer.sanitize(boardData.description),
+          description: this.sanitizer.sanitize(description),
           user_id: user.id,
-          created_at: new Date().toISOString(),
+          created_at: now.toISOString(),
         })
         .select()
         .single();
