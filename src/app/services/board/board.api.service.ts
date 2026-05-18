@@ -212,13 +212,17 @@ export class BoardAPIService {
     const insertedActivityIds: number[] = [];
     try {
       const user: User = await this.supabaseService.getUser();
+      const now = new Date();
+      const description = template.description?.trim()
+        ? template.description
+        : this.formatDateOrdinal(now);
       const { data: boardData, error: boardError } = await this.supabaseService.supabase
         .from('boards')
         .insert({
           name: this.sanitizer.sanitize(template.name),
-          description: this.sanitizer.sanitize(template.description),
+          description: this.sanitizer.sanitize(description),
           user_id: user.id,
-          created_at: new Date().toISOString(),
+          created_at: now.toISOString(),
         })
         .select()
         .single();
