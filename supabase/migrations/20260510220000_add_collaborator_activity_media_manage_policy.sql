@@ -29,6 +29,17 @@
 -- SECURITY DEFINER reads activities / task_activities / tasks
 -- without triggering their RLS policies, following the same
 -- pattern used in activity_has_board_access() (20260415120000).
+--
+-- Three deliberate safety choices:
+--   1. Exact suffix check via right() = '...' instead of LIKE to avoid
+--      treating underscores / percent signs in the object name as
+--      SQL wildcards.
+--   2. jsonb_typeof guard turns NULL / non-array media into an empty
+--      array so the function never errors in an RLS context.
+--   3. The expected suffix includes the full bucket path
+--      (/storage/v1/object/public/activity-media/<key>) so a
+--      collaborator cannot bypass the check by writing an arbitrary
+--      URL that merely ends with a known object name.
 -- --------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.activity_media_has_board_access(
   p_object_name text,
@@ -48,8 +59,13 @@ AS $$
       JOIN public.tasks t ON t.id = ta.task_id
       WHERE EXISTS (
         SELECT 1
-        FROM jsonb_array_elements(a.media) AS m
-        WHERE (m->>'url') LIKE '%/' || p_object_name
+        FROM jsonb_array_elements(
+          CASE WHEN jsonb_typeof(a.media) = 'array' THEN a.media ELSE '[]'::jsonb END
+        ) AS m
+        WHERE right(
+                m->>'url',
+                length('/storage/v1/object/public/activity-media/' || p_object_name)
+              ) = '/storage/v1/object/public/activity-media/' || p_object_name
       )
         AND t.board_id IS NOT NULL
         AND public.has_board_access(t.board_id, p_min_role)
