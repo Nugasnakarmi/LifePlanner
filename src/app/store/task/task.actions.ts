@@ -93,3 +93,8 @@ export const taskCompletionStatusUpdateFailed = createAction(
   props<{ error: string }>()
 );
 
+export const loadBoardTasksSuccess = createAction(
+  '[Tasks] Load Board Tasks Success',
+  props<{ boardId: number; tasks: IdeaTask[] }>()
+);
+

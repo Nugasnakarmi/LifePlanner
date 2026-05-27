@@ -1,5 +1,6 @@
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as taskActions from './task.actions';
+import * as boardActions from 'src/app/store/board/board.actions';
 import { inject, Injectable } from '@angular/core';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { catchError, map, mergeMap, concatMap, tap } from 'rxjs/operators';
@@ -162,5 +163,22 @@ export class TaskEffects {
         tap(() => this.formCache.clear(DIALOG_CACHE_KEYS.ADD_TASK))
       ),
     { dispatch: false }
+  );
+
+  loadBoardTasks$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(boardActions.selectBoard),
+      mergeMap(({ board }) => {
+        if (!board.id) {
+          return of();
+        }
+        return from(this.taskAPIService.getTasksByBoardId(board.id)).pipe(
+          map((tasks: IdeaTask[]) =>
+            taskActions.loadBoardTasksSuccess({ boardId: board.id!, tasks })
+          ),
+          catchError(() => of())
+        );
+      })
+    )
   );
 }

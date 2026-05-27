@@ -49,6 +49,14 @@ export const tasksReducer = createReducer(
       loading: false,
     };
   }),
+  on(taskActions.loadBoardTasksSuccess, (state, { boardId, tasks }) => ({
+    ...state,
+    tasks: [
+      ...state.tasks.filter((t) => t.board_id !== boardId),
+      ...tasks,
+    ],
+    loading: false,
+  })),
   on(taskActions.taskWasDeletedSuccessfully, (state, { taskId }) => ({
     ...state,
     tasks: state.tasks.filter((task) => task.id !== taskId),

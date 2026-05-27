@@ -1,16 +1,19 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 import { BoardAPIService } from 'src/app/services/board/board.api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as boardActions from './board.actions';
 import * as taskActions from '../task/task.actions';
-import { catchError, from, map, mergeMap, of, switchMap } from 'rxjs';
+import { catchError, from, map, mergeMap, of, switchMap, withLatestFrom } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
+import { selectSelectedBoard } from './board.selector';
 
 @Injectable()
 export class BoardEffects {
   boardAPIService = inject(BoardAPIService);
   toastr = inject(ToastrService);
+  private store = inject(Store);
 
   addBoard$ = createEffect(() =>
     this.actions$.pipe(
@@ -40,11 +43,20 @@ export class BoardEffects {
   loadBoards$ = createEffect(() =>
     this.actions$.pipe(
       ofType(taskActions.landingPageInitialized, boardActions.loadBoards),
-      switchMap(() =>
+      withLatestFrom(this.store.select(selectSelectedBoard)),
+      switchMap(([_, currentSelected]) =>
         from(this.boardAPIService.getBoards()).pipe(
-          map((fetchedBoards) =>
-            boardActions.loadBoardsSuccess({ boards: fetchedBoards ?? [] })
-          ),
+          mergeMap((fetchedBoards) => {
+            const boards = fetchedBoards ?? [];
+            const resolved = currentSelected?.id
+              ? (boards.find((b) => b.id === currentSelected.id) ?? boards[0] ?? null)
+              : (boards[0] ?? null);
+            const actions: any[] = [boardActions.loadBoardsSuccess({ boards })];
+            if (resolved) {
+              actions.push(boardActions.selectBoard({ board: resolved }));
+            }
+            return actions;
+          }),
           catchError((error) => {
             this.toastr.error('Failed to load boards');
             return of(boardActions.loadBoardsFailure({ error }));
