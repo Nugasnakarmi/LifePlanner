@@ -48,11 +48,9 @@ export class TaskAPIService {
 
   async getTasks(): Promise<IdeaTask[]> {
     try {
-      let user: User = await this.supabaseService.getUser();
       let { data: tasks, error } = await this.supabaseService.supabase
         .from('tasks')
-        .select('*, task_activities(id, completed, position, activity:activities(id, name, media))')
-        .eq('user_id', user.id);
+        .select('*, task_activities(id, completed, position, activity:activities(id, name, media))');
       if (error) {
         throw error;
       }
