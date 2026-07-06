@@ -592,6 +592,21 @@ $gold: #F9D07A;
   }
 }
 
+.template-card--shared {
+  border-color: rgba(64, 196, 255, 0.25);
+  background: rgba(64, 196, 255, 0.05);
+
+  &:hover {
+    background: rgba(64, 196, 255, 0.1);
+    border-color: #40c4ff;
+    box-shadow: 0 8px 24px rgba(64, 196, 255, 0.12);
+  }
+
+  .template-card-icon mat-icon {
+    color: #40c4ff;
+  }
+}
+
 .template-card-header-right {
   display: flex;
   align-items: center;
@@ -805,6 +820,15 @@ $gold: #F9D07A;
 
     .template-card-icon mat-icon {
       color: #5a3a9c;
+    }
+  }
+
+  .template-card--shared {
+    background: rgba(0, 131, 176, 0.07);
+    border-color: rgba(0, 131, 176, 0.2);
+
+    .template-card-icon mat-icon {
+      color: #0083b0;
     }
   }
 

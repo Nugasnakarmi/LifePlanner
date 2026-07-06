@@ -85,6 +85,7 @@ export class BoardsViewComponent implements OnInit {
   boardTemplates$: Observable<BoardTemplate[]>;
   systemTemplates$: Observable<BoardTemplate[]>;
   myTemplates$: Observable<BoardTemplate[]>;
+  sharedTemplates$: Observable<BoardTemplate[]>;
   pendingEmailInvitations$: Observable<PendingEmailInvitation[]>;
   pendingDirectInvitations$: Observable<PendingInvitationWithBoard[]>;
   /** True when any background operation (task load, template load/save) is in progress. */
@@ -145,7 +146,8 @@ export class BoardsViewComponent implements OnInit {
 
     this.boardTemplates$ = this.boardTemplateService.templates$;
     this.systemTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isSystem)));
-    this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem)));
+    this.myTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => !t.isSystem && !t.isShared)));
+    this.sharedTemplates$ = this.boardTemplates$.pipe(map((ts) => ts.filter((t) => t.isShared)));
     this.anyLoading$ = combineLatest([
       this.taskService.loading$,
       this.boardTemplateService.loading$,

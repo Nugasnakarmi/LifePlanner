@@ -39,4 +39,6 @@ export interface BoardTemplate {
   lists: BoardTemplateList[];
   /** True for user-created templates stored in Supabase. */
   isBoardTemplate?: boolean;
+  /** True for templates owned by another user who shares a board with the current user. */
+  isShared?: boolean;
 }
