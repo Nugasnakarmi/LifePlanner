@@ -88,6 +88,46 @@ export class BoardTemplateEffects {
     )
   );
 
+  setTemplateShareable$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.setTemplateShareable),
+      mergeMap(({ dbId, isShareable }) =>
+        from(this.api.setTemplateShareable(dbId, isShareable)).pipe(
+          map((ok) => {
+            if (!ok) {
+              return actions.setTemplateShareableFailure({ error: 'Failed to update sharing' });
+            }
+            return actions.setTemplateShareableSuccess({ dbId, isShareable });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to update sharing');
+            return of(actions.setTemplateShareableFailure({ error }));
+          })
+        )
+      )
+    )
+  );
+
+  cloneTemplate$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.cloneTemplate),
+      mergeMap(({ templateId }) =>
+        from(this.api.cloneTemplate(templateId)).pipe(
+          map((cloned) => {
+            if (!cloned) {
+              return actions.cloneTemplateFailure({ error: 'Clone returned null' });
+            }
+            return actions.cloneTemplateSuccess({ template: cloned });
+          }),
+          catchError((error) => {
+            this.toastr.error('Failed to clone template');
+            return of(actions.cloneTemplateFailure({ error }));
+          })
+        )
+      )
+    )
+  );
+
   clearTemplateDraft$ = createEffect(
     () =>
       this.actions$.pipe(

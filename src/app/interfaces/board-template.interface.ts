@@ -41,4 +41,6 @@ export interface BoardTemplate {
   isBoardTemplate?: boolean;
   /** True for templates owned by another user who shares a board with the current user. */
   isShared?: boolean;
+  /** True when the owner has enabled link-based sharing for this template. */
+  isShareable?: boolean;
 }

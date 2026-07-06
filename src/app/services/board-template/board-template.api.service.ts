@@ -27,7 +27,7 @@ export class BoardTemplateApiService {
       const { data: rows, error } = await this.supabaseService.supabase
         .from('board_templates')
         .select(`
-          id, name, description, is_system, user_id,
+          id, name, description, is_system, is_shareable, user_id,
           board_template_lists (
             id, name, list_type, position,
             board_template_tasks ( id, name, description, position, activities )
@@ -47,6 +47,7 @@ export class BoardTemplateApiService {
         isSystem: row.is_system,
         isBoardTemplate: !row.is_system,
         isShared: !row.is_system && row.user_id !== user.id,
+        isShareable: row.is_shareable ?? false,
         lists: ((row.board_template_lists ?? []) as any[])
           .sort((a: any, b: any) => a.position - b.position)
           .map((list: any): BoardTemplateList => ({
@@ -196,6 +197,42 @@ export class BoardTemplateApiService {
     } catch (error: any) {
       this.toastr.error(`Failed to delete template: ${error?.message ?? error}`);
       return false;
+    }
+  }
+
+  async setTemplateShareable(dbId: number, isShareable: boolean): Promise<boolean> {
+    try {
+      const { error } = await this.supabaseService.supabase.rpc(
+        'set_template_shareable',
+        { p_template_id: dbId, p_is_shareable: isShareable }
+      );
+
+      if (error) throw error;
+      return true;
+    } catch (error: any) {
+      this.toastr.error(`Failed to update sharing: ${error?.message ?? error}`);
+      return false;
+    }
+  }
+
+  async cloneTemplate(templateId: number): Promise<BoardTemplate | null> {
+    try {
+      const { data, error } = await this.supabaseService.supabase.rpc(
+        'clone_board_template',
+        { p_template_id: templateId }
+      );
+
+      if (error) throw error;
+
+      const newId = data as number;
+      this.toastr.success('Template added to your collection');
+
+      // Load the newly cloned template so we return a full BoardTemplate object.
+      const templates = await this.getBoardTemplates();
+      return templates.find((t) => t.dbId === newId) ?? null;
+    } catch (error: any) {
+      this.toastr.error(`Failed to clone template: ${error?.message ?? error}`);
+      return null;
     }
   }
 }

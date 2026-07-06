@@ -27,12 +27,14 @@ import { BoardTemplateService } from 'src/app/services/board-template/board-temp
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
 import { UserProfileService } from 'src/app/services/user-profile.service';
 import { CreateTemplateDialogComponent, TemplateDialogData } from './create-template-dialog/create-template-dialog.component';
+import { ShareTemplateDialogComponent, ShareTemplateDialogData } from './share-template-dialog/share-template-dialog.component';
 import { BoardCollaborationDialogComponent, CollaborationDialogData } from './board-collaboration-dialog/board-collaboration-dialog.component';
 import { BoardCollaborationApiService } from 'src/app/services/board/board-collaboration.api.service';
 import { CollaboratorRole } from 'src/app/interfaces/board-collaborator.interface';
 import { Actions, ofType } from '@ngrx/effects';
 import * as boardActions from 'src/app/store/board/board.actions';
 import * as collabActions from 'src/app/store/board/board-collaboration.actions';
+import * as templateActions from 'src/app/store/board-template/board-template.actions';
 import { selectPendingEmailInvitations, selectPendingInvitations } from 'src/app/store/board/board-collaboration.selector';
 
 function sortBoards(boards: Board[], sort: BoardSortOption): Board[] {
@@ -95,6 +97,8 @@ export class BoardsViewComponent implements OnInit {
   showTemplates = false;
   editingBoardId: number | null = null;
   boardListsMap: Record<number, BoardList[]> = {};
+  /** Template ID from ?addTemplate query param — prompts user to clone it. */
+  pendingCloneTemplateId: number | null = null;
 
   sortControl = new UntypedFormControl('created_at');
 
@@ -170,6 +174,13 @@ export class BoardsViewComponent implements OnInit {
       .subscribe((params) => {
         if (params['newBoard'] === 'true') {
           this.showNewBoardForm = true;
+          this.router.navigate(['/boards'], { queryParams: {}, replaceUrl: true });
+        }
+        if (params['addTemplate']) {
+          const templateId = parseInt(params['addTemplate'], 10);
+          if (!isNaN(templateId)) {
+            this.pendingCloneTemplateId = templateId;
+          }
           this.router.navigate(['/boards'], { queryParams: {}, replaceUrl: true });
         }
       });
@@ -261,6 +272,34 @@ export class BoardsViewComponent implements OnInit {
         this.boardTemplateService.loadTemplates();
       }
     });
+  }
+
+  openShareTemplateDialog(template: BoardTemplate, event: Event): void {
+    event.stopPropagation();
+    const data: ShareTemplateDialogData = { template };
+    this.dialog.open(ShareTemplateDialogComponent, {
+      panelClass: 'share-template-panel',
+      disableClose: false,
+      data,
+      width: '480px',
+      maxWidth: '95vw',
+    });
+  }
+
+  cloneSharedTemplate(templateId: number): void {
+    this.boardTemplateService.cloneTemplate(templateId);
+    this.actions$.pipe(
+      ofType(templateActions.cloneTemplateSuccess, templateActions.cloneTemplateFailure),
+      take(1),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => {
+      this.pendingCloneTemplateId = null;
+      this.boardTemplateService.loadTemplates();
+    });
+  }
+
+  dismissCloneBanner(): void {
+    this.pendingCloneTemplateId = null;
   }
 
   deleteBoardTemplate(template: BoardTemplate, event: Event): void {

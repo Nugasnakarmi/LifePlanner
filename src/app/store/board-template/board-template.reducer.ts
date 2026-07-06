@@ -51,5 +51,31 @@ export const boardTemplateReducer = createReducer(
     ...state,
     saving: false,
     error,
+  })),
+
+  on(actions.setTemplateShareable, (state) => ({ ...state, saving: true, error: null })),
+  on(actions.setTemplateShareableSuccess, (state, { dbId, isShareable }) => ({
+    ...state,
+    saving: false,
+    templates: state.templates.map((t) =>
+      t.dbId === dbId ? { ...t, isShareable } : t
+    ),
+  })),
+  on(actions.setTemplateShareableFailure, (state, { error }) => ({
+    ...state,
+    saving: false,
+    error,
+  })),
+
+  on(actions.cloneTemplate, (state) => ({ ...state, saving: true, error: null })),
+  on(actions.cloneTemplateSuccess, (state, { template }) => ({
+    ...state,
+    saving: false,
+    templates: [template, ...state.templates],
+  })),
+  on(actions.cloneTemplateFailure, (state, { error }) => ({
+    ...state,
+    saving: false,
+    error,
   }))
 );
