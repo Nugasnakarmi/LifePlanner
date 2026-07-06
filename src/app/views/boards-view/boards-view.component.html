@@ -111,6 +111,36 @@
       }
     }
 
+    <!-- Shared templates (from board collaborators' owners) -->
+    @if(sharedTemplates$ | async; as sharedTemplates) {
+      @if(sharedTemplates.length > 0) {
+        <div class="template-section-label">
+          <mat-icon>group</mat-icon>
+          Shared with You
+        </div>
+        <div class="template-grid">
+          @for(template of sharedTemplates; track template.id) {
+            <div class="template-card template-card--shared" role="button" (click)="createBoardFromTemplate(template)" tabindex="0" (keydown.enter)="activateTemplateCard(template, $event)" (keydown.space)="onCardKeydownSpace($event)" (keyup.space)="activateTemplateCard(template, $event)" [attr.aria-label]="'Create board from template: ' + template.name">
+              <div class="template-card-header">
+                <div class="template-card-icon">
+                  <mat-icon>group</mat-icon>
+                </div>
+                <span class="template-list-count">{{ template.lists.length }} list{{ template.lists.length !== 1 ? 's' : '' }}</span>
+              </div>
+              <div class="template-card-name">{{ template.name }}</div>
+              @if(template.description) {
+                <div class="template-card-description">{{ template.description }}</div>
+              }
+              <div class="template-card-footer">
+                <span class="template-task-count">{{ totalTaskCount(template) }} task{{ totalTaskCount(template) !== 1 ? 's' : '' }} pre-loaded</span>
+                <mat-icon class="template-arrow">arrow_forward</mat-icon>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
     <!-- System templates -->
     <div class="template-section-label">
       <mat-icon>workspace_premium</mat-icon>

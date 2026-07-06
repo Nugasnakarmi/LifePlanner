@@ -33,7 +33,6 @@ export class BoardTemplateApiService {
             board_template_tasks ( id, name, description, position, activities )
           )
         `)
-        .or(`is_system.eq.true,user_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -47,6 +46,7 @@ export class BoardTemplateApiService {
         description: row.description ?? '',
         isSystem: row.is_system,
         isBoardTemplate: !row.is_system,
+        isShared: !row.is_system && row.user_id !== user.id,
         lists: ((row.board_template_lists ?? []) as any[])
           .sort((a: any, b: any) => a.position - b.position)
           .map((list: any): BoardTemplateList => ({
