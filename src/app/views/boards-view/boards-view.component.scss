@@ -632,6 +632,60 @@ $gold: #F9D07A;
   }
 }
 
+.template-share-btn {
+  color: rgba(255, 255, 255, 0.25) !important;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 !important;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+  }
+
+  &:hover {
+    color: $gold !important;
+  }
+}
+
+// Clone template banner — shown when arriving via a share link
+.clone-template-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 20px;
+  padding: 14px 20px;
+  background: rgba(249, 208, 122, 0.1);
+  border: 1px solid rgba(249, 208, 122, 0.3);
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.clone-template-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: $gold;
+  font-size: 0.9rem;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.clone-template-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 // Custom category badge
 .template-category-badge--custom {
   background: rgba(176, 127, 255, 0.15);

@@ -57,3 +57,33 @@ export const editBoardTemplateFailure = createAction(
   '[Board Templates] Edit Failure',
   props<{ error: any; dbId: number }>()
 );
+
+export const setTemplateShareable = createAction(
+  '[Board Templates] Set Shareable',
+  props<{ dbId: number; isShareable: boolean }>()
+);
+
+export const setTemplateShareableSuccess = createAction(
+  '[Board Templates] Set Shareable Success',
+  props<{ dbId: number; isShareable: boolean }>()
+);
+
+export const setTemplateShareableFailure = createAction(
+  '[Board Templates] Set Shareable Failure',
+  props<{ error: any }>()
+);
+
+export const cloneTemplate = createAction(
+  '[Board Templates] Clone',
+  props<{ templateId: number }>()
+);
+
+export const cloneTemplateSuccess = createAction(
+  '[Board Templates] Clone Success',
+  props<{ template: BoardTemplate }>()
+);
+
+export const cloneTemplateFailure = createAction(
+  '[Board Templates] Clone Failure',
+  props<{ error: any }>()
+);

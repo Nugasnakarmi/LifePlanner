@@ -32,4 +32,12 @@ export class BoardTemplateService {
   editTemplate(template: BoardTemplate): void {
     this.store.dispatch(actions.editBoardTemplate({ template }));
   }
+
+  setTemplateShareable(dbId: number, isShareable: boolean): void {
+    this.store.dispatch(actions.setTemplateShareable({ dbId, isShareable }));
+  }
+
+  cloneTemplate(templateId: number): void {
+    this.store.dispatch(actions.cloneTemplate({ templateId }));
+  }
 }
