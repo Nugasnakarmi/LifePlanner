@@ -44,3 +44,24 @@ export interface BoardTemplate {
   /** True when the owner has enabled link-based sharing for this template. */
   isShareable?: boolean;
 }
+
+/** An outgoing template invitation as seen by the sender (owner). */
+export interface TemplateInvitation {
+  id: number;
+  template_id: number;
+  email: string;
+  status: 'pending' | 'accepted' | 'declined';
+  created_at: string;
+  expires_at: string;
+}
+
+/** A pending template invitation as seen by the recipient. */
+export interface PendingTemplateInvitation {
+  id: number;
+  template_id: number;
+  created_at: string;
+  expires_at: string;
+  template_name: string;
+  template_description: string;
+  inviter_display_name: string;
+}

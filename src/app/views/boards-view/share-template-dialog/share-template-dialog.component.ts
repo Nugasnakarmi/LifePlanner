@@ -1,17 +1,21 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ClipboardModule, Clipboard } from '@angular/cdk/clipboard';
-import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { BoardTemplate, TemplateInvitation } from 'src/app/interfaces/board-template.interface';
 import { BoardTemplateService } from 'src/app/services/board-template/board-template.service';
-import { Actions, ofType } from '@ngrx/effects';
-import * as templateActions from 'src/app/store/board-template/board-template.actions';
-import { takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import {
+  selectTemplateInvitations,
+  selectTemplateInvitationsLoading,
+} from 'src/app/store/board-template/board-template.selector';
 
 export interface ShareTemplateDialogData {
   template: BoardTemplate;
@@ -22,70 +26,53 @@ export interface ShareTemplateDialogData {
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
-    MatSlideToggleModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
     MatTooltipModule,
-    ClipboardModule,
   ],
   templateUrl: './share-template-dialog.component.html',
   styleUrls: ['./share-template-dialog.component.scss'],
 })
-export class ShareTemplateDialogComponent implements OnInit {
+export class ShareTemplateDialogComponent implements OnInit, OnDestroy {
   data: ShareTemplateDialogData = inject(MAT_DIALOG_DATA);
   private dialogRef = inject(MatDialogRef<ShareTemplateDialogComponent>);
   private boardTemplateService = inject(BoardTemplateService);
-  private clipboard = inject(Clipboard);
-  private actions$ = inject(Actions);
+  private store = inject(Store);
 
-  isShareable = false;
-  linkCopied = false;
-  saving = false;
+  invitations$: Observable<TemplateInvitation[]> = this.store.select(selectTemplateInvitations);
+  loading$: Observable<boolean> = this.store.select(selectTemplateInvitationsLoading);
 
-  private destroy$ = new Subject<void>();
-
-  get shareUrl(): string {
-    return `${window.location.origin}/boards?addTemplate=${this.data.template.dbId}`;
-  }
+  emailControl = new FormControl('', [Validators.required, Validators.email]);
 
   ngOnInit(): void {
-    this.isShareable = this.data.template.isShareable ?? false;
-
-    this.actions$
-      .pipe(
-        ofType(templateActions.setTemplateShareableSuccess, templateActions.setTemplateShareableFailure),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((action) => {
-        this.saving = false;
-        if (action.type === templateActions.setTemplateShareableSuccess.type) {
-          this.isShareable = action.isShareable;
-        } else {
-          // Revert optimistic UI on failure
-          this.isShareable = !this.isShareable;
-        }
-      });
+    if (this.data.template.dbId) {
+      this.boardTemplateService.loadTemplateInvitations(this.data.template.dbId);
+    }
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.boardTemplateService.clearTemplateInvitations();
   }
 
-  toggleSharing(enabled: boolean): void {
-    if (!this.data.template.dbId) return;
-    this.saving = true;
-    this.isShareable = enabled;
-    this.boardTemplateService.setTemplateShareable(this.data.template.dbId, enabled);
+  sendInvitation(): void {
+    const email = this.emailControl.value?.trim();
+    const templateId = this.data.template.dbId;
+    if (email && templateId && this.emailControl.valid) {
+      this.boardTemplateService.sendTemplateInvitation(templateId, email);
+      this.emailControl.reset();
+    }
   }
 
-  copyLink(): void {
-    this.clipboard.copy(this.shareUrl);
-    this.linkCopied = true;
-    setTimeout(() => { this.linkCopied = false; }, 2000);
+  revokeInvitation(invitationId: number): void {
+    this.boardTemplateService.revokeTemplateInvitation(invitationId);
   }
 
   close(): void {
     this.dialogRef.close();
   }
 }
+

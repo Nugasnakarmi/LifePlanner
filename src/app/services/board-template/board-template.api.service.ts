@@ -5,7 +5,9 @@ import {
   BoardTemplate,
   BoardTemplateList,
   BoardTemplateTask,
+  PendingTemplateInvitation,
   TemplateActivity,
+  TemplateInvitation,
 } from 'src/app/interfaces/board-template.interface';
 import { IdeaType } from 'src/app/enums/idea-type.enum';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -233,6 +235,115 @@ export class BoardTemplateApiService {
     } catch (error: any) {
       this.toastr.error(`Failed to clone template: ${error?.message ?? error}`);
       return null;
+    }
+  }
+
+  // ── Template Invitations ──────────────────────────────────
+
+  /** Send a template invitation by email (owner only). */
+  async sendTemplateInvitation(templateId: number, email: string): Promise<TemplateInvitation | null> {
+    try {
+      const sanitizedEmail = this.sanitizer.sanitize(email);
+
+      const { data, error } = await this.supabaseService.supabase.rpc(
+        'send_template_invitation',
+        { p_template_id: templateId, p_email: sanitizedEmail }
+      );
+
+      if (error) throw error;
+
+      const invitationId = data as number;
+      this.toastr.success(`Invitation sent to ${sanitizedEmail}`);
+
+      // Return a minimal representation; the caller can reload the full list.
+      return {
+        id: invitationId,
+        template_id: templateId,
+        email: sanitizedEmail,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+    } catch (error: any) {
+      this.toastr.error(`Failed to send invitation: ${error?.message ?? error}`);
+      return null;
+    }
+  }
+
+  /** Get all pending outgoing invitations for a template (owner only). */
+  async getTemplateInvitations(templateId: number): Promise<TemplateInvitation[]> {
+    try {
+      const { data, error } = await this.supabaseService.supabase.rpc(
+        'get_template_invitations',
+        { p_template_id: templateId }
+      );
+
+      if (error) throw error;
+
+      return (data ?? []) as TemplateInvitation[];
+    } catch (error: any) {
+      this.toastr.error(`Failed to load invitations: ${error?.message ?? error}`);
+      return [];
+    }
+  }
+
+  /** Revoke a pending template invitation (owner only). */
+  async revokeTemplateInvitation(invitationId: number): Promise<boolean> {
+    try {
+      const { error } = await this.supabaseService.supabase.rpc(
+        'revoke_template_invitation',
+        { p_invitation_id: invitationId }
+      );
+
+      if (error) throw error;
+
+      this.toastr.success('Invitation revoked');
+      return true;
+    } catch (error: any) {
+      this.toastr.error(`Failed to revoke invitation: ${error?.message ?? error}`);
+      return false;
+    }
+  }
+
+  /** Get pending template invitations for the current user (recipient). */
+  async getMyPendingTemplateInvitations(): Promise<PendingTemplateInvitation[]> {
+    try {
+      const { data, error } = await this.supabaseService.supabase.rpc(
+        'get_my_pending_template_invitations'
+      );
+
+      if (error) throw error;
+
+      return (data ?? []) as PendingTemplateInvitation[];
+    } catch (error: any) {
+      this.toastr.error(`Failed to load template invitations: ${error?.message ?? error}`);
+      return [];
+    }
+  }
+
+  /** Accept or decline a template invitation (recipient). On accept, clones the template. */
+  async respondToTemplateInvitation(
+    invitationId: number,
+    accept: boolean
+  ): Promise<{ success: boolean; template_id?: number; error?: string }> {
+    try {
+      const { data, error } = await this.supabaseService.supabase.rpc(
+        'respond_to_template_invitation',
+        { p_invitation_id: invitationId, p_accept: accept }
+      );
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; template_id?: number; error?: string };
+      if (result.success) {
+        this.toastr.success(accept ? 'Template added to your collection!' : 'Invitation declined');
+      } else {
+        this.toastr.error(result.error ?? 'Failed to respond to invitation');
+      }
+      return result;
+    } catch (error: any) {
+      this.toastr.error(`Failed to respond to invitation: ${error?.message ?? error}`);
+      return { success: false, error: error?.message ?? String(error) };
     }
   }
 }

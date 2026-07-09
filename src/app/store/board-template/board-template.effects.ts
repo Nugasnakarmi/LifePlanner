@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, from, map, mergeMap, of, tap } from 'rxjs';
+import { catchError, from, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import { BoardTemplateApiService } from 'src/app/services/board-template/board-template.api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as actions from './board-template.actions';
@@ -136,4 +136,98 @@ export class BoardTemplateEffects {
       ),
     { dispatch: false }
   );
+
+  // ── Template invitations (owner) ──────────────────────────
+
+  loadTemplateInvitations$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.loadTemplateInvitations),
+      switchMap(({ templateId }) =>
+        from(this.api.getTemplateInvitations(templateId)).pipe(
+          map((invitations) => actions.loadTemplateInvitationsSuccess({ invitations })),
+          catchError((error) => of(actions.loadTemplateInvitationsFailure({ error })))
+        )
+      )
+    )
+  );
+
+  sendTemplateInvitation$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.sendTemplateInvitation),
+      mergeMap(({ templateId, email }) =>
+        from(this.api.sendTemplateInvitation(templateId, email)).pipe(
+          map((invitation) =>
+            invitation
+              ? actions.sendTemplateInvitationSuccess({ invitation })
+              : actions.sendTemplateInvitationFailure({ error: 'Failed to send invitation' })
+          ),
+          catchError((error) => of(actions.sendTemplateInvitationFailure({ error })))
+        )
+      )
+    )
+  );
+
+  revokeTemplateInvitation$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.revokeTemplateInvitation),
+      mergeMap(({ invitationId }) =>
+        from(this.api.revokeTemplateInvitation(invitationId)).pipe(
+          map((ok) =>
+            ok
+              ? actions.revokeTemplateInvitationSuccess({ invitationId })
+              : actions.revokeTemplateInvitationFailure({ error: 'Failed to revoke invitation' })
+          ),
+          catchError((error) => of(actions.revokeTemplateInvitationFailure({ error })))
+        )
+      )
+    )
+  );
+
+  // ── Template invitations (recipient) ─────────────────────
+
+  loadPendingTemplateInvitations$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.loadPendingTemplateInvitations),
+      switchMap(() =>
+        from(this.api.getMyPendingTemplateInvitations()).pipe(
+          map((invitations) => actions.loadPendingTemplateInvitationsSuccess({ invitations })),
+          catchError((error) => of(actions.loadPendingTemplateInvitationsFailure({ error })))
+        )
+      )
+    )
+  );
+
+  respondToTemplateInvitation$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.respondToTemplateInvitation),
+      mergeMap(({ invitationId, accept }) =>
+        from(this.api.respondToTemplateInvitation(invitationId, accept)).pipe(
+          map((result) => {
+            if (result.success) {
+              return actions.respondToTemplateInvitationSuccess({
+                invitationId,
+                accepted: accept,
+                templateId: result.template_id,
+              });
+            }
+            return actions.respondToTemplateInvitationFailure({
+              error: result.error ?? 'Failed to respond',
+            });
+          }),
+          catchError((error) => of(actions.respondToTemplateInvitationFailure({ error })))
+        )
+      )
+    )
+  );
+
+  /** After accepting a template invitation, reload templates to include the cloned one. */
+  reloadTemplatesAfterAccept$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(actions.respondToTemplateInvitationSuccess),
+      map(({ accepted }) =>
+        accepted ? actions.loadBoardTemplates() : actions.clearTemplateInvitations()
+      )
+    )
+  );
 }
+

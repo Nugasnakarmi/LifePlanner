@@ -89,8 +89,8 @@
                 </div>
                 <div class="template-card-header-right">
                   <span class="template-list-count">{{ template.lists.length }} list{{ template.lists.length !== 1 ? 's' : '' }}</span>
-                  <button mat-icon-button class="template-share-btn" (click)="openShareTemplateDialog(template, $event)" [attr.aria-label]="'Share template ' + template.name" [matTooltip]="template.isShareable ? 'Sharing enabled – manage link' : 'Share template'">
-                    <mat-icon>{{ template.isShareable ? 'link' : 'share' }}</mat-icon>
+                  <button mat-icon-button class="template-share-btn" (click)="openShareTemplateDialog(template, $event)" [attr.aria-label]="'Share template ' + template.name" matTooltip="Share template via email">
+                    <mat-icon>share</mat-icon>
                   </button>
                   <button mat-icon-button class="template-edit-btn" (click)="openEditTemplateDialog(template, $event)" [attr.aria-label]="'Edit template ' + template.name" matTooltip="Edit template">
                     <mat-icon>edit</mat-icon>
@@ -205,7 +205,8 @@
   <!-- ── Pending invitations ─────────────────────────────────── -->
   @if(pendingEmailInvitations$ | async; as emailInvites) {
   @if(pendingDirectInvitations$ | async; as directInvites) {
-  @if(emailInvites.length > 0 || directInvites.length > 0) {
+  @if(pendingTemplateInvitations$ | async; as templateInvites) {
+  @if(emailInvites.length > 0 || directInvites.length > 0 || templateInvites.length > 0) {
   <div class="pending-invitations-section">
     <div class="pending-invitations-header">
       <mat-icon>mail_outline</mat-icon>
@@ -264,8 +265,38 @@
         </div>
       </div>
       }
+      @for(invite of templateInvites; track invite.id) {
+      <div class="invitation-card">
+        <div class="invitation-card-inviter">
+          <mat-icon>person</mat-icon>
+          <span>{{ invite.inviter_display_name ?? 'Someone' }}</span>
+        </div>
+        <div class="invitation-card-message">shared a template with you</div>
+        <div class="invitation-card-board-name">{{ invite.template_name }}</div>
+        @if(invite.template_description) {
+        <div class="invitation-card-board-description">{{ invite.template_description }}</div>
+        }
+        <div class="invitation-card-meta">
+          <span class="invitation-role-badge invitation-role-badge--template">
+            <mat-icon style="font-size:12px;width:12px;height:12px;vertical-align:middle;">dashboard_customize</mat-icon>
+            template
+          </span>
+        </div>
+        <div class="invitation-card-actions">
+          <button mat-raised-button color="primary" class="invitation-accept-btn" (click)="acceptTemplateInvitation(invite)" aria-label="Accept template invitation">
+            <mat-icon>check</mat-icon>
+            Accept
+          </button>
+          <button mat-stroked-button class="invitation-decline-btn" (click)="declineTemplateInvitation(invite)" aria-label="Decline template invitation">
+            <mat-icon>close</mat-icon>
+            Decline
+          </button>
+        </div>
+      </div>
+      }
     </div>
   </div>
+  }
   }
   }
   }

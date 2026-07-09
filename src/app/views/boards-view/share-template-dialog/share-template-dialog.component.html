@@ -1,53 +1,63 @@
 <div class="share-dialog">
   <div class="share-dialog-header">
-    <mat-icon class="share-dialog-icon">share</mat-icon>
-    <h2 class="share-dialog-title">Share Template</h2>
-    <button mat-icon-button class="share-dialog-close" (click)="close()" aria-label="Close">
+    <h2>Share Template</h2>
+    <button mat-icon-button class="close-btn" (click)="close()" aria-label="Close">
       <mat-icon>close</mat-icon>
     </button>
   </div>
-
   <div class="share-dialog-template-name">{{ data.template.name }}</div>
 
-  <div class="share-dialog-body">
-    <div class="share-toggle-row">
-      <div class="share-toggle-label">
-        <mat-icon>link</mat-icon>
-        <div class="share-toggle-text">
-          <span class="share-toggle-title">Share via link</span>
-          <span class="share-toggle-subtitle">Anyone with the link can add a copy of this template to their collection.</span>
-        </div>
-      </div>
-      <mat-slide-toggle
-        [checked]="isShareable"
-        [disabled]="saving"
-        (change)="toggleSharing($event.checked)"
-        aria-label="Enable link sharing">
-      </mat-slide-toggle>
+  <div class="invite-section">
+    <mat-form-field appearance="outline">
+      <mat-label>Email address</mat-label>
+      <input matInput [formControl]="emailControl" placeholder="colleague@example.com" (keydown.enter)="sendInvitation()" />
+      @if (emailControl.hasError('email') && !emailControl.hasError('required')) {
+        <mat-error>Please enter a valid email</mat-error>
+      }
+    </mat-form-field>
+    <button mat-raised-button color="primary" class="send-btn"
+            (click)="sendInvitation()"
+            [disabled]="emailControl.invalid"
+            matTooltip="Send invitation">
+      <mat-icon>send</mat-icon>
+    </button>
+  </div>
+
+  @if (loading$ | async) {
+    <div class="loading-container">
+      <mat-spinner diameter="32"></mat-spinner>
     </div>
-
-    @if (isShareable) {
-      <div class="share-link-section">
-        <div class="share-link-box">
-          <span class="share-link-url">{{ shareUrl }}</span>
-          <button
-            mat-icon-button
-            class="share-copy-btn"
-            (click)="copyLink()"
-            [matTooltip]="linkCopied ? 'Copied!' : 'Copy link'"
-            aria-label="Copy share link">
-            <mat-icon>{{ linkCopied ? 'check' : 'content_copy' }}</mat-icon>
-          </button>
+  } @else {
+    @if (invitations$ | async; as invitations) {
+      @if (invitations.length > 0) {
+        <div class="invitation-list">
+          <div class="section-label">
+            <mat-icon>mail_outline</mat-icon>
+            Pending Invitations
+          </div>
+          @for (inv of invitations; track inv.id) {
+            <div class="person-row">
+              <div class="avatar-placeholder">
+                <mat-icon>mail</mat-icon>
+              </div>
+              <div class="person-info">
+                <div class="person-name">{{ inv.email }}</div>
+                <div class="person-status">Sent {{ inv.created_at | date:'shortDate' }} · Expires {{ inv.expires_at | date:'shortDate' }}</div>
+              </div>
+              <button mat-icon-button class="action-btn"
+                      (click)="revokeInvitation(inv.id)"
+                      matTooltip="Revoke invitation"
+                      [attr.aria-label]="'Revoke invitation to ' + inv.email">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
         </div>
-        <p class="share-link-hint">
-          <mat-icon>info_outline</mat-icon>
-          Recipients click the link, then select <strong>Add to My Templates</strong> on the Boards page.
-        </p>
-      </div>
-    }
-  </div>
+      }
 
-  <div class="share-dialog-actions">
-    <button mat-stroked-button (click)="close()">Done</button>
-  </div>
+      @if (invitations.length === 0) {
+        <p class="empty-message">No pending invitations. Invite someone by email above.</p>
+      }
+    }
+  }
 </div>
