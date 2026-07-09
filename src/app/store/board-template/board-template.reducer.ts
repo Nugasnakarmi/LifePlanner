@@ -7,6 +7,9 @@ export const initialState: BoardTemplateState = {
   loading: false,
   saving: false,
   error: null,
+  invitations: [],
+  invitationsLoading: false,
+  pendingTemplateInvitations: [],
 };
 
 export const boardTemplateReducer = createReducer(
@@ -77,5 +80,48 @@ export const boardTemplateReducer = createReducer(
     ...state,
     saving: false,
     error,
+  })),
+
+  // ── Template invitations (owner) ──────────────────────────
+
+  on(actions.loadTemplateInvitations, (state) => ({ ...state, invitationsLoading: true })),
+  on(actions.loadTemplateInvitationsSuccess, (state, { invitations }) => ({
+    ...state,
+    invitations,
+    invitationsLoading: false,
+  })),
+  on(actions.loadTemplateInvitationsFailure, (state) => ({
+    ...state,
+    invitationsLoading: false,
+  })),
+
+  on(actions.sendTemplateInvitationSuccess, (state, { invitation }) => ({
+    ...state,
+    invitations: [invitation, ...state.invitations],
+  })),
+
+  on(actions.revokeTemplateInvitationSuccess, (state, { invitationId }) => ({
+    ...state,
+    invitations: state.invitations.filter((i) => i.id !== invitationId),
+  })),
+
+  on(actions.clearTemplateInvitations, (state) => ({
+    ...state,
+    invitations: [],
+    invitationsLoading: false,
+  })),
+
+  // ── Template invitations (recipient) ─────────────────────
+
+  on(actions.loadPendingTemplateInvitationsSuccess, (state, { invitations }) => ({
+    ...state,
+    pendingTemplateInvitations: invitations,
+  })),
+
+  on(actions.respondToTemplateInvitationSuccess, (state, { invitationId }) => ({
+    ...state,
+    pendingTemplateInvitations: state.pendingTemplateInvitations.filter(
+      (i) => i.id !== invitationId
+    ),
   }))
 );

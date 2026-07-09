@@ -18,7 +18,7 @@ import { Store } from '@ngrx/store';
 import { combineLatest, firstValueFrom, map, Observable, startWith, take } from 'rxjs';
 import { Board } from 'src/app/interfaces/board.interface';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
-import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
+import { BoardTemplate, PendingTemplateInvitation } from 'src/app/interfaces/board-template.interface';
 import { PendingEmailInvitation, PendingInvitationWithBoard } from 'src/app/interfaces/board-collaborator.interface';
 import { BoardSortOption } from 'src/app/interfaces/user-preferences.interface';
 import { BoardService } from 'src/app/services/board/board.service';
@@ -36,6 +36,7 @@ import * as boardActions from 'src/app/store/board/board.actions';
 import * as collabActions from 'src/app/store/board/board-collaboration.actions';
 import * as templateActions from 'src/app/store/board-template/board-template.actions';
 import { selectPendingEmailInvitations, selectPendingInvitations } from 'src/app/store/board/board-collaboration.selector';
+import { selectPendingTemplateInvitations } from 'src/app/store/board-template/board-template.selector';
 
 function sortBoards(boards: Board[], sort: BoardSortOption): Board[] {
   return [...boards].sort((a, b) => {
@@ -90,6 +91,7 @@ export class BoardsViewComponent implements OnInit {
   sharedTemplates$: Observable<BoardTemplate[]>;
   pendingEmailInvitations$: Observable<PendingEmailInvitation[]>;
   pendingDirectInvitations$: Observable<PendingInvitationWithBoard[]>;
+  pendingTemplateInvitations$: Observable<PendingTemplateInvitation[]>;
   /** True when any background operation (task load, template load/save) is in progress. */
   anyLoading$: Observable<boolean>;
 
@@ -166,8 +168,10 @@ export class BoardsViewComponent implements OnInit {
     // Load pending invitations for the current user
     this.store.dispatch(collabActions.loadPendingInvitations());
     this.store.dispatch(collabActions.loadPendingEmailInvitations());
+    this.boardTemplateService.loadPendingTemplateInvitations();
     this.pendingEmailInvitations$ = this.store.select(selectPendingEmailInvitations);
     this.pendingDirectInvitations$ = this.store.select(selectPendingInvitations);
+    this.pendingTemplateInvitations$ = this.store.select(selectPendingTemplateInvitations);
 
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -406,6 +410,14 @@ export class BoardsViewComponent implements OnInit {
     this.store.dispatch(
       collabActions.respondToInvitation({ collaboratorId: invitation.id, accept: false })
     );
+  }
+
+  acceptTemplateInvitation(invitation: PendingTemplateInvitation): void {
+    this.boardTemplateService.respondToTemplateInvitation(invitation.id, true);
+  }
+
+  declineTemplateInvitation(invitation: PendingTemplateInvitation): void {
+    this.boardTemplateService.respondToTemplateInvitation(invitation.id, false);
   }
 }
 

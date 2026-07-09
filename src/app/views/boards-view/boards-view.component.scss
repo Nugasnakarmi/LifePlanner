@@ -1086,6 +1086,15 @@ $gold: #F9D07A;
     color: #F9D07A;
     border-color: rgba(249, 208, 122, 0.25);
   }
+
+  &--template {
+    background: rgba(72, 199, 142, 0.12);
+    color: #48c78e;
+    border-color: rgba(72, 199, 142, 0.25);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
 }
 
 .invitation-card-actions {

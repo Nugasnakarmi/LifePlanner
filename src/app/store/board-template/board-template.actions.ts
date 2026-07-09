@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { BoardTemplate } from 'src/app/interfaces/board-template.interface';
+import { BoardTemplate, PendingTemplateInvitation, TemplateInvitation } from 'src/app/interfaces/board-template.interface';
 
 export const loadBoardTemplates = createAction('[Board Templates] Load');
 
@@ -85,5 +85,87 @@ export const cloneTemplateSuccess = createAction(
 
 export const cloneTemplateFailure = createAction(
   '[Board Templates] Clone Failure',
+  props<{ error: any }>()
+);
+
+// ── Template invitations (owner) ──────────────────────────
+
+export const loadTemplateInvitations = createAction(
+  '[Board Templates] Load Invitations',
+  props<{ templateId: number }>()
+);
+
+export const loadTemplateInvitationsSuccess = createAction(
+  '[Board Templates] Load Invitations Success',
+  props<{ invitations: TemplateInvitation[] }>()
+);
+
+export const loadTemplateInvitationsFailure = createAction(
+  '[Board Templates] Load Invitations Failure',
+  props<{ error: any }>()
+);
+
+export const sendTemplateInvitation = createAction(
+  '[Board Templates] Send Invitation',
+  props<{ templateId: number; email: string }>()
+);
+
+export const sendTemplateInvitationSuccess = createAction(
+  '[Board Templates] Send Invitation Success',
+  props<{ invitation: TemplateInvitation }>()
+);
+
+export const sendTemplateInvitationFailure = createAction(
+  '[Board Templates] Send Invitation Failure',
+  props<{ error: any }>()
+);
+
+export const revokeTemplateInvitation = createAction(
+  '[Board Templates] Revoke Invitation',
+  props<{ invitationId: number }>()
+);
+
+export const revokeTemplateInvitationSuccess = createAction(
+  '[Board Templates] Revoke Invitation Success',
+  props<{ invitationId: number }>()
+);
+
+export const revokeTemplateInvitationFailure = createAction(
+  '[Board Templates] Revoke Invitation Failure',
+  props<{ error: any }>()
+);
+
+export const clearTemplateInvitations = createAction(
+  '[Board Templates] Clear Invitations'
+);
+
+// ── Template invitations (recipient) ─────────────────────
+
+export const loadPendingTemplateInvitations = createAction(
+  '[Board Templates] Load Pending Invitations'
+);
+
+export const loadPendingTemplateInvitationsSuccess = createAction(
+  '[Board Templates] Load Pending Invitations Success',
+  props<{ invitations: PendingTemplateInvitation[] }>()
+);
+
+export const loadPendingTemplateInvitationsFailure = createAction(
+  '[Board Templates] Load Pending Invitations Failure',
+  props<{ error: any }>()
+);
+
+export const respondToTemplateInvitation = createAction(
+  '[Board Templates] Respond To Invitation',
+  props<{ invitationId: number; accept: boolean }>()
+);
+
+export const respondToTemplateInvitationSuccess = createAction(
+  '[Board Templates] Respond To Invitation Success',
+  props<{ invitationId: number; accepted: boolean; templateId?: number }>()
+);
+
+export const respondToTemplateInvitationFailure = createAction(
+  '[Board Templates] Respond To Invitation Failure',
   props<{ error: any }>()
 );

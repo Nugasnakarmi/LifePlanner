@@ -18,3 +18,18 @@ export const selectBoardTemplatesSaving = createSelector(
   selectBoardTemplateFeature,
   (state) => state.saving
 );
+
+export const selectTemplateInvitations = createSelector(
+  selectBoardTemplateFeature,
+  (state) => state.invitations
+);
+
+export const selectTemplateInvitationsLoading = createSelector(
+  selectBoardTemplateFeature,
+  (state) => state.invitationsLoading
+);
+
+export const selectPendingTemplateInvitations = createSelector(
+  selectBoardTemplateFeature,
+  (state) => state.pendingTemplateInvitations
+);
