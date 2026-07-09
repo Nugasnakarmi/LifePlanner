@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, from, map, mergeMap, of, switchMap, tap } from 'rxjs';
+import { catchError, filter, from, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import { BoardTemplateApiService } from 'src/app/services/board-template/board-template.api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as actions from './board-template.actions';
@@ -224,9 +224,8 @@ export class BoardTemplateEffects {
   reloadTemplatesAfterAccept$ = createEffect(() =>
     this.actions$.pipe(
       ofType(actions.respondToTemplateInvitationSuccess),
-      map(({ accepted }) =>
-        accepted ? actions.loadBoardTemplates() : actions.clearTemplateInvitations()
-      )
+      filter(({ accepted }) => accepted),
+      map(() => actions.loadBoardTemplates())
     )
   );
 }
