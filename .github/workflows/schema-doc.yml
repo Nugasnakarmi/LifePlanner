@@ -182,13 +182,15 @@ jobs:
               policies = {}
               # Match both single-line (pg_dump) and multi-line (Supabase CLI) policy defs.
               # The optional 'AS permissive|restrictive' clause sits between ON and FOR.
+              # FOR ALL is the default; pg_dump may omit the FOR clause entirely for ALL policies.
               for m in re.finditer(
-                  r'CREATE POLICY "([^"]+)"\s+ON (?:"?public"?\.)?("?\w+"?)\s+(?:AS \w+\s+)?FOR (\w+)',
+                  r'CREATE POLICY "([^"]+)"\s+ON (?:"?public"?\.)?("?\w+"?)\s+(?:AS \w+\s+)?(?:FOR (\w+))?',
                   sql, re.IGNORECASE,
               ):
                   table = _unquote(m.group(2))
+                  cmd = (m.group(3) or 'ALL').upper()
                   policies.setdefault(table, []).append(
-                      f'{m.group(3).upper()}: {m.group(1)}'
+                      f'{cmd}: {m.group(1)}'
                   )
               return rls_tables, policies
 
