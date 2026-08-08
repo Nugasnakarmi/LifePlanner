@@ -138,7 +138,10 @@ export class ActivityEffects {
   clearActivityDraft$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(activityActions.addActivityToTaskSuccess),
+        ofType(
+          activityActions.addActivityToTaskSuccess,
+          activityActions.updateActivitySuccess
+        ),
         tap(() => this.formCache.clear(DIALOG_CACHE_KEYS.ACTIVITY_FORM))
       ),
     { dispatch: false }
@@ -146,4 +149,3 @@ export class ActivityEffects {
 
   constructor(private actions$: Actions) {}
 }
-

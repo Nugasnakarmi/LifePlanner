@@ -158,7 +158,10 @@ export class TaskEffects {
   clearAddTaskDraft$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(taskActions.taskWasAddedSuccessfully),
+        ofType(
+          taskActions.taskWasAddedSuccessfully,
+          taskActions.taskWasUpdatedSuccessfully
+        ),
         tap(() => this.formCache.clear(DIALOG_CACHE_KEYS.ADD_TASK))
       ),
     { dispatch: false }
