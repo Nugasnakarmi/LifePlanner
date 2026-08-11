@@ -131,10 +131,7 @@ export class BoardTemplateEffects {
   clearTemplateDraft$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(
-          actions.saveBoardTemplateSuccess,
-          actions.editBoardTemplateSuccess
-        ),
+        ofType(actions.saveBoardTemplateSuccess),
         tap(() => this.formCache.clear(DIALOG_CACHE_KEYS.CREATE_TEMPLATE))
       ),
     { dispatch: false }

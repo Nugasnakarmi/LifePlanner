@@ -138,10 +138,7 @@ export class ActivityEffects {
   clearActivityDraft$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(
-          activityActions.addActivityToTaskSuccess,
-          activityActions.updateActivitySuccess
-        ),
+        ofType(activityActions.addActivityToTaskSuccess),
         tap(() => this.formCache.clear(DIALOG_CACHE_KEYS.ACTIVITY_FORM))
       ),
     { dispatch: false }
