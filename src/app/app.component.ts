@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { CreateTemplateDialogComponent } from './views/boards-view/create-template-dialog/create-template-dialog.component';
 import { PENDING_INVITE_TOKEN_KEY } from './services/board/board-invitation.constants';
+import { Session } from '@supabase/supabase-js';
 
 @Component({
   selector: 'app-root',
@@ -47,17 +48,24 @@ export class AppComponent implements OnInit {
       this.userProfileService.clearProfile();
     }
 
-    this.supabaseService.supabase.auth.onAuthStateChange(async (_event, session) => {
-      this.userEmail = session?.user?.email ?? null;
-      if (session?.user) {
-        await this.appTitleService.loadFromDb();
-        this.userProfileService.loadProfile();
-        this.redirectPendingInvitation();
-      } else {
-        this.appTitleService.reset();
-        this.userProfileService.clearProfile();
-      }
+    this.supabaseService.supabase.auth.onAuthStateChange((_event, session) => {
+      // Supabase invokes this callback while holding its auth lock. Defer
+      // database work until the callback has returned to avoid blocking
+      // requests made immediately after login or token refresh.
+      setTimeout(() => void this.handleAuthStateChange(session), 0);
     });
+  }
+
+  private async handleAuthStateChange(session: Session | null): Promise<void> {
+    this.userEmail = session?.user?.email ?? null;
+    if (session?.user) {
+      await this.appTitleService.loadFromDb();
+      this.userProfileService.loadProfile();
+      this.redirectPendingInvitation();
+    } else {
+      this.appTitleService.reset();
+      this.userProfileService.clearProfile();
+    }
   }
 
   /** If a board invitation token was saved before the user logged in, redirect to the accept page. */
