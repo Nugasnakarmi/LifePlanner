@@ -71,6 +71,22 @@ export const removeCollaboratorFailure = createAction(
   props<{ error: string }>()
 );
 
+// ── Leave shared board ─────────────────────────────────────
+export const leaveSharedBoard = createAction(
+  '[Board Collaboration] Leave Shared Board',
+  props<{ boardId: number }>()
+);
+
+export const leaveSharedBoardSuccess = createAction(
+  '[Board Collaboration] Leave Shared Board Success',
+  props<{ boardId: number }>()
+);
+
+export const leaveSharedBoardFailure = createAction(
+  '[Board Collaboration] Leave Shared Board Failure',
+  props<{ error: string }>()
+);
+
 // ── Respond to invitation (accept/decline) ────────────────
 export const respondToInvitation = createAction(
   '[Board Collaboration] Respond To Invitation',

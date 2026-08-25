@@ -140,6 +140,26 @@ export class BoardCollaborationApiService {
     }
   }
 
+  /** Leave a shared board without deleting the board or its data. */
+  async leaveSharedBoard(boardId: number): Promise<boolean> {
+    try {
+      const user = await this.supabaseService.getUser();
+      const { error } = await this.supabaseService.supabase
+        .from('board_collaborators')
+        .delete()
+        .eq('board_id', boardId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      this.toastr.success('Shared board removed from your view');
+      return true;
+    } catch (error: any) {
+      this.toastr.error(`Failed to remove shared board: ${error?.message ?? error}`);
+      return false;
+    }
+  }
+
   /** Accept or decline a collaboration invitation. */
   async respondToInvitation(
     collaboratorId: number,
@@ -316,4 +336,3 @@ export class BoardCollaborationApiService {
     }
   }
 }
-

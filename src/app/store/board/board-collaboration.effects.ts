@@ -81,6 +81,35 @@ export class BoardCollaborationEffects {
     )
   );
 
+  leaveSharedBoard$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(collabActions.leaveSharedBoard),
+      mergeMap(({ boardId }) =>
+        from(this.collabApi.leaveSharedBoard(boardId)).pipe(
+          mergeMap((success) =>
+            success
+              ? [
+                  collabActions.leaveSharedBoardSuccess({ boardId }),
+                  boardActions.loadBoards(),
+                ]
+              : [
+                  collabActions.leaveSharedBoardFailure({
+                    error: 'Failed to remove shared board',
+                  }),
+                ]
+          ),
+          catchError((error) =>
+            of(
+              collabActions.leaveSharedBoardFailure({
+                error: error?.message ?? String(error),
+              })
+            )
+          )
+        )
+      )
+    )
+  );
+
   respondToInvitation$ = createEffect(() =>
     this.actions$.pipe(
       ofType(collabActions.respondToInvitation),
