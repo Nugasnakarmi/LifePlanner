@@ -414,7 +414,7 @@ export class BoardsViewComponent implements OnInit {
 
   leaveSharedBoard(board: Board, event: Event): void {
     event.stopPropagation();
-    if (!board.id) return;
+    if (board.id == null) return;
 
     const confirmed = window.confirm(
       `Remove "${board.name}" from your view? The shared board will not be deleted.`

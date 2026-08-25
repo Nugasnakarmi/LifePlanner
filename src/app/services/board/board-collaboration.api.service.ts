@@ -144,13 +144,19 @@ export class BoardCollaborationApiService {
   async leaveSharedBoard(boardId: number): Promise<boolean> {
     try {
       const user = await this.supabaseService.getUser();
-      const { error } = await this.supabaseService.supabase
+      const { data, error } = await this.supabaseService.supabase
         .from('board_collaborators')
         .delete()
         .eq('board_id', boardId)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .select();
 
       if (error) throw error;
+
+      if (!data || data.length === 0) {
+        this.toastr.error('Failed to remove shared board: no matching record found');
+        return false;
+      }
 
       this.toastr.success('Shared board removed from your view');
       return true;
