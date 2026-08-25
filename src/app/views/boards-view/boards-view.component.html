@@ -447,13 +447,16 @@
           }
         </div>
         }
-        @if(board.canEdit) {
         <div class="board-card-actions">
+          @if(board.canEdit) {
           <button mat-icon-button class="card-action-btn" (click)="startEditBoard(board, $event)" title="Rename board" [attr.aria-label]="'Rename board ' + board.name">
             <mat-icon>edit</mat-icon>
           </button>
+          }
+          <button mat-icon-button class="card-action-btn" (click)="leaveSharedBoard(board, $event)" title="Remove shared board" [attr.aria-label]="'Remove shared board ' + board.name" matTooltip="Remove from your view">
+            <mat-icon>visibility_off</mat-icon>
+          </button>
         </div>
-        }
         }
       </div>
       }

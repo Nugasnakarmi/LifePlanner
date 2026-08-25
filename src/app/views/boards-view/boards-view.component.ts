@@ -412,6 +412,18 @@ export class BoardsViewComponent implements OnInit {
     );
   }
 
+  leaveSharedBoard(board: Board, event: Event): void {
+    event.stopPropagation();
+    if (board.id == null) return;
+
+    const confirmed = window.confirm(
+      `Remove "${board.name}" from your view? The shared board will not be deleted.`
+    );
+    if (confirmed) {
+      this.store.dispatch(collabActions.leaveSharedBoard({ boardId: board.id }));
+    }
+  }
+
   acceptTemplateInvitation(invitation: PendingTemplateInvitation): void {
     this.boardTemplateService.respondToTemplateInvitation(invitation.id, true);
   }
@@ -420,4 +432,3 @@ export class BoardsViewComponent implements OnInit {
     this.boardTemplateService.respondToTemplateInvitation(invitation.id, false);
   }
 }
-
