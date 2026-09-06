@@ -21,7 +21,7 @@ import { CreateTemplateDialogComponent, TemplateDialogData } from '../boards-vie
 export class BoardTemplatesViewComponent implements OnInit {
   readonly boardTemplateService = inject(BoardTemplateService);
   private readonly dialog = inject(MatDialog);
-  private readonly router = inject(Router);
+  readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   templates$: Observable<BoardTemplate[]> = this.boardTemplateService.templates$;
