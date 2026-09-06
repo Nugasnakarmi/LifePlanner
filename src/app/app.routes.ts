@@ -9,11 +9,13 @@ import { BoardsViewComponent } from './views/boards-view/boards-view.component';
 import { TaskDashboardComponent } from './views/task-dashboard/task-dashboard.component';
 import { UserProfileComponent } from './views/user-profile.component';
 import { AcceptInvitationComponent } from './views/accept-invitation/accept-invitation.component';
+import { BoardTemplatesViewComponent } from './views/board-templates-view/board-templates-view.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingPageComponent },
   { path: 'boards', component: BoardsViewComponent, canActivate: [authGuard] },
+  { path: 'templates', component: BoardTemplatesViewComponent, canActivate: [authGuard] },
   { path: 'main', component: MainViewComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: TaskDashboardComponent, canActivate: [authGuard] },
   { path: 'profile', component: UserProfileComponent, canActivate: [authGuard] },
