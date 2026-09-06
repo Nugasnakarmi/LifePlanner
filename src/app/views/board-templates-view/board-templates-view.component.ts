@@ -49,6 +49,9 @@ export class BoardTemplatesViewComponent implements OnInit {
   }
 
   useTemplate(template: BoardTemplate): void {
+    if (template.dbId == null) {
+      return;
+    }
     this.router.navigate(['/boards'], { queryParams: { addTemplate: template.dbId } });
   }
 
