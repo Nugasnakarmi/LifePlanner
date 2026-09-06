@@ -121,6 +121,10 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/dashboard']);
   }
 
+  navigateToTemplates(): void {
+    this.router.navigate(['/templates']);
+  }
+
   navigateToNewBoard(): void {
     this.router.navigate(['/boards'], { queryParams: { newBoard: 'true' } });
   }
