@@ -1,7 +1,8 @@
 .templates-page {
   min-height: calc(100vh - 64px);
   padding: 2rem clamp(1rem, 4vw, 4rem);
-  background: var(--background-color, #f7f8fc);
+  background: #010014;
+  color: #fff;
 }
 
 .templates-header {
@@ -15,15 +16,17 @@
 
 .back-button {
   padding-left: 0;
+  color: #F9D07A;
 }
 
 h2 {
   margin: 0.5rem 0 0.25rem;
+  color: #fff;
 }
 
 .templates-header p {
   margin: 0;
-  color: var(--text-muted, #667085);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .loading-container,
@@ -41,7 +44,7 @@ h2 {
   font-size: 3rem;
   width: 3rem;
   height: 3rem;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .empty-state h3,
@@ -62,10 +65,10 @@ h2 {
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  border: 1px solid #dbe2ea;
+  border: 1px solid rgba(249, 208, 122, 0.12);
   border-radius: 0.75rem;
-  background: white;
-  box-shadow: 0 4px 14px rgb(15 23 42 / 6%);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 4px 14px rgba(1, 0, 20, 0.2);
 }
 
 .template-card--system {
@@ -80,7 +83,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.65);
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -97,23 +100,66 @@ h2 {
 
 .template-card h3 {
   margin: 1rem 0 0.5rem;
+  color: #fff;
 }
 
 .description {
   min-height: 2.75rem;
   margin: 0;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .template-meta {
   display: flex;
   gap: 1rem;
   margin: 1rem 0;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.85rem;
 }
 
 .use-button {
   margin-top: auto;
   align-self: flex-start;
+}
+
+:host-context(.light-mode) {
+  .templates-page {
+    background: #f7f8fc;
+    color: #010014;
+  }
+
+  .back-button {
+    color: #5C4000;
+  }
+
+  h2,
+  .template-card h3 {
+    color: #010014;
+  }
+
+  .templates-header p {
+    color: #667085;
+  }
+
+  .empty-state mat-icon {
+    color: #64748b;
+  }
+
+  .template-card {
+    border-color: #dbe2ea;
+    background: #fff;
+    box-shadow: 0 4px 14px rgb(15 23 42 / 6%);
+  }
+
+  .template-card-header {
+    color: #64748b;
+  }
+
+  .description {
+    color: #64748b;
+  }
+
+  .template-meta {
+    color: #475569;
+  }
 }
