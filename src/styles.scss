@@ -134,7 +134,7 @@ body {
   }
 
   .menu-email-header {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.6) !important;
   }
 }
 
@@ -297,7 +297,7 @@ html.light-mode {
     }
 
     .menu-email-header {
-      color: rgba(1, 0, 20, 0.6);
+      color: rgba(1, 0, 20, 0.6) !important;
     }
   }
 

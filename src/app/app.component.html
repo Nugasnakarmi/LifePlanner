@@ -79,7 +79,7 @@
           <span class="user-email">{{ userEmail }}</span>
           <mat-icon>arrow_drop_down</mat-icon>
         </button>
-        <mat-menu #userMenu="matMenu" class="user-menu-panel">
+        <mat-menu #userMenu="matMenu" panelClass="user-menu-panel">
           <div class="menu-email-header" mat-menu-item disabled>{{ userEmail }}</div>
           <mat-divider></mat-divider>
           <button mat-menu-item (click)="navigateToProfile()">
