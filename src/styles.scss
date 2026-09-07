@@ -113,6 +113,31 @@ body {
   --mat-dialog-supporting-text-color: rgba(255, 255, 255, 0.85);
 }
 
+// Profile menu is rendered in the CDK overlay, outside the app component tree.
+.user-menu-panel {
+  --mat-menu-container-color: #010014;
+  --mat-menu-item-label-text-color: #fff;
+  --mat-menu-item-icon-color: #fff;
+  --mat-menu-item-hover-state-layer-color: rgba(249, 208, 122, 0.08);
+  --mat-menu-divider-color: rgba(255, 255, 255, 0.12);
+
+  .mat-mdc-menu-content {
+    background-color: #010014;
+  }
+
+  .mat-mdc-menu-item {
+    color: #fff;
+
+    .mat-icon {
+      color: #fff;
+    }
+  }
+
+  .menu-email-header {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
 // Fullscreen task detail dialog
 .task-detail-fullscreen-dialog .mat-mdc-dialog-surface {
   border-radius: 0;
@@ -252,6 +277,30 @@ html.light-mode {
     --mat-dialog-supporting-text-color: rgba(1, 0, 20, 0.85);
   }
 
+  .user-menu-panel {
+    --mat-menu-container-color: #fff;
+    --mat-menu-item-label-text-color: #010014;
+    --mat-menu-item-icon-color: #010014;
+    --mat-menu-item-hover-state-layer-color: rgba(1, 0, 20, 0.05);
+    --mat-menu-divider-color: rgba(1, 0, 20, 0.12);
+
+    .mat-mdc-menu-content {
+      background-color: #fff;
+    }
+
+    .mat-mdc-menu-item {
+      color: #010014;
+
+      .mat-icon {
+        color: #010014;
+      }
+    }
+
+    .menu-email-header {
+      color: rgba(1, 0, 20, 0.6);
+    }
+  }
+
   // Toastr — injected outside Angular component trees, must be global
   .toast-error {
     background-color: rgba(255, 255, 255, 0.97) !important;
@@ -364,4 +413,3 @@ html.light-mode .board-collaboration-panel {
     background: none !important;
   }
 }
-
