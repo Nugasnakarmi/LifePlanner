@@ -59,6 +59,7 @@
 
 .user-menu-button {
   color: #fff;
+  --mdc-text-button-label-text-color: #fff;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -93,6 +94,7 @@
 :host-context(.light-mode) {
   .user-menu-button {
     color: #010014;
+    --mdc-text-button-label-text-color: #010014;
   }
 
   .nav-avatar {
