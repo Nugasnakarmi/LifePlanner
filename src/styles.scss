@@ -121,7 +121,13 @@ body {
   --mat-menu-item-hover-state-layer-color: rgba(249, 208, 122, 0.08);
   --mat-menu-divider-color: rgba(255, 255, 255, 0.12);
 
+  &.mat-mdc-menu-panel .mat-mdc-menu-content,
   .mat-mdc-menu-content {
+    background-color: #010014;
+  }
+
+  &.mat-mdc-menu-panel,
+  &.cdk-overlay-pane .mat-mdc-menu-panel {
     background-color: #010014;
   }
 
@@ -284,7 +290,13 @@ html.light-mode {
     --mat-menu-item-hover-state-layer-color: rgba(1, 0, 20, 0.05);
     --mat-menu-divider-color: rgba(1, 0, 20, 0.12);
 
+    &.mat-mdc-menu-panel .mat-mdc-menu-content,
     .mat-mdc-menu-content {
+      background-color: #fff;
+    }
+
+    &.mat-mdc-menu-panel,
+    &.cdk-overlay-pane .mat-mdc-menu-panel {
       background-color: #fff;
     }
 
