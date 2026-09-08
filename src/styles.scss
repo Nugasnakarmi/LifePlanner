@@ -327,10 +327,6 @@ html.light-mode {
     }
   }
 
-  .user-menu-panel {
-    max-width: min(280px, calc(100vw - 24px));
-  }
-
   // Toastr — injected outside Angular component trees, must be global
   .toast-error {
     background-color: rgba(255, 255, 255, 0.97) !important;
@@ -350,6 +346,10 @@ html.light-mode {
   .mat-mdc-icon-button.mat-primary {
     --mdc-icon-button-icon-color: #5C4000;
   }
+}
+
+.user-menu-panel {
+  max-width: min(280px, calc(100vw - 24px));
 }
 
 // Create-template dialog panel — needs transparent backdrop and correct border-radius
