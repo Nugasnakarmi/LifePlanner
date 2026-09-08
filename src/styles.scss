@@ -133,9 +133,18 @@ body {
 
   .mat-mdc-menu-item {
     color: #fff;
+    min-height: 48px;
+    height: auto;
+    white-space: normal;
+    line-height: 1.35;
 
     .mat-icon {
       color: #fff;
+    }
+
+    span {
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
 
@@ -306,6 +315,11 @@ html.light-mode {
       .mat-icon {
         color: #010014;
       }
+
+      span {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
     }
 
     .menu-email-header {
@@ -332,6 +346,10 @@ html.light-mode {
   .mat-mdc-icon-button.mat-primary {
     --mdc-icon-button-icon-color: #5C4000;
   }
+}
+
+.user-menu-panel {
+  max-width: min(280px, calc(100vw - 24px));
 }
 
 // Create-template dialog panel — needs transparent backdrop and correct border-radius
