@@ -133,9 +133,18 @@ body {
 
   .mat-mdc-menu-item {
     color: #fff;
+    min-height: 48px;
+    height: auto;
+    white-space: normal;
+    line-height: 1.35;
 
     .mat-icon {
       color: #fff;
+    }
+
+    span {
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
 
@@ -306,11 +315,20 @@ html.light-mode {
       .mat-icon {
         color: #010014;
       }
+
+      span {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
     }
 
     .menu-email-header {
       color: rgba(1, 0, 20, 0.6) !important;
     }
+  }
+
+  .user-menu-panel {
+    max-width: min(280px, calc(100vw - 24px));
   }
 
   // Toastr — injected outside Angular component trees, must be global
