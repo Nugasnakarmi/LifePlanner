@@ -24,6 +24,7 @@ import { Board } from 'src/app/interfaces/board.interface';
 import { ListDetailComponent } from '../list-detail/list-detail.component';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
+import { TaskStatus } from 'src/app/enums/task-status.enum';
 
 @Component({
   imports: [
@@ -44,6 +45,10 @@ import { BoardListService } from 'src/app/services/board-list/board-list.service
 export class MainViewComponent implements OnInit, OnDestroy {
   boardLists: BoardList[] = [];
   containerRefs: Record<number, IdeaTask[]> = {};
+  collapsedListIds = new Set<number>();
+  private autoCollapsedListIds = new Set<number>();
+  private manuallyCollapsedListIds = new Set<number>();
+  private manuallyExpandedListIds = new Set<number>();
 
   router = inject(Router);
   taskService = inject(TaskService);
@@ -78,6 +83,10 @@ export class MainViewComponent implements OnInit, OnDestroy {
     this.selectedBoardSub = this.boardService.selectedBoard$.subscribe(
       (board) => {
         this.selectedBoard = board;
+        this.collapsedListIds.clear();
+        this.autoCollapsedListIds.clear();
+        this.manuallyCollapsedListIds.clear();
+        this.manuallyExpandedListIds.clear();
         if (board?.id) {
           this.boardListService.loadLists(board.id);
         } else {
@@ -113,6 +122,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
             }
           }
         });
+        this.updateCollapsedLists();
       })
     );
   }
@@ -122,6 +132,53 @@ export class MainViewComponent implements OnInit, OnDestroy {
     this.boardLists.forEach((list) => {
       this.containerRefs[list.id] = [];
     });
+  }
+
+  updateCollapsedLists(): void {
+    const nextCollapsed = new Set<number>();
+
+    this.boardLists.forEach((list) => {
+      const tasks = this.containerRefs[list.id] ?? [];
+      const shouldCollapse =
+        tasks.length > 0 &&
+        tasks.every((task) => task.status === TaskStatus.Completed);
+
+      if (shouldCollapse) {
+        nextCollapsed.add(list.id);
+      }
+    });
+
+    this.autoCollapsedListIds = nextCollapsed;
+    this.syncCollapsedLists();
+  }
+
+  isListCollapsed(listId: number): boolean {
+    return this.collapsedListIds.has(listId);
+  }
+
+  toggleListCollapsed(listId: number): void {
+    if (this.collapsedListIds.has(listId)) {
+      this.manuallyCollapsedListIds.delete(listId);
+      this.manuallyExpandedListIds.add(listId);
+    } else {
+      this.manuallyExpandedListIds.delete(listId);
+      this.manuallyCollapsedListIds.add(listId);
+    }
+
+    this.syncCollapsedLists();
+  }
+
+  private syncCollapsedLists(): void {
+    const nextCollapsed = new Set([
+      ...this.autoCollapsedListIds,
+      ...this.manuallyCollapsedListIds,
+    ]);
+
+    this.manuallyExpandedListIds.forEach((listId) => {
+      nextCollapsed.delete(listId);
+    });
+
+    this.collapsedListIds = nextCollapsed;
   }
 
   drop(event: CdkDragDrop<string[]>) {

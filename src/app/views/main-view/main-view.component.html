@@ -27,7 +27,7 @@
     <div class="board-wrapper">
       <div class="board-columns" cdkDropListGroup>
         @for(list of boardLists; track list.id){
-        <div class="board-column" cdkDrag [cdkDragDisabled]="!dragEnabled">
+        <div class="board-column" [class.column-collapsed]="isListCollapsed(list.id)" cdkDrag [cdkDragDisabled]="!dragEnabled">
           <div class="title-container flex-row-space-between">
             @if(editingListId === list.id) {
             <input
@@ -47,6 +47,15 @@
             </div>
             }
             <div class="title-actions">
+              <button
+                class="collapse-list-button"
+                (click)="toggleListCollapsed(list.id)"
+                [title]="isListCollapsed(list.id) ? 'Expand list' : 'Collapse list'"
+                [attr.aria-label]="isListCollapsed(list.id) ? 'Expand list' : 'Collapse list'"
+                [attr.aria-expanded]="!isListCollapsed(list.id)"
+              >
+                <mat-icon>{{ isListCollapsed(list.id) ? 'expand_more' : 'expand_less' }}</mat-icon>
+              </button>
               <button class="expand-list-button" (click)="openExpandList(list)" title="Expand list to fullscreen" aria-label="Expand list to fullscreen">
                 <mat-icon>open_in_full</mat-icon>
               </button>
@@ -58,6 +67,7 @@
               </button>
             </div>
           </div>
+          @if(!isListCollapsed(list.id)) {
           <div
             class="tasks-container example-list"
             cdkDropList
@@ -76,6 +86,7 @@
             ></app-task>
             }
           </div>
+          }
         </div>
         }
 
