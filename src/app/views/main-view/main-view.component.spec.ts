@@ -12,9 +12,9 @@ import { TaskStatus } from 'src/app/enums/task-status.enum';
 
 describe('MainViewComponent', () => {
   let component: MainViewComponent;
-  const tasks$ = new BehaviorSubject([]);
-  const lists$ = new BehaviorSubject([]);
-  const selectedBoard$ = new BehaviorSubject(null);
+  const tasks$ = new BehaviorSubject<any[]>([]);
+  const lists$ = new BehaviorSubject<any[]>([]);
+  const selectedBoard$ = new BehaviorSubject<any>(null);
 
   const taskServiceSpy = jasmine.createSpyObj('TaskService', ['landingPageInitialized'], {
     tasks$,
@@ -32,6 +32,14 @@ describe('MainViewComponent', () => {
   const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
   beforeEach(() => {
+    tasks$.next([]);
+    lists$.next([]);
+    selectedBoard$.next(null);
+    taskServiceSpy.landingPageInitialized.calls.reset();
+    taskAPIServiceSpy.updateTaskContainer.calls.reset();
+    boardListServiceSpy.loadLists.calls.reset();
+    boardListServiceSpy.clearLists.calls.reset();
+
     TestBed.configureTestingModule({
       providers: [
         { provide: TaskService, useValue: taskServiceSpy },
@@ -87,5 +95,30 @@ describe('MainViewComponent', () => {
     component.updateCollapsedLists();
 
     expect(component.isListCollapsed(1)).toBeTrue();
+  });
+
+  it('preserves a manual expansion across subsequent store emissions', () => {
+    component.ngOnInit();
+    selectedBoard$.next({ id: 7 });
+    lists$.next([{ id: 1 }]);
+
+    const subscription = component.tasks$.subscribe();
+
+    tasks$.next([
+      { board_id: 7, boards_lists_id: 1, status: TaskStatus.Completed },
+    ] as any);
+    expect(component.isListCollapsed(1)).toBeTrue();
+
+    component.toggleListCollapsed(1);
+    expect(component.isListCollapsed(1)).toBeFalse();
+
+    tasks$.next([
+      { board_id: 7, boards_lists_id: 1, status: TaskStatus.Completed },
+    ] as any);
+
+    expect(component.isListCollapsed(1)).toBeFalse();
+
+    subscription.unsubscribe();
+    component.ngOnDestroy();
   });
 });
