@@ -141,7 +141,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
       const tasks = this.containerRefs[list.id] ?? [];
       const shouldCollapse =
         tasks.length > 0 &&
-        tasks.every((task) => task.status === TaskStatus.Completed);
+        tasks.every((task) => this.isCompletedStatus(task.status));
 
       if (shouldCollapse) {
         nextCollapsed.add(list.id);
@@ -179,6 +179,10 @@ export class MainViewComponent implements OnInit, OnDestroy {
     });
 
     this.collapsedListIds = nextCollapsed;
+  }
+
+  private isCompletedStatus(status: IdeaTask['status']): boolean {
+    return status === TaskStatus.Completed || status === 'Working On';
   }
 
   drop(event: CdkDragDrop<string[]>) {

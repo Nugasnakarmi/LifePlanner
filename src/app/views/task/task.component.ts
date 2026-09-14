@@ -125,10 +125,15 @@ export class TaskComponent {
     this.taskService.taskStatusUpdated(task.id, status);
   }
 
-  getStatusIcon(status: TaskStatus | undefined): string {
-    switch (status) {
-      case TaskStatus.Completed: return 'check_circle';
-      default: return 'radio_button_unchecked';
-    }
+  isCompletedStatus(status: IdeaTask['status']): boolean {
+    return status === TaskStatus.Completed || status === 'Working On';
+  }
+
+  getDisplayStatus(status: IdeaTask['status']): TaskStatus {
+    return this.isCompletedStatus(status) ? TaskStatus.Completed : TaskStatus.Initiated;
+  }
+
+  getStatusIcon(status: IdeaTask['status']): string {
+    return this.isCompletedStatus(status) ? 'check_circle' : 'radio_button_unchecked';
   }
 }

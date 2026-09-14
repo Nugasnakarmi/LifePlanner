@@ -9,7 +9,7 @@ export interface IdeaTask {
   description?: string;
   type?: IdeaType;
   completion_status?: number;
-  status?: TaskStatus;
+  status?: TaskStatus | 'Working On';
   user_id?: string;
   board_id?: number;
   boards_lists_id?: number;

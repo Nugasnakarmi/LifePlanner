@@ -71,6 +71,17 @@ describe('MainViewComponent', () => {
     expect(component.isListCollapsed(2)).toBeFalse();
   });
 
+  it('treats legacy "Working On" status as completed when auto-collapsing', () => {
+    component.boardLists = [{ id: 1 }] as any;
+    component.containerRefs = {
+      1: [{ status: 'Working On' }] as any,
+    };
+
+    component.updateCollapsedLists();
+
+    expect(component.isListCollapsed(1)).toBeTrue();
+  });
+
   it('preserves a manual expansion when defaults are recomputed', () => {
     component.boardLists = [{ id: 1 }] as any;
     component.containerRefs = {

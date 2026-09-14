@@ -65,10 +65,8 @@ export class TaskDashboardComponent implements OnInit {
 
   taskGroups$: Observable<TaskGroups> = this.taskService.tasks$.pipe(
     map((tasks) => ({
-      initiated: tasks.filter(
-        (t) => !t.status || t.status === TaskStatus.Initiated
-      ),
-      completed: tasks.filter((t) => t.status === TaskStatus.Completed),
+      initiated: tasks.filter((t) => !this.isCompletedStatus(t.status)),
+      completed: tasks.filter((t) => this.isCompletedStatus(t.status)),
     }))
   );
 
@@ -102,5 +100,9 @@ export class TaskDashboardComponent implements OnInit {
 
   goToBoards(): void {
     this.router.navigate(['/boards']);
+  }
+
+  private isCompletedStatus(status: IdeaTask['status']): boolean {
+    return status === TaskStatus.Completed || status === 'Working On';
   }
 }

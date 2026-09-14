@@ -16,7 +16,7 @@ export const selectLoadingState = createSelector(
 export const selectTaskStatusCounts = createSelector(selectTasks, (tasks) => {
   const counts = tasks.reduce(
     (acc, t) => {
-      if (t.status === TaskStatus.Completed) {
+      if (t.status === TaskStatus.Completed || t.status === 'Working On') {
         acc[TaskStatus.Completed]++;
       } else {
         acc[TaskStatus.Initiated]++;

@@ -5,6 +5,7 @@ import { TaskComponent } from './task.component';
 import { TaskService } from 'src/app/services/task/task.service';
 import { TaskDetailComponent } from '../task-detail/task-detail.component';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
+import { TaskStatus } from 'src/app/enums/task-status.enum';
 
 function makeTask(mediaPerActivity: { type: 'image' | 'gif' | 'video'; url: string; name?: string }[][]): IdeaTask {
   return {
@@ -154,5 +155,11 @@ describe('TaskComponent', () => {
 
       expect(event.preventDefault).toHaveBeenCalled();
     });
+  });
+
+  it('treats legacy "Working On" status as completed for display and icon', () => {
+    expect(component.isCompletedStatus('Working On')).toBeTrue();
+    expect(component.getDisplayStatus('Working On')).toBe(TaskStatus.Completed);
+    expect(component.getStatusIcon('Working On')).toBe('check_circle');
   });
 });
