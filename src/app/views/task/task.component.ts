@@ -127,10 +127,8 @@ export class TaskComponent {
 
   getStatusIcon(status: TaskStatus | undefined): string {
     switch (status) {
-      case TaskStatus.WorkingOn: return 'autorenew';
       case TaskStatus.Completed: return 'check_circle';
       default: return 'radio_button_unchecked';
     }
   }
 }
-

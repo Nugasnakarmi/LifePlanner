@@ -8,7 +8,6 @@ $icon-edit:   #60a5fa;
 
 // ─── Status colours ──────────────────────────────────────────────────────────
 $status-initiated: rgba(156, 163, 175, 0.85);   // grey
-$status-working:   rgba(251, 191, 36, 0.9);      // amber
 $status-completed: rgba(74, 222, 128, 0.9);      // green
 
 // ─── Base card ───────────────────────────────────────────────────────────────
@@ -22,10 +21,6 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
   cursor: grab;
   color: #fff;
   transition: $transition-card;
-
-  &.status-working {
-    border-left-color: $status-working;
-  }
 
   &.status-completed {
     border-left-color: $status-completed;
@@ -48,7 +43,6 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
     }
   }
 
-  &.status-working:hover { border-left-color: $status-working; }
   &.status-completed:hover { border-left-color: $status-completed; }
 }
 
@@ -109,12 +103,6 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
     border: 1px solid rgba(156, 163, 175, 0.3);
   }
 
-  &.badge-working {
-    background: rgba(251, 191, 36, 0.15);
-    color: $status-working;
-    border: 1px solid rgba(251, 191, 36, 0.35);
-  }
-
   &.badge-completed {
     background: rgba(74, 222, 128, 0.12);
     color: $status-completed;
@@ -151,13 +139,6 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
   span { line-height: 1; }
 
   &:hover { transform: translateY(-1px); }
-
-  &.btn-initiate {
-    background: rgba(251, 191, 36, 0.18);
-    color: $status-working;
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    &:hover { background: rgba(251, 191, 36, 0.28); }
-  }
 
   &.btn-complete {
     background: rgba(74, 222, 128, 0.15);
@@ -508,14 +489,11 @@ $status-completed: rgba(74, 222, 128, 0.9);      // green
 
   .status-badge {
     &.badge-initiated { color: #6b7280; border-color: rgba(107, 114, 128, 0.4); }
-    &.badge-working   { color: #b45309; border-color: rgba(180, 83, 9, 0.4); }
     &.badge-completed { color: #15803d; border-color: rgba(21, 128, 61, 0.4); }
   }
 
   .status-btn {
-    &.btn-initiate { color: #b45309; border-color: rgba(180, 83, 9, 0.4); background: rgba(251, 191, 36, 0.1); }
     &.btn-complete { color: #15803d; border-color: rgba(21, 128, 61, 0.4); background: rgba(74, 222, 128, 0.1); }
     &.btn-reset    { color: #6b7280; border-color: rgba(107, 114, 128, 0.3); background: rgba(107, 114, 128, 0.08); }
   }
 }
-

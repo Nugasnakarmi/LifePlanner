@@ -11,14 +11,12 @@ import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 
 interface StatusCounts {
   [TaskStatus.Initiated]: number;
-  [TaskStatus.WorkingOn]: number;
   [TaskStatus.Completed]: number;
   total: number;
 }
 
 interface TaskGroups {
   initiated: IdeaTask[];
-  workingOn: IdeaTask[];
   completed: IdeaTask[];
 }
 
@@ -30,7 +28,6 @@ interface DonutSegment {
 interface ChartSegments {
   hasData: boolean;
   initiated: DonutSegment;
-  workingOn: DonutSegment;
   completed: DonutSegment;
 }
 
@@ -66,20 +63,11 @@ export class TaskDashboardComponent implements OnInit {
     )
   );
 
-  inProgressPercent$: Observable<number> = this.statusCounts$.pipe(
-    map((counts) =>
-      counts.total === 0
-        ? 0
-        : Math.round((counts[TaskStatus.WorkingOn] / counts.total) * 100)
-    )
-  );
-
   taskGroups$: Observable<TaskGroups> = this.taskService.tasks$.pipe(
     map((tasks) => ({
       initiated: tasks.filter(
         (t) => !t.status || t.status === TaskStatus.Initiated
       ),
-      workingOn: tasks.filter((t) => t.status === TaskStatus.WorkingOn),
       completed: tasks.filter((t) => t.status === TaskStatus.Completed),
     }))
   );
@@ -93,7 +81,6 @@ export class TaskDashboardComponent implements OnInit {
       const c = this.chartCircumference;
       const total = counts.total || 1;
       const initiatedLen = (counts[TaskStatus.Initiated] / total) * c;
-      const workingLen = (counts[TaskStatus.WorkingOn] / total) * c;
       const completedLen = (counts[TaskStatus.Completed] / total) * c;
       return {
         hasData: counts.total > 0,
@@ -101,13 +88,9 @@ export class TaskDashboardComponent implements OnInit {
           dasharray: `${initiatedLen} ${c - initiatedLen}`,
           dashoffset: c / 4,
         },
-        workingOn: {
-          dasharray: `${workingLen} ${c - workingLen}`,
-          dashoffset: c / 4 - initiatedLen,
-        },
         completed: {
           dasharray: `${completedLen} ${c - completedLen}`,
-          dashoffset: c / 4 - initiatedLen - workingLen,
+          dashoffset: c / 4 - initiatedLen,
         },
       };
     })

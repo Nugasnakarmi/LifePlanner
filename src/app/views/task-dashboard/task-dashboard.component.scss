@@ -1,7 +1,6 @@
 // ─── Variables ────────────────────────────────────────────────────────────────
 $gold: #F9D07A;
 $status-initiated: #9ca3af;
-$status-working: #fbbf24;
 $status-completed: #4ade80;
 
 // ─── Loading ──────────────────────────────────────────────────────────────────
@@ -143,7 +142,6 @@ $status-completed: #4ade80;
 
   &.stat-total    { border-left: 3px solid $gold;               .stat-icon { color: $gold; }               .stat-number { color: $gold; } }
   &.stat-initiated { border-left: 3px solid $status-initiated;  .stat-icon { color: $status-initiated; }  .stat-number { color: $status-initiated; } }
-  &.stat-working  { border-left: 3px solid $status-working;     .stat-icon { color: $status-working; }    .stat-number { color: $status-working; } }
   &.stat-completed { border-left: 3px solid $status-completed;  .stat-icon { color: $status-completed; }  .stat-number { color: $status-completed; } }
 }
 
@@ -194,7 +192,6 @@ $status-completed: #4ade80;
     font-weight: 700;
     color: $status-completed;
 
-    &.progress-pct--working { color: $status-working; }
   }
 
   .progress-track {
@@ -210,7 +207,6 @@ $status-completed: #4ade80;
     transition: width 0.5s ease;
 
     &.progress-fill--completed { background: $status-completed; }
-    &.progress-fill--working   { background: $status-working; }
   }
 }
 
@@ -228,7 +224,6 @@ $status-completed: #4ade80;
   transition: width 0.5s ease;
 
   &.seg-initiated { background: $status-initiated; }
-  &.seg-working   { background: $status-working; }
   &.seg-completed { background: $status-completed; }
 }
 
@@ -252,7 +247,6 @@ $status-completed: #4ade80;
   border-radius: 50%;
 
   &.dot-initiated { background: $status-initiated; }
-  &.dot-working   { background: $status-working; }
   &.dot-completed { background: $status-completed; }
 }
 
@@ -359,7 +353,6 @@ $status-completed: #4ade80;
   min-width: 2px;
 
   &.bar-initiated { background: $status-initiated; }
-  &.bar-working   { background: $status-working; }
   &.bar-completed { background: $status-completed; }
 }
 
@@ -452,7 +445,6 @@ $status-completed: #4ade80;
 
   &.group-working {
     background: rgba(251, 191, 36, 0.12);
-    color: $status-working;
     border-bottom: 1px solid rgba(251, 191, 36, 0.15);
   }
 

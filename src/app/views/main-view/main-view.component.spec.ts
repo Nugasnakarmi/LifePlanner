@@ -62,7 +62,7 @@ describe('MainViewComponent', () => {
     component.boardLists = [{ id: 1 }, { id: 2 }] as any;
     component.containerRefs = {
       1: [{ status: TaskStatus.Completed }, { status: TaskStatus.Completed }] as any,
-      2: [{ status: TaskStatus.WorkingOn }] as any,
+      2: [{ status: TaskStatus.Initiated }] as any,
     };
 
     component.updateCollapsedLists();
@@ -87,7 +87,7 @@ describe('MainViewComponent', () => {
   it('preserves a manual collapse when defaults are recomputed', () => {
     component.boardLists = [{ id: 1 }] as any;
     component.containerRefs = {
-      1: [{ status: TaskStatus.WorkingOn }] as any,
+      1: [{ status: TaskStatus.Initiated }] as any,
     };
 
     component.updateCollapsedLists();
