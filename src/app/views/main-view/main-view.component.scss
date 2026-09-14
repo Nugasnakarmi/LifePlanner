@@ -379,6 +379,14 @@ $gold: #F9D07A;
       }
     }
 
+    .collapse-list-button {
+      color: rgba(1, 0, 20, 0.6);
+
+      &:hover {
+        color: #5C4000;
+      }
+    }
+
     .delete-list-button {
       color: rgba(1, 0, 20, 0.5);
 

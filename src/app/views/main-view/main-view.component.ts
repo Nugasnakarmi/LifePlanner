@@ -46,6 +46,9 @@ export class MainViewComponent implements OnInit, OnDestroy {
   boardLists: BoardList[] = [];
   containerRefs: Record<number, IdeaTask[]> = {};
   collapsedListIds = new Set<number>();
+  private autoCollapsedListIds = new Set<number>();
+  private manuallyCollapsedListIds = new Set<number>();
+  private manuallyExpandedListIds = new Set<number>();
 
   router = inject(Router);
   taskService = inject(TaskService);
@@ -75,13 +78,15 @@ export class MainViewComponent implements OnInit, OnDestroy {
       this.boardLists = lists;
       this.resetContainerData();
       this.getTasks();
-      this.updateCollapsedLists();
     });
 
     this.selectedBoardSub = this.boardService.selectedBoard$.subscribe(
       (board) => {
         this.selectedBoard = board;
         this.collapsedListIds.clear();
+        this.autoCollapsedListIds.clear();
+        this.manuallyCollapsedListIds.clear();
+        this.manuallyExpandedListIds.clear();
         if (board?.id) {
           this.boardListService.loadLists(board.id);
         } else {
@@ -136,18 +141,15 @@ export class MainViewComponent implements OnInit, OnDestroy {
       const tasks = this.containerRefs[list.id] ?? [];
       const shouldCollapse =
         tasks.length > 0 &&
-        tasks.every(
-          (task) =>
-            task.status === TaskStatus.WorkingOn ||
-            task.status === TaskStatus.Completed
-        );
+        tasks.every((task) => task.status === TaskStatus.Completed);
 
       if (shouldCollapse) {
         nextCollapsed.add(list.id);
       }
     });
 
-    this.collapsedListIds = nextCollapsed;
+    this.autoCollapsedListIds = nextCollapsed;
+    this.syncCollapsedLists();
   }
 
   isListCollapsed(listId: number): boolean {
@@ -156,10 +158,27 @@ export class MainViewComponent implements OnInit, OnDestroy {
 
   toggleListCollapsed(listId: number): void {
     if (this.collapsedListIds.has(listId)) {
-      this.collapsedListIds.delete(listId);
+      this.manuallyCollapsedListIds.delete(listId);
+      this.manuallyExpandedListIds.add(listId);
     } else {
-      this.collapsedListIds.add(listId);
+      this.manuallyExpandedListIds.delete(listId);
+      this.manuallyCollapsedListIds.add(listId);
     }
+
+    this.syncCollapsedLists();
+  }
+
+  private syncCollapsedLists(): void {
+    const nextCollapsed = new Set([
+      ...this.autoCollapsedListIds,
+      ...this.manuallyCollapsedListIds,
+    ]);
+
+    this.manuallyExpandedListIds.forEach((listId) => {
+      nextCollapsed.delete(listId);
+    });
+
+    this.collapsedListIds = nextCollapsed;
   }
 
   drop(event: CdkDragDrop<string[]>) {
