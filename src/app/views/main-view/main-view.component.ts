@@ -24,7 +24,7 @@ import { Board } from 'src/app/interfaces/board.interface';
 import { ListDetailComponent } from '../list-detail/list-detail.component';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
-import { TaskStatus } from 'src/app/enums/task-status.enum';
+import { isCompletedTaskStatus, TaskStatus } from 'src/app/enums/task-status.enum';
 
 @Component({
   imports: [
@@ -182,7 +182,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
   }
 
   private isCompletedStatus(status: IdeaTask['status']): boolean {
-    return status === TaskStatus.Completed || status === 'Working On';
+    return isCompletedTaskStatus(status);
   }
 
   drop(event: CdkDragDrop<string[]>) {

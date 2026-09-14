@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, map } from 'rxjs';
 import { TaskService } from 'src/app/services/task/task.service';
-import { TaskStatus } from 'src/app/enums/task-status.enum';
+import { isCompletedTaskStatus, TaskStatus } from 'src/app/enums/task-status.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 
 interface StatusCounts {
@@ -103,6 +103,6 @@ export class TaskDashboardComponent implements OnInit {
   }
 
   private isCompletedStatus(status: IdeaTask['status']): boolean {
-    return status === TaskStatus.Completed || status === 'Working On';
+    return isCompletedTaskStatus(status);
   }
 }

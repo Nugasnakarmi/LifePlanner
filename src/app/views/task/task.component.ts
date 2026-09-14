@@ -5,7 +5,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
-import { TaskStatus } from 'src/app/enums/task-status.enum';
+import {
+  isCompletedTaskStatus,
+  normalizeTaskStatus,
+  TaskStatus,
+} from 'src/app/enums/task-status.enum';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { TaskDetailComponent } from '../task-detail/task-detail.component';
@@ -126,11 +130,11 @@ export class TaskComponent {
   }
 
   isCompletedStatus(status: IdeaTask['status']): boolean {
-    return status === TaskStatus.Completed || status === 'Working On';
+    return isCompletedTaskStatus(status);
   }
 
   getDisplayStatus(status: IdeaTask['status']): TaskStatus {
-    return this.isCompletedStatus(status) ? TaskStatus.Completed : TaskStatus.Initiated;
+    return normalizeTaskStatus(status);
   }
 
   getStatusIcon(status: IdeaTask['status']): string {
