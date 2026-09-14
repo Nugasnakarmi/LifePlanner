@@ -2,8 +2,7 @@
   cdkDrag
   [cdkDragDisabled]="!dragEnabled()"
   class="tasks {{ container() }}-tasks flex-row-space-between"
-  [class.status-working]="task().status === TaskStatus.WorkingOn"
-  [class.status-completed]="task().status === TaskStatus.Completed"
+  [class.status-completed]="isCompletedStatus(task().status)"
   id="{{ container() }}-tasks-{{ index() }}"
 >
   <div class="name-description-container">
@@ -11,25 +10,18 @@
       <span class="task-name">{{ task().name }}</span>
       <span
         class="status-badge"
-        [class.badge-initiated]="!task().status || task().status === TaskStatus.Initiated"
-        [class.badge-working]="task().status === TaskStatus.WorkingOn"
-        [class.badge-completed]="task().status === TaskStatus.Completed"
+        [class.badge-initiated]="!isCompletedStatus(task().status)"
+        [class.badge-completed]="isCompletedStatus(task().status)"
       >
         <mat-icon class="status-icon">{{ getStatusIcon(task().status) }}</mat-icon>
-        {{ task().status ?? TaskStatus.Initiated }}
+        {{ getDisplayStatus(task().status) }}
       </span>
     </div>
     @if(task().description) {
       <p class="description">{{ task().description }}</p>
     }
     <div class="status-actions">
-      @if(!task().status || task().status === TaskStatus.Initiated) {
-        <button class="status-btn btn-initiate" (click)="onUpdateStatus(task(), TaskStatus.WorkingOn)" matTooltip="Mark as Working On">
-          <mat-icon>play_arrow</mat-icon>
-          <span>Start</span>
-        </button>
-      }
-      @if(task().status === TaskStatus.WorkingOn) {
+      @if(!isCompletedStatus(task().status)) {
         <button
           class="status-btn btn-complete"
           (click)="onUpdateStatus(task(), TaskStatus.Completed)"
@@ -39,11 +31,8 @@
           <mat-icon>check</mat-icon>
           <span>Complete</span>
         </button>
-        <button class="status-btn btn-reset" (click)="onUpdateStatus(task(), TaskStatus.Initiated)" matTooltip="Reset to Initiated">
-          <mat-icon>restart_alt</mat-icon>
-        </button>
       }
-      @if(task().status === TaskStatus.Completed) {
+      @if(isCompletedStatus(task().status)) {
         <button class="status-btn btn-reset" (click)="onUpdateStatus(task(), TaskStatus.Initiated)" matTooltip="Reset to Initiated">
           <mat-icon>restart_alt</mat-icon>
         </button>

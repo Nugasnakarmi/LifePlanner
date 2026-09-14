@@ -5,7 +5,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
-import { TaskStatus } from 'src/app/enums/task-status.enum';
+import {
+  isCompletedTaskStatus,
+  normalizeTaskStatus,
+  TaskStatus,
+} from 'src/app/enums/task-status.enum';
 import { TaskAPIService } from 'src/app/services/task/task.api.service';
 import { AddTaskComponent } from '../add-task/add-task.component';
 import { TaskDetailComponent } from '../task-detail/task-detail.component';
@@ -125,12 +129,15 @@ export class TaskComponent {
     this.taskService.taskStatusUpdated(task.id, status);
   }
 
-  getStatusIcon(status: TaskStatus | undefined): string {
-    switch (status) {
-      case TaskStatus.WorkingOn: return 'autorenew';
-      case TaskStatus.Completed: return 'check_circle';
-      default: return 'radio_button_unchecked';
-    }
+  isCompletedStatus(status: IdeaTask['status']): boolean {
+    return isCompletedTaskStatus(status);
+  }
+
+  getDisplayStatus(status: IdeaTask['status']): TaskStatus {
+    return normalizeTaskStatus(status);
+  }
+
+  getStatusIcon(status: IdeaTask['status']): string {
+    return this.isCompletedStatus(status) ? 'check_circle' : 'radio_button_unchecked';
   }
 }
-

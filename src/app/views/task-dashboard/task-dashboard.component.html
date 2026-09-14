@@ -37,14 +37,6 @@
         </div>
       </div>
 
-      <div class="stat-card stat-working">
-        <mat-icon class="stat-icon">autorenew</mat-icon>
-        <div class="stat-info">
-          <span class="stat-number">{{ counts[TaskStatus.WorkingOn] }}</span>
-          <span class="stat-label">Working On</span>
-        </div>
-      </div>
-
       <div class="stat-card stat-completed">
         <mat-icon class="stat-icon">check_circle</mat-icon>
         <div class="stat-info">
@@ -70,18 +62,6 @@
       </div>
       }
 
-      @if(inProgressPercent$ | async; as wPct) {
-      <div class="progress-bar-container">
-        <div class="progress-label">
-          <span>In Progress</span>
-          <span class="progress-pct progress-pct--working">{{ wPct }}%</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill progress-fill--working" [style.width.%]="wPct"></div>
-        </div>
-      </div>
-      }
-
       <!-- Stacked status bar -->
       @if(counts.total > 0) {
       <div class="stacked-bar-container">
@@ -93,11 +73,6 @@
             [title]="'Initiated: ' + counts[TaskStatus.Initiated]"
           ></div>
           <div
-            class="stacked-segment seg-working"
-            [style.width.%]="(counts[TaskStatus.WorkingOn] / counts.total) * 100"
-            [title]="'Working On: ' + counts[TaskStatus.WorkingOn]"
-          ></div>
-          <div
             class="stacked-segment seg-completed"
             [style.width.%]="(counts[TaskStatus.Completed] / counts.total) * 100"
             [title]="'Completed: ' + counts[TaskStatus.Completed]"
@@ -105,7 +80,6 @@
         </div>
         <div class="stacked-bar-legend">
           <span class="legend-item"><span class="legend-dot dot-initiated"></span>Initiated</span>
-          <span class="legend-item"><span class="legend-dot dot-working"></span>Working On</span>
           <span class="legend-item"><span class="legend-dot dot-completed"></span>Completed</span>
         </div>
       </div>
@@ -138,13 +112,6 @@
                 [attr.stroke-dasharray]="chart.initiated.dasharray"
                 [attr.stroke-dashoffset]="chart.initiated.dashoffset"
                 class="donut-segment"/>
-              <!-- working-on segment -->
-              <circle [attr.cx]="svgCenter" [attr.cy]="svgCenter" [attr.r]="chartRadius"
-                fill="none" stroke="#fbbf24" [attr.stroke-width]="svgStrokeWidth"
-                stroke-linecap="butt"
-                [attr.stroke-dasharray]="chart.workingOn.dasharray"
-                [attr.stroke-dashoffset]="chart.workingOn.dashoffset"
-                class="donut-segment"/>
               <!-- completed segment -->
               <circle [attr.cx]="svgCenter" [attr.cy]="svgCenter" [attr.r]="chartRadius"
                 fill="none" stroke="#4ade80" [attr.stroke-width]="svgStrokeWidth"
@@ -160,9 +127,6 @@
             <div class="donut-legend">
               <span class="donut-legend-item">
                 <span class="legend-dot dot-initiated"></span>Initiated
-              </span>
-              <span class="donut-legend-item">
-                <span class="legend-dot dot-working"></span>Working On
               </span>
               <span class="donut-legend-item">
                 <span class="legend-dot dot-completed"></span>Completed
@@ -193,19 +157,6 @@
                   [style.width.%]="counts.total > 0 ? (counts[TaskStatus.Initiated] / counts.total) * 100 : 0"></div>
               </div>
               <span class="bar-value">{{ counts[TaskStatus.Initiated] }}</span>
-            </div>
-            <div class="bar-row">
-              <span class="bar-label">Working On</span>
-              <div class="bar-track">
-                <div class="bar-fill bar-working"
-                  role="progressbar"
-                  aria-valuemin="0"
-                  [attr.aria-valuemax]="counts.total"
-                  [attr.aria-valuenow]="counts[TaskStatus.WorkingOn]"
-                  [attr.aria-label]="'Working On: ' + counts[TaskStatus.WorkingOn] + ' tasks'"
-                  [style.width.%]="counts.total > 0 ? (counts[TaskStatus.WorkingOn] / counts.total) * 100 : 0"></div>
-              </div>
-              <span class="bar-value">{{ counts[TaskStatus.WorkingOn] }}</span>
             </div>
             <div class="bar-row">
               <span class="bar-label">Completed</span>
@@ -259,26 +210,6 @@
       </div>
       }
 
-      @if(groups.workingOn.length > 0) {
-      <div class="task-group">
-        <div class="group-header group-working">
-          <mat-icon>autorenew</mat-icon>
-          <span>Working On</span>
-          <span class="group-count">{{ groups.workingOn.length }}</span>
-        </div>
-        <div class="group-tasks">
-          @for(task of groups.workingOn; track task.id) {
-          <div class="dash-task-item">
-            <span class="dash-task-name">{{ task.name }}</span>
-            @if(task.description) {
-              <span class="dash-task-desc">{{ task.description }}</span>
-            }
-          </div>
-          }
-        </div>
-      </div>
-      }
-
       @if(groups.completed.length > 0) {
       <div class="task-group">
         <div class="group-header group-completed">
@@ -299,7 +230,7 @@
       </div>
       }
 
-      @if(groups.initiated.length === 0 && groups.workingOn.length === 0 && groups.completed.length === 0) {
+      @if(groups.initiated.length === 0 && groups.completed.length === 0) {
         <div class="empty-state">
           <mat-icon>assignment</mat-icon>
           <p>No tasks yet. Create tasks on your boards to track progress here.</p>

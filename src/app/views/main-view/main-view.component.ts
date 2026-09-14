@@ -24,7 +24,7 @@ import { Board } from 'src/app/interfaces/board.interface';
 import { ListDetailComponent } from '../list-detail/list-detail.component';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
-import { TaskStatus } from 'src/app/enums/task-status.enum';
+import { isCompletedTaskStatus, TaskStatus } from 'src/app/enums/task-status.enum';
 
 @Component({
   imports: [
@@ -141,7 +141,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
       const tasks = this.containerRefs[list.id] ?? [];
       const shouldCollapse =
         tasks.length > 0 &&
-        tasks.every((task) => task.status === TaskStatus.Completed);
+        tasks.every((task) => this.isCompletedStatus(task.status));
 
       if (shouldCollapse) {
         nextCollapsed.add(list.id);
@@ -179,6 +179,10 @@ export class MainViewComponent implements OnInit, OnDestroy {
     });
 
     this.collapsedListIds = nextCollapsed;
+  }
+
+  private isCompletedStatus(status: IdeaTask['status']): boolean {
+    return isCompletedTaskStatus(status);
   }
 
   drop(event: CdkDragDrop<string[]>) {

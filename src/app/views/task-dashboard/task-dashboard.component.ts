@@ -6,19 +6,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, map } from 'rxjs';
 import { TaskService } from 'src/app/services/task/task.service';
-import { TaskStatus } from 'src/app/enums/task-status.enum';
+import { isCompletedTaskStatus, TaskStatus } from 'src/app/enums/task-status.enum';
 import { IdeaTask } from 'src/app/interfaces/idea-task.interface';
 
 interface StatusCounts {
   [TaskStatus.Initiated]: number;
-  [TaskStatus.WorkingOn]: number;
   [TaskStatus.Completed]: number;
   total: number;
 }
 
 interface TaskGroups {
   initiated: IdeaTask[];
-  workingOn: IdeaTask[];
   completed: IdeaTask[];
 }
 
@@ -30,7 +28,6 @@ interface DonutSegment {
 interface ChartSegments {
   hasData: boolean;
   initiated: DonutSegment;
-  workingOn: DonutSegment;
   completed: DonutSegment;
 }
 
@@ -66,21 +63,10 @@ export class TaskDashboardComponent implements OnInit {
     )
   );
 
-  inProgressPercent$: Observable<number> = this.statusCounts$.pipe(
-    map((counts) =>
-      counts.total === 0
-        ? 0
-        : Math.round((counts[TaskStatus.WorkingOn] / counts.total) * 100)
-    )
-  );
-
   taskGroups$: Observable<TaskGroups> = this.taskService.tasks$.pipe(
     map((tasks) => ({
-      initiated: tasks.filter(
-        (t) => !t.status || t.status === TaskStatus.Initiated
-      ),
-      workingOn: tasks.filter((t) => t.status === TaskStatus.WorkingOn),
-      completed: tasks.filter((t) => t.status === TaskStatus.Completed),
+      initiated: tasks.filter((t) => !this.isCompletedStatus(t.status)),
+      completed: tasks.filter((t) => this.isCompletedStatus(t.status)),
     }))
   );
 
@@ -93,7 +79,6 @@ export class TaskDashboardComponent implements OnInit {
       const c = this.chartCircumference;
       const total = counts.total || 1;
       const initiatedLen = (counts[TaskStatus.Initiated] / total) * c;
-      const workingLen = (counts[TaskStatus.WorkingOn] / total) * c;
       const completedLen = (counts[TaskStatus.Completed] / total) * c;
       return {
         hasData: counts.total > 0,
@@ -101,13 +86,9 @@ export class TaskDashboardComponent implements OnInit {
           dasharray: `${initiatedLen} ${c - initiatedLen}`,
           dashoffset: c / 4,
         },
-        workingOn: {
-          dasharray: `${workingLen} ${c - workingLen}`,
-          dashoffset: c / 4 - initiatedLen,
-        },
         completed: {
           dasharray: `${completedLen} ${c - completedLen}`,
-          dashoffset: c / 4 - initiatedLen - workingLen,
+          dashoffset: c / 4 - initiatedLen,
         },
       };
     })
@@ -119,5 +100,9 @@ export class TaskDashboardComponent implements OnInit {
 
   goToBoards(): void {
     this.router.navigate(['/boards']);
+  }
+
+  private isCompletedStatus(status: IdeaTask['status']): boolean {
+    return isCompletedTaskStatus(status);
   }
 }
