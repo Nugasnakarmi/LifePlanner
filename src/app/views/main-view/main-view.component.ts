@@ -24,6 +24,7 @@ import { Board } from 'src/app/interfaces/board.interface';
 import { ListDetailComponent } from '../list-detail/list-detail.component';
 import { BoardList } from 'src/app/interfaces/board-list.interface';
 import { BoardListService } from 'src/app/services/board-list/board-list.service';
+import { TaskStatus } from 'src/app/enums/task-status.enum';
 
 @Component({
   imports: [
@@ -44,6 +45,7 @@ import { BoardListService } from 'src/app/services/board-list/board-list.service
 export class MainViewComponent implements OnInit, OnDestroy {
   boardLists: BoardList[] = [];
   containerRefs: Record<number, IdeaTask[]> = {};
+  collapsedListIds = new Set<number>();
 
   router = inject(Router);
   taskService = inject(TaskService);
@@ -73,11 +75,13 @@ export class MainViewComponent implements OnInit, OnDestroy {
       this.boardLists = lists;
       this.resetContainerData();
       this.getTasks();
+      this.updateCollapsedLists();
     });
 
     this.selectedBoardSub = this.boardService.selectedBoard$.subscribe(
       (board) => {
         this.selectedBoard = board;
+        this.collapsedListIds.clear();
         if (board?.id) {
           this.boardListService.loadLists(board.id);
         } else {
@@ -113,6 +117,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
             }
           }
         });
+        this.updateCollapsedLists();
       })
     );
   }
@@ -122,6 +127,39 @@ export class MainViewComponent implements OnInit, OnDestroy {
     this.boardLists.forEach((list) => {
       this.containerRefs[list.id] = [];
     });
+  }
+
+  updateCollapsedLists(): void {
+    const nextCollapsed = new Set<number>();
+
+    this.boardLists.forEach((list) => {
+      const tasks = this.containerRefs[list.id] ?? [];
+      const shouldCollapse =
+        tasks.length > 0 &&
+        tasks.every(
+          (task) =>
+            task.status === TaskStatus.WorkingOn ||
+            task.status === TaskStatus.Completed
+        );
+
+      if (shouldCollapse) {
+        nextCollapsed.add(list.id);
+      }
+    });
+
+    this.collapsedListIds = nextCollapsed;
+  }
+
+  isListCollapsed(listId: number): boolean {
+    return this.collapsedListIds.has(listId);
+  }
+
+  toggleListCollapsed(listId: number): void {
+    if (this.collapsedListIds.has(listId)) {
+      this.collapsedListIds.delete(listId);
+    } else {
+      this.collapsedListIds.add(listId);
+    }
   }
 
   drop(event: CdkDragDrop<string[]>) {
