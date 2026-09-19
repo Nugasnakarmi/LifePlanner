@@ -13,6 +13,7 @@ export interface IdeaTask {
   user_id?: string;
   board_id?: number;
   boards_lists_id?: number;
+  position?: number;
   created_at?: Date;
   last_edited?: Date;
   activities?: TaskScopedActivity[];

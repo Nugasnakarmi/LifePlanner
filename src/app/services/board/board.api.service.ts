@@ -266,6 +266,7 @@ export class BoardAPIService {
             user_id: user.id,
             board_id: board.id,
             boards_lists_id: boardList.id,
+            position: taskIdx,
           }));
 
           const { data: insertedTasks, error: tasksError } = await this.supabaseService.supabase

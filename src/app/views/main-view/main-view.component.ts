@@ -185,12 +185,15 @@ export class MainViewComponent implements OnInit, OnDestroy {
     return isCompletedTaskStatus(status);
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  async drop(event: CdkDragDrop<IdeaTask[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
         event.previousIndex,
         event.currentIndex
+      );
+      await this.taskAPIService.updateTaskOrder(
+        event.container.data.map((task) => task.id).filter((id): id is number => id !== undefined)
       );
     } else {
       transferArrayItem(
@@ -206,12 +209,23 @@ export class MainViewComponent implements OnInit, OnDestroy {
       if (isNaN(boardListId)) return;
       const targetList = this.boardLists.find((l) => l.id === boardListId);
       if (!targetList) return;
-      this.taskAPIService
-        .updateTaskContainer({
-          id: data.id,
-          type: targetList.position,
-          boards_lists_id: boardListId,
-        });
+      await this.taskAPIService.updateTaskContainer({
+        id: data.id,
+        type: targetList.position,
+        boards_lists_id: boardListId,
+      });
+      await Promise.all([
+        this.taskAPIService.updateTaskOrder(
+          event.previousContainer.data
+            .map((task) => task.id)
+            .filter((id): id is number => id !== undefined)
+        ),
+        this.taskAPIService.updateTaskOrder(
+          event.container.data
+            .map((task) => task.id)
+            .filter((id): id is number => id !== undefined)
+        ),
+      ]);
     }
   }
 

@@ -58,6 +58,22 @@ describe('MainViewComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('persists task order after reordering within a list', async () => {
+    const firstTask = { id: 1 } as any;
+    const secondTask = { id: 2 } as any;
+    const container = { data: [firstTask, secondTask] } as any;
+    component.taskAPIService.updateTaskOrder.and.resolveTo(true);
+
+    await component.drop({
+      previousContainer: container,
+      container,
+      previousIndex: 0,
+      currentIndex: 1,
+    } as any);
+
+    expect(taskAPIServiceSpy.updateTaskOrder).toHaveBeenCalledWith([2, 1]);
+  });
+
   it('collapses only lists with completed tasks', () => {
     component.boardLists = [{ id: 1 }, { id: 2 }] as any;
     component.containerRefs = {
