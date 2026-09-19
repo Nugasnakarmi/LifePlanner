@@ -258,7 +258,7 @@ export class BoardAPIService {
           // Bulk-insert all tasks in this list and capture their IDs.
           // PostgreSQL's multi-row INSERT...RETURNING preserves insertion order,
           // so insertedTasks[i].id corresponds to list.tasks[i].
-          const taskRows = list.tasks.map((task) => ({
+          const taskRows = list.tasks.map((task, taskIdx) => ({
             name: this.sanitizer.sanitize(task.name),
             description: this.sanitizer.sanitize(task.description),
             type: list.listType,

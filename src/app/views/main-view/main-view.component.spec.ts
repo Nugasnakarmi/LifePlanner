@@ -19,7 +19,7 @@ describe('MainViewComponent', () => {
   const taskServiceSpy = jasmine.createSpyObj('TaskService', ['landingPageInitialized'], {
     tasks$,
   });
-  const taskAPIServiceSpy = jasmine.createSpyObj('TaskAPIService', ['updateTaskContainer']);
+  const taskAPIServiceSpy = jasmine.createSpyObj('TaskAPIService', ['updateTaskContainer', 'updateTaskOrder']);
   const boardServiceSpy = jasmine.createSpyObj('BoardService', [], {
     selectedBoard$,
   });
@@ -62,7 +62,7 @@ describe('MainViewComponent', () => {
     const firstTask = { id: 1 } as any;
     const secondTask = { id: 2 } as any;
     const container = { data: [firstTask, secondTask] } as any;
-    component.taskAPIService.updateTaskOrder.and.resolveTo(true);
+    taskAPIServiceSpy.updateTaskOrder.and.resolveTo(true);
 
     await component.drop({
       previousContainer: container,

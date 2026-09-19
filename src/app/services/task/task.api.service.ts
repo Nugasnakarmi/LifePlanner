@@ -111,30 +111,30 @@ export class TaskAPIService {
         throw error;
       }
 
-      async updateTaskOrder(taskIds: number[]): Promise<boolean> {
-        try {
-          await Promise.all(
-            taskIds.map(async (taskId, position) => {
-              const { error } = await this.supabaseService.supabase
-                .from('tasks')
-                .update({ position })
-                .eq('id', taskId);
-              if (error) {
-                throw error;
-              }
-            })
-          );
-
-          return true;
-        } catch (error) {
-          this.toastRService.error(`Failed to update task order: ${error?.message ?? error}`);
-          return false;
-        }
-      }
-
       return true;
     } catch (error) {
       this.toastRService.error(`Failed to update task : ${error.message}`);
+    }
+  }
+
+  async updateTaskOrder(taskIds: number[]): Promise<boolean> {
+    try {
+      await Promise.all(
+        taskIds.map(async (taskId, position) => {
+          const { error } = await this.supabaseService.supabase
+            .from('tasks')
+            .update({ position })
+            .eq('id', taskId);
+          if (error) {
+            throw error;
+          }
+        })
+      );
+
+      return true;
+    } catch (error) {
+      this.toastRService.error(`Failed to update task order: ${error?.message ?? error}`);
+      return false;
     }
   }
 
