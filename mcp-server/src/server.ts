@@ -131,11 +131,13 @@ register('update_activity', 'Update activity content.', { activity_id: id, name:
   query(() => supabase.from('activities').update({ name: args.name, data: args.data, media: args.media }).eq('id', args.activity_id).select().single())
 );
 register('remove_activity_from_task', 'Remove an activity link and activity.', { task_activity_id: id, activity_id: id }, async (args) => {
+  const user_id = await currentUserId();
   const taskActivity = await query(() =>
     supabase
       .from('task_activities')
-      .select('activity_id')
+      .select('activity_id, task:tasks!inner(user_id)')
       .eq('id', args.task_activity_id)
+      .eq('tasks.user_id', user_id)
       .single()
   ) as { activity_id: number } | null;
 
@@ -143,7 +145,7 @@ register('remove_activity_from_task', 'Remove an activity link and activity.', {
     throw new Error('Mismatched activity for the given task activity link');
   }
 
-  return query(() => supabase.from('activities').delete().eq('id', args.activity_id).select('id'));
+  return query(() => supabase.from('activities').delete().eq('id', args.activity_id).eq('user_id', user_id).select('id'));
 });
 register('toggle_activity_complete', 'Set completion for a task activity link.', { task_activity_id: id, completed: z.boolean() }, (args) =>
   query(() => supabase.from('task_activities').update({ completed: args.completed }).eq('id', args.task_activity_id).select().single())
