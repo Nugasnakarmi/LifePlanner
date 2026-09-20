@@ -145,6 +145,15 @@ register('remove_activity_from_task', 'Remove an activity link and activity.', {
     throw new Error('Mismatched activity for the given task activity link');
   }
 
+  await query(() =>
+    supabase
+      .from('task_activities')
+      .delete()
+      .eq('id', args.task_activity_id)
+      .eq('activity_id', args.activity_id)
+      .select('id')
+  );
+
   return query(() => supabase.from('activities').delete().eq('id', args.activity_id).eq('user_id', user_id).select('id'));
 });
 register('toggle_activity_complete', 'Set completion for a task activity link.', { task_activity_id: id, completed: z.boolean() }, (args) =>
