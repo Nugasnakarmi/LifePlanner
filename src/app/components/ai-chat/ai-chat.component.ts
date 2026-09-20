@@ -27,17 +27,26 @@ export class AiChatComponent implements OnDestroy {
   ];
 
   private replyTimer?: ReturnType<typeof setTimeout>;
+  private focusTimer?: ReturnType<typeof setTimeout>;
   @ViewChild('launcherButton') launcherButton?: ElementRef<HTMLButtonElement>;
   @ViewChild('chatInput') chatInput?: ElementRef<HTMLTextAreaElement>;
 
   openChat(): void {
+    this.clearFocusTimer();
     this.isOpen = true;
-    setTimeout(() => this.chatInput?.nativeElement.focus(), 0);
+    this.focusTimer = setTimeout(() => {
+      this.chatInput?.nativeElement.focus();
+      this.focusTimer = undefined;
+    }, 0);
   }
 
   closeChat(): void {
+    this.clearFocusTimer();
     this.isOpen = false;
-    setTimeout(() => this.launcherButton?.nativeElement.focus(), 0);
+    this.focusTimer = setTimeout(() => {
+      this.launcherButton?.nativeElement.focus();
+      this.focusTimer = undefined;
+    }, 0);
   }
 
   sendMessage(): void {
@@ -69,6 +78,14 @@ export class AiChatComponent implements OnDestroy {
   ngOnDestroy(): void {
     if (this.replyTimer) {
       clearTimeout(this.replyTimer);
+    }
+    this.clearFocusTimer();
+  }
+
+  private clearFocusTimer(): void {
+    if (this.focusTimer) {
+      clearTimeout(this.focusTimer);
+      this.focusTimer = undefined;
     }
   }
 }
