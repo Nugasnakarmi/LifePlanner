@@ -1,0 +1,53 @@
+<button
+  *ngIf="!isOpen"
+  class="chat-launcher"
+  type="button"
+  aria-label="Open LifePlanner AI chat"
+  (click)="toggleChat()"
+>
+  <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+  <span>Ask AI</span>
+</button>
+
+<section *ngIf="isOpen" class="chat-panel" aria-label="LifePlanner AI chat">
+  <header class="chat-header">
+    <div>
+      <p class="chat-title"><mat-icon aria-hidden="true">auto_awesome</mat-icon> LifePlanner AI</p>
+      <p class="chat-subtitle">Planning assistant preview</p>
+    </div>
+    <button type="button" class="icon-button" aria-label="Close AI chat" (click)="toggleChat()">
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  </header>
+
+  <div class="chat-messages" aria-live="polite">
+    <div *ngFor="let message of messages" class="message-row" [class.user-message]="message.sender === 'user'">
+      <p class="message-bubble">{{ message.text }}</p>
+    </div>
+    <div *ngIf="isReplying" class="message-row">
+      <p class="message-bubble typing-indicator" aria-label="AI is typing"><span></span><span></span><span></span></p>
+    </div>
+  </div>
+
+  <form class="chat-form" (ngSubmit)="sendMessage()">
+    <label class="visually-hidden" for="ai-chat-input">Message the LifePlanner AI</label>
+    <textarea
+      id="ai-chat-input"
+      name="message"
+      [(ngModel)]="draft"
+      (keydown)="onInputKeydown($event)"
+      placeholder="Ask a question..."
+      rows="1"
+      maxlength="500"
+      [disabled]="isReplying"
+    ></textarea>
+    <button
+      type="submit"
+      class="send-button"
+      aria-label="Send message"
+      [disabled]="!draft.trim() || isReplying"
+    >
+      <mat-icon aria-hidden="true">send</mat-icon>
+    </button>
+  </form>
+</section>
