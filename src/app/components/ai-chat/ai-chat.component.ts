@@ -29,7 +29,7 @@ export class AiChatComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     const userEmailChange = changes['userEmail'];
-    if (!userEmailChange?.firstChange && userEmailChange.currentValue !== userEmailChange.previousValue) {
+    if (userEmailChange && userEmailChange.currentValue !== userEmailChange.previousValue) {
       this.resetChatState();
     }
   }
