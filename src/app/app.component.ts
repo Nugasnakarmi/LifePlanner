@@ -14,10 +14,11 @@ import { AsyncPipe, NgIf } from '@angular/common';
 import { CreateTemplateDialogComponent } from './views/boards-view/create-template-dialog/create-template-dialog.component';
 import { PENDING_INVITE_TOKEN_KEY } from './services/board/board-invitation.constants';
 import { Session } from '@supabase/supabase-js';
+import { AiChatComponent } from './components/ai-chat/ai-chat.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatMenuModule, MatButtonModule, MatIconModule, MatDividerModule, MatDialogModule, NgIf, AsyncPipe, FormsModule],
+  imports: [RouterOutlet, MatMenuModule, MatButtonModule, MatIconModule, MatDividerModule, MatDialogModule, NgIf, AsyncPipe, FormsModule, AiChatComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
