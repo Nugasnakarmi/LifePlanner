@@ -142,7 +142,7 @@ register('remove_activity_from_task', 'Remove an activity link and activity.', {
   ) as { activity_id: number } | null;
 
   if (!taskActivity || taskActivity.activity_id !== args.activity_id) {
-    throw new Error('Mismatched activity for the given task activity link');
+    throw new Error('Task activity link was not found for this user or did not match the provided activity');
   }
 
   await query(() =>
