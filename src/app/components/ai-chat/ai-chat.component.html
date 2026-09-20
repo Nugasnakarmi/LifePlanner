@@ -1,6 +1,6 @@
 <button
   #launcherButton
-  *ngIf="!isOpen"
+  *ngIf="userEmail && !isOpen"
   class="chat-launcher"
   type="button"
   aria-label="Open LifePlanner AI chat"
@@ -10,7 +10,7 @@
   <span>Ask AI</span>
 </button>
 
-<section *ngIf="isOpen" class="chat-panel" aria-label="LifePlanner AI chat">
+<section *ngIf="userEmail && isOpen" class="chat-panel" aria-label="LifePlanner AI chat">
   <header class="chat-header">
     <div>
       <p class="chat-title"><mat-icon aria-hidden="true">auto_awesome</mat-icon> LifePlanner AI</p>

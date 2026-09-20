@@ -1,5 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -15,23 +15,30 @@ interface ChatMessage {
   templateUrl: './ai-chat.component.html',
   styleUrls: ['./ai-chat.component.scss'],
 })
-export class AiChatComponent implements OnDestroy {
+export class AiChatComponent implements OnChanges, OnDestroy {
+  @Input() userEmail: string | null = null;
   isOpen = false;
   isReplying = false;
   draft = '';
-  messages: ChatMessage[] = [
-    {
-      text: 'Hi! I’m your LifePlanner assistant. Ask me anything about planning your day.',
-      sender: 'assistant',
-    },
-  ];
+  messages: ChatMessage[] = this.getInitialMessages();
 
   private replyTimer?: ReturnType<typeof setTimeout>;
   private focusTimer?: ReturnType<typeof setTimeout>;
   @ViewChild('launcherButton') launcherButton?: ElementRef<HTMLButtonElement>;
   @ViewChild('chatInput') chatInput?: ElementRef<HTMLTextAreaElement>;
 
+  ngOnChanges(changes: SimpleChanges): void {
+    const userEmailChange = changes['userEmail'];
+    if (!userEmailChange?.firstChange && userEmailChange.currentValue !== userEmailChange.previousValue) {
+      this.resetChatState();
+    }
+  }
+
   openChat(): void {
+    if (!this.userEmail) {
+      return;
+    }
+
     this.clearFocusTimer();
     this.isOpen = true;
     this.focusTimer = setTimeout(() => {
@@ -87,5 +94,27 @@ export class AiChatComponent implements OnDestroy {
       clearTimeout(this.focusTimer);
       this.focusTimer = undefined;
     }
+  }
+
+  private resetChatState(): void {
+    if (this.replyTimer) {
+      clearTimeout(this.replyTimer);
+      this.replyTimer = undefined;
+    }
+
+    this.clearFocusTimer();
+    this.isOpen = false;
+    this.isReplying = false;
+    this.draft = '';
+    this.messages = this.getInitialMessages();
+  }
+
+  private getInitialMessages(): ChatMessage[] {
+    return [
+      {
+        text: 'Hi! I’m your LifePlanner assistant. Ask me anything about planning your day.',
+        sender: 'assistant',
+      },
+    ];
   }
 }
