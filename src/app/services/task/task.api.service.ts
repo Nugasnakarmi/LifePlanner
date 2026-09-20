@@ -119,17 +119,16 @@ export class TaskAPIService {
 
   async updateTaskOrder(taskIds: number[]): Promise<boolean> {
     try {
-      await Promise.all(
-        taskIds.map(async (taskId, position) => {
-          const { error } = await this.supabaseService.supabase
-            .from('tasks')
-            .update({ position })
-            .eq('id', taskId);
-          if (error) {
-            throw error;
-          }
-        })
-      );
+      if (taskIds.length === 0) {
+        return true;
+      }
+
+      const { error } = await this.supabaseService.supabase.rpc('reorder_tasks', {
+        task_ids: taskIds,
+      });
+      if (error) {
+        throw error;
+      }
 
       return true;
     } catch (error) {

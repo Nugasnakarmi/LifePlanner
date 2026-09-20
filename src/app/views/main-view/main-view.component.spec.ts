@@ -16,7 +16,7 @@ describe('MainViewComponent', () => {
   const lists$ = new BehaviorSubject<any[]>([]);
   const selectedBoard$ = new BehaviorSubject<any>(null);
 
-  const taskServiceSpy = jasmine.createSpyObj('TaskService', ['landingPageInitialized'], {
+  const taskServiceSpy = jasmine.createSpyObj('TaskService', ['landingPageInitialized', 'taskOrderPersisted'], {
     tasks$,
   });
   const taskAPIServiceSpy = jasmine.createSpyObj('TaskAPIService', ['updateTaskContainer', 'updateTaskOrder']);
@@ -37,6 +37,7 @@ describe('MainViewComponent', () => {
     selectedBoard$.next(null);
     taskServiceSpy.landingPageInitialized.calls.reset();
     taskAPIServiceSpy.updateTaskContainer.calls.reset();
+    taskServiceSpy.taskOrderPersisted.calls.reset();
     boardListServiceSpy.loadLists.calls.reset();
     boardListServiceSpy.clearLists.calls.reset();
 
@@ -61,7 +62,7 @@ describe('MainViewComponent', () => {
   it('persists task order after reordering within a list', async () => {
     const firstTask = { id: 1 } as any;
     const secondTask = { id: 2 } as any;
-    const container = { data: [firstTask, secondTask] } as any;
+    const container = { id: '5', data: [firstTask, secondTask] } as any;
     taskAPIServiceSpy.updateTaskOrder.and.resolveTo(true);
 
     await component.drop({
@@ -72,6 +73,33 @@ describe('MainViewComponent', () => {
     } as any);
 
     expect(taskAPIServiceSpy.updateTaskOrder).toHaveBeenCalledWith([2, 1]);
+    expect(taskServiceSpy.taskOrderPersisted).toHaveBeenCalledWith([2, 1], 5);
+  });
+
+  it('syncs store order after moving a task across lists', async () => {
+    const sourceContainer = { id: '3', data: [{ id: 1 }, { id: 2 }] } as any;
+    const targetContainer = { id: '5', data: [{ id: 7 }] } as any;
+    component.boardLists = [{ id: 5, position: 2 }] as any;
+
+    taskAPIServiceSpy.updateTaskContainer.and.resolveTo(true);
+    taskAPIServiceSpy.updateTaskOrder.and.resolveTo(true);
+
+    await component.drop({
+      previousContainer: sourceContainer,
+      container: targetContainer,
+      previousIndex: 0,
+      currentIndex: 1,
+    } as any);
+
+    expect(taskAPIServiceSpy.updateTaskContainer).toHaveBeenCalledWith({
+      id: 1,
+      type: 2,
+      boards_lists_id: 5,
+    });
+    expect(taskAPIServiceSpy.updateTaskOrder).toHaveBeenCalledWith([2]);
+    expect(taskAPIServiceSpy.updateTaskOrder).toHaveBeenCalledWith([7, 1]);
+    expect(taskServiceSpy.taskOrderPersisted).toHaveBeenCalledWith([2], 3);
+    expect(taskServiceSpy.taskOrderPersisted).toHaveBeenCalledWith([7, 1], 5);
   });
 
   it('collapses only lists with completed tasks', () => {

@@ -74,6 +74,42 @@ export const tasksReducer = createReducer(
       task.id === taskId ? { ...task, completion_status: completionStatus } : task
     ),
   })),
+  on(taskActions.taskOrderPersisted, (state, { orderedTaskIds, boardListId }) => {
+    const positionById = new Map(orderedTaskIds.map((taskId, index) => [taskId, index]));
+
+    const tasks = state.tasks
+      .map((task) => {
+        if (task.id === undefined || !positionById.has(task.id)) {
+          return task;
+        }
+
+        return {
+          ...task,
+          boards_lists_id: boardListId,
+          position: positionById.get(task.id),
+        };
+      })
+      .sort((a, b) => {
+        const listA = a.boards_lists_id ?? Number.MAX_SAFE_INTEGER;
+        const listB = b.boards_lists_id ?? Number.MAX_SAFE_INTEGER;
+        if (listA !== listB) {
+          return listA - listB;
+        }
+
+        const positionA = a.position ?? Number.MAX_SAFE_INTEGER;
+        const positionB = b.position ?? Number.MAX_SAFE_INTEGER;
+        if (positionA !== positionB) {
+          return positionA - positionB;
+        }
+
+        return (a.id ?? 0) - (b.id ?? 0);
+      });
+
+    return {
+      ...state,
+      tasks,
+    };
+  }),
   on(activityActions.addActivityToTaskSuccess, (state, { activity, taskActivity }) => ({
     ...state,
     tasks: state.tasks.map((task) =>
