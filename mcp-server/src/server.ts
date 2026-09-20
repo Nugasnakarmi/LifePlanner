@@ -154,6 +154,18 @@ register('remove_activity_from_task', 'Remove an activity link and activity.', {
       .select('id')
   );
 
+  const remainingLinks = await query(() =>
+    supabase
+      .from('task_activities')
+      .select('id')
+      .eq('activity_id', args.activity_id)
+      .limit(1)
+  ) as { id: number }[] | null;
+
+  if (remainingLinks && remainingLinks.length > 0) {
+    return { id: args.task_activity_id };
+  }
+
   return query(() => supabase.from('activities').delete().eq('id', args.activity_id).eq('user_id', user_id).select('id'));
 });
 register('toggle_activity_complete', 'Set completion for a task activity link.', { task_activity_id: id, completed: z.boolean() }, (args) =>
