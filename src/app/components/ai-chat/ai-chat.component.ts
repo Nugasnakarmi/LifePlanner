@@ -1,5 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -27,9 +27,17 @@ export class AiChatComponent implements OnDestroy {
   ];
 
   private replyTimer?: ReturnType<typeof setTimeout>;
+  @ViewChild('launcherButton') launcherButton?: ElementRef<HTMLButtonElement>;
+  @ViewChild('chatInput') chatInput?: ElementRef<HTMLTextAreaElement>;
 
-  toggleChat(): void {
-    this.isOpen = !this.isOpen;
+  openChat(): void {
+    this.isOpen = true;
+    setTimeout(() => this.chatInput?.nativeElement.focus(), 0);
+  }
+
+  closeChat(): void {
+    this.isOpen = false;
+    setTimeout(() => this.launcherButton?.nativeElement.focus(), 0);
   }
 
   sendMessage(): void {

@@ -1,9 +1,10 @@
 <button
+  #launcherButton
   *ngIf="!isOpen"
   class="chat-launcher"
   type="button"
   aria-label="Open LifePlanner AI chat"
-  (click)="toggleChat()"
+  (click)="openChat()"
 >
   <mat-icon aria-hidden="true">auto_awesome</mat-icon>
   <span>Ask AI</span>
@@ -15,7 +16,7 @@
       <p class="chat-title"><mat-icon aria-hidden="true">auto_awesome</mat-icon> LifePlanner AI</p>
       <p class="chat-subtitle">Planning assistant preview</p>
     </div>
-    <button type="button" class="icon-button" aria-label="Close AI chat" (click)="toggleChat()">
+    <button type="button" class="icon-button" aria-label="Close AI chat" (click)="closeChat()">
       <mat-icon aria-hidden="true">close</mat-icon>
     </button>
   </header>
@@ -32,6 +33,7 @@
   <form class="chat-form" (ngSubmit)="sendMessage()">
     <label class="visually-hidden" for="ai-chat-input">Message the LifePlanner AI</label>
     <textarea
+      #chatInput
       id="ai-chat-input"
       name="message"
       [(ngModel)]="draft"
