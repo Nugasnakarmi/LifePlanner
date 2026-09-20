@@ -185,13 +185,21 @@ export class MainViewComponent implements OnInit, OnDestroy {
     return isCompletedTaskStatus(status);
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  async drop(event: CdkDragDrop<IdeaTask[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
         event.previousIndex,
         event.currentIndex
       );
+      const orderedTaskIds = event.container.data.map((task) => task.id).filter((id): id is number => id !== undefined);
+      const saveOrderResult = await this.taskAPIService.updateTaskOrder(
+        orderedTaskIds
+      );
+      const boardListId = Number(event.container.id);
+      if (saveOrderResult && !isNaN(boardListId)) {
+        this.taskService.taskOrderPersisted(orderedTaskIds, boardListId);
+      }
     } else {
       transferArrayItem(
         event.previousContainer.data,
@@ -206,12 +214,35 @@ export class MainViewComponent implements OnInit, OnDestroy {
       if (isNaN(boardListId)) return;
       const targetList = this.boardLists.find((l) => l.id === boardListId);
       if (!targetList) return;
-      this.taskAPIService
-        .updateTaskContainer({
-          id: data.id,
-          type: targetList.position,
-          boards_lists_id: boardListId,
-        });
+      const containerUpdateResult = await this.taskAPIService.updateTaskContainer({
+        id: data.id,
+        type: targetList.position,
+        boards_lists_id: boardListId,
+      });
+      const sourceOrderedTaskIds = event.previousContainer.data
+        .map((task) => task.id)
+        .filter((id): id is number => id !== undefined);
+      const targetOrderedTaskIds = event.container.data
+        .map((task) => task.id)
+        .filter((id): id is number => id !== undefined);
+      const [saveSourceOrderResult, saveTargetOrderResult] = await Promise.all([
+        this.taskAPIService.updateTaskOrder(
+          sourceOrderedTaskIds
+        ),
+        this.taskAPIService.updateTaskOrder(
+          targetOrderedTaskIds
+        ),
+      ]);
+      const sourceBoardListId = Number(event.previousContainer.id);
+      if (
+        containerUpdateResult &&
+        saveSourceOrderResult &&
+        saveTargetOrderResult &&
+        !isNaN(sourceBoardListId)
+      ) {
+        this.taskService.taskOrderPersisted(sourceOrderedTaskIds, sourceBoardListId);
+        this.taskService.taskOrderPersisted(targetOrderedTaskIds, boardListId, true);
+      }
     }
   }
 

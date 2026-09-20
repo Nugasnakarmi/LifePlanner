@@ -19,6 +19,21 @@ export class TaskAPIService {
   async addTask(taskData: IdeaTask): Promise<IdeaTask | null> {
     try {
       let user: User = await this.supabaseService.getUser();
+      let position = taskData.position;
+      if (position === undefined && taskData.boards_lists_id !== undefined) {
+        const { data: lastTask, error: lastTaskError } = await this.supabaseService.supabase
+          .from('tasks')
+          .select('position')
+          .eq('boards_lists_id', taskData.boards_lists_id)
+          .order('position', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (lastTaskError) {
+          throw lastTaskError;
+        }
+        position = (lastTask?.position ?? -1) + 1;
+      }
+
       let { data, error } = await this.supabaseService.supabase
         .from('tasks')
         .insert({
@@ -30,6 +45,7 @@ export class TaskAPIService {
           user_id: user.id,
           board_id: taskData.board_id,
           boards_lists_id: taskData.boards_lists_id,
+          position: position ?? 0,
         })
         .select()
         .single();
@@ -50,7 +66,9 @@ export class TaskAPIService {
     try {
       let { data: tasks, error } = await this.supabaseService.supabase
         .from('tasks')
-        .select('*, task_activities(id, completed, position, activity:activities(id, name, media))');
+        .select('*, task_activities(id, completed, position, activity:activities(id, name, media))')
+        .order('position', { ascending: true })
+        .order('id', { ascending: true });
       if (error) {
         throw error;
       }
@@ -96,6 +114,26 @@ export class TaskAPIService {
       return true;
     } catch (error) {
       this.toastRService.error(`Failed to update task : ${error.message}`);
+    }
+  }
+
+  async updateTaskOrder(taskIds: number[]): Promise<boolean> {
+    try {
+      if (taskIds.length === 0) {
+        return true;
+      }
+
+      const { error } = await this.supabaseService.supabase.rpc('reorder_tasks', {
+        task_ids: taskIds,
+      });
+      if (error) {
+        throw error;
+      }
+
+      return true;
+    } catch (error) {
+      this.toastRService.error(`Failed to update task order: ${error?.message ?? error}`);
+      return false;
     }
   }
 
