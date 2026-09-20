@@ -21,6 +21,7 @@ const anthropic = process.env['ANTHROPIC_API_KEY']
 const server = new McpServer({ name: 'lifeplanner-api', version: '0.1.0' });
 
 const id = z.number().int().positive();
+const ideaType = z.number().int().nonnegative();
 const result = (value: unknown) => ({
   content: [{ type: 'text' as const, text: JSON.stringify(value ?? null) }],
 });
@@ -79,8 +80,8 @@ register('delete_board', 'Delete a board owned by the authenticated user.', { bo
 register('list_board_lists', 'List lists for a board.', { board_id: id }, (args) =>
   query(() => supabase.from('board_lists').select('*').eq('board_id', args.board_id).order('position'))
 );
-register('create_board_list', 'Create a list on a board.', { board_id: id, name: z.string().min(1), position: z.number().int().nonnegative().optional() }, async (args) =>
-  query(() => currentUserId().then((user_id) => supabase.from('board_lists').insert({ board_id: args.board_id, name: args.name, position: args.position ?? 0, user_id }).select().single()))
+register('create_board_list', 'Create a list on a board.', { board_id: id, name: z.string().min(1), position: z.number().int().nonnegative() }, async (args) =>
+  query(() => currentUserId().then((user_id) => supabase.from('board_lists').insert({ board_id: args.board_id, name: args.name, position: args.position, user_id }).select().single()))
 );
 register('rename_board_list', 'Rename a board list.', { list_id: id, name: z.string().min(1) }, (args) =>
   query(() => supabase.from('board_lists').update({ name: args.name }).eq('id', args.list_id).select().single())
@@ -93,14 +94,14 @@ register('list_tasks', 'List tasks, including their activity links.', {}, () =>
   query(() => supabase.from('tasks').select('*, task_activities(id, completed, position, activity:activities(*))').order('position').order('id'))
 );
 register('create_task', 'Create a task.', {
-  name: z.string().min(1), description: z.string().optional(), type: z.string(), board_id: id.optional(),
+  name: z.string().min(1), description: z.string().optional(), type: ideaType, board_id: id.optional(),
   boards_lists_id: id.optional(), status: z.string().optional(), completion_status: z.number().int().min(0).max(100).optional(),
 }, async (args) => query(() => currentUserId().then((user_id) => supabase.from('tasks').insert({
   name: args.name, description: args.description ?? '', type: args.type, board_id: args.board_id,
   boards_lists_id: args.boards_lists_id, status: args.status ?? 'Initiated', completion_status: args.completion_status ?? 0, user_id,
 }).select().single())));
 register('update_task', 'Update task content or container.', {
-  task_id: id, name: z.string().min(1).optional(), description: z.string().optional(), type: z.string().optional(),
+  task_id: id, name: z.string().min(1).optional(), description: z.string().optional(), type: ideaType.optional(),
   board_id: id.optional(), boards_lists_id: id.optional(),
 }, (args) => query(() => supabase.from('tasks').update({
   name: args.name, description: args.description, type: args.type, board_id: args.board_id, boards_lists_id: args.boards_lists_id,
@@ -129,9 +130,21 @@ register('create_activity', 'Create an activity and link it to a task.', { task_
 register('update_activity', 'Update activity content.', { activity_id: id, name: z.string().min(1).optional(), data: z.array(z.unknown()).optional(), media: z.array(z.unknown()).optional() }, (args) =>
   query(() => supabase.from('activities').update({ name: args.name, data: args.data, media: args.media }).eq('id', args.activity_id).select().single())
 );
-register('remove_activity_from_task', 'Remove an activity link and activity.', { activity_id: id }, (args) =>
-  query(() => supabase.from('activities').delete().eq('id', args.activity_id).select('id'))
-);
+register('remove_activity_from_task', 'Remove an activity link and activity.', { task_activity_id: id, activity_id: id }, async (args) => {
+  const taskActivity = await query(() =>
+    supabase
+      .from('task_activities')
+      .select('activity_id')
+      .eq('id', args.task_activity_id)
+      .single()
+  ) as { activity_id: number } | null;
+
+  if (!taskActivity || taskActivity.activity_id !== args.activity_id) {
+    throw new Error('Mismatched activity for the given task activity link');
+  }
+
+  return query(() => supabase.from('activities').delete().eq('id', args.activity_id).select('id'));
+});
 register('toggle_activity_complete', 'Set completion for a task activity link.', { task_activity_id: id, completed: z.boolean() }, (args) =>
   query(() => supabase.from('task_activities').update({ completed: args.completed }).eq('id', args.task_activity_id).select().single())
 );
@@ -143,9 +156,9 @@ register('delete_board_template', 'Delete a board template.', { template_id: id 
   query(() => supabase.from('board_templates').delete().eq('id', args.template_id).select('id'))
 );
 const templateLists = z.array(z.object({
-  name: z.string().min(1), listType: z.string(), position: z.number().int().nonnegative().optional(),
+  name: z.string().min(1), listType: ideaType, position: z.number().int().nonnegative(),
   tasks: z.array(z.object({
-    name: z.string().min(1), description: z.string().optional(), position: z.number().int().nonnegative().optional(),
+    name: z.string().min(1), description: z.string().optional(), position: z.number().int().nonnegative(),
     activities: z.array(z.unknown()).optional(),
   })).optional(),
 }));
@@ -175,7 +188,7 @@ register('remove_collaborator', 'Remove a collaborator.', { collaborator_id: id 
   query(() => supabase.from('board_collaborators').delete().eq('id', args.collaborator_id).select('id'))
 );
 register('leave_shared_board', 'Leave a shared board.', { board_id: id }, (args) =>
-  query(() => supabase.from('board_collaborators').delete().eq('board_id', args.board_id).select('id'))
+  query(() => currentUserId().then((user_id) => supabase.from('board_collaborators').delete().eq('board_id', args.board_id).eq('user_id', user_id).select('id')))
 );
 register('list_pending_invitations', 'List pending board invitations for the current user.', {}, () =>
   query(() => supabase.rpc('get_my_pending_direct_invitations'))
