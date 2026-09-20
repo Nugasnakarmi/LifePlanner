@@ -241,7 +241,7 @@ export class MainViewComponent implements OnInit, OnDestroy {
         !isNaN(sourceBoardListId)
       ) {
         this.taskService.taskOrderPersisted(sourceOrderedTaskIds, sourceBoardListId);
-        this.taskService.taskOrderPersisted(targetOrderedTaskIds, boardListId);
+        this.taskService.taskOrderPersisted(targetOrderedTaskIds, boardListId, true);
       }
     }
   }

@@ -74,18 +74,23 @@ export const tasksReducer = createReducer(
       task.id === taskId ? { ...task, completion_status: completionStatus } : task
     ),
   })),
-  on(taskActions.taskOrderPersisted, (state, { orderedTaskIds, boardListId }) => {
+  on(taskActions.taskOrderPersisted, (state, { orderedTaskIds, boardListId, updateBoardListId }) => {
     const positionById = new Map(orderedTaskIds.map((taskId, index) => [taskId, index]));
 
     const tasks = state.tasks
       .map((task) => {
-        if (task.id === undefined || !positionById.has(task.id)) {
+        const shouldUpdateTask =
+          task.id !== undefined &&
+          positionById.has(task.id) &&
+          (updateBoardListId || task.boards_lists_id === boardListId);
+
+        if (!shouldUpdateTask) {
           return task;
         }
 
         return {
           ...task,
-          boards_lists_id: boardListId,
+          boards_lists_id: updateBoardListId ? boardListId : task.boards_lists_id,
           position: positionById.get(task.id),
         };
       })

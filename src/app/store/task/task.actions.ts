@@ -95,5 +95,5 @@ export const taskCompletionStatusUpdateFailed = createAction(
 
 export const taskOrderPersisted = createAction(
   '[Tasks] Task Order Persisted',
-  props<{ orderedTaskIds: number[]; boardListId: number }>()
+  props<{ orderedTaskIds: number[]; boardListId: number; updateBoardListId?: boolean }>()
 );

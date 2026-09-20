@@ -49,7 +49,13 @@ export class TaskService {
     this.store.dispatch(taskActions.taskCompletionStatusUpdated({ taskId, completionStatus }));
   }
 
-  public taskOrderPersisted(orderedTaskIds: number[], boardListId: number): void {
-    this.store.dispatch(taskActions.taskOrderPersisted({ orderedTaskIds, boardListId }));
+  public taskOrderPersisted(
+    orderedTaskIds: number[],
+    boardListId: number,
+    updateBoardListId = false
+  ): void {
+    this.store.dispatch(
+      taskActions.taskOrderPersisted({ orderedTaskIds, boardListId, updateBoardListId })
+    );
   }
 }

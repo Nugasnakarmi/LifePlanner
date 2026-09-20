@@ -99,7 +99,7 @@ describe('MainViewComponent', () => {
     expect(taskAPIServiceSpy.updateTaskOrder).toHaveBeenCalledWith([2]);
     expect(taskAPIServiceSpy.updateTaskOrder).toHaveBeenCalledWith([7, 1]);
     expect(taskServiceSpy.taskOrderPersisted).toHaveBeenCalledWith([2], 3);
-    expect(taskServiceSpy.taskOrderPersisted).toHaveBeenCalledWith([7, 1], 5);
+    expect(taskServiceSpy.taskOrderPersisted).toHaveBeenCalledWith([7, 1], 5, true);
   });
 
   it('collapses only lists with completed tasks', () => {
