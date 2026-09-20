@@ -210,9 +210,20 @@ register('update_collaborator_role', 'Change a collaborator role.', { collaborat
 register('remove_collaborator', 'Remove a collaborator.', { collaborator_id: id }, (args) =>
   query(() => supabase.from('board_collaborators').delete().eq('id', args.collaborator_id).select('id'))
 );
-register('leave_shared_board', 'Leave a shared board.', { board_id: id }, (args) =>
-  query(() => currentUserId().then((user_id) => supabase.from('board_collaborators').delete().eq('board_id', args.board_id).eq('user_id', user_id).select('id')))
-);
+register('leave_shared_board', 'Leave a shared board.', { board_id: id }, async (args) => {
+  const rows = await query(() =>
+    currentUserId().then((user_id) =>
+      supabase
+        .from('board_collaborators')
+        .delete()
+        .eq('board_id', args.board_id)
+        .eq('user_id', user_id)
+        .select('id')
+    )
+  ) as { id: number }[] | null;
+
+  return rows?.[0] ?? null;
+});
 register('list_pending_invitations', 'List pending board invitations for the current user.', {}, () =>
   query(() => supabase.rpc('get_my_pending_direct_invitations'))
 );
