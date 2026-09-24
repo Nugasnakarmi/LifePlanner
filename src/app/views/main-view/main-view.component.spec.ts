@@ -102,7 +102,7 @@ describe('MainViewComponent', () => {
     expect(taskServiceSpy.taskOrderPersisted).toHaveBeenCalledWith([7, 1], 5, true);
   });
 
-  it('collapses only lists with completed tasks', () => {
+  it('does not automatically collapse lists with completed tasks', () => {
     component.boardLists = [{ id: 1 }, { id: 2 }] as any;
     component.containerRefs = {
       1: [{ status: TaskStatus.Completed }, { status: TaskStatus.Completed }] as any,
@@ -111,11 +111,11 @@ describe('MainViewComponent', () => {
 
     component.updateCollapsedLists();
 
-    expect(component.isListCollapsed(1)).toBeTrue();
+    expect(component.isListCollapsed(1)).toBeFalse();
     expect(component.isListCollapsed(2)).toBeFalse();
   });
 
-  it('treats legacy "Working On" status as completed when auto-collapsing', () => {
+  it('does not automatically collapse lists with legacy completed statuses', () => {
     component.boardLists = [{ id: 1 }] as any;
     component.containerRefs = {
       1: [{ status: 'Working On' }] as any,
@@ -123,23 +123,24 @@ describe('MainViewComponent', () => {
 
     component.updateCollapsedLists();
 
-    expect(component.isListCollapsed(1)).toBeTrue();
+    expect(component.isListCollapsed(1)).toBeFalse();
   });
 
-  it('preserves a manual expansion when defaults are recomputed', () => {
+  it('supports manually expanding a collapsed list', () => {
     component.boardLists = [{ id: 1 }] as any;
     component.containerRefs = {
       1: [{ status: TaskStatus.Completed }] as any,
     };
 
-    component.updateCollapsedLists();
+    component.toggleListCollapsed(1);
+    expect(component.isListCollapsed(1)).toBeTrue();
     component.toggleListCollapsed(1);
     component.updateCollapsedLists();
 
     expect(component.isListCollapsed(1)).toBeFalse();
   });
 
-  it('preserves a manual collapse when defaults are recomputed', () => {
+  it('preserves a manual collapse across task updates', () => {
     component.boardLists = [{ id: 1 }] as any;
     component.containerRefs = {
       1: [{ status: TaskStatus.Initiated }] as any,
@@ -152,7 +153,7 @@ describe('MainViewComponent', () => {
     expect(component.isListCollapsed(1)).toBeTrue();
   });
 
-  it('preserves a manual expansion across subsequent store emissions', () => {
+  it('preserves a manual collapse across subsequent store emissions', () => {
     component.ngOnInit();
     selectedBoard$.next({ id: 7 });
     lists$.next([{ id: 1 }]);
@@ -162,16 +163,16 @@ describe('MainViewComponent', () => {
     tasks$.next([
       { board_id: 7, boards_lists_id: 1, status: TaskStatus.Completed },
     ] as any);
-    expect(component.isListCollapsed(1)).toBeTrue();
+    expect(component.isListCollapsed(1)).toBeFalse();
 
     component.toggleListCollapsed(1);
-    expect(component.isListCollapsed(1)).toBeFalse();
+    expect(component.isListCollapsed(1)).toBeTrue();
 
     tasks$.next([
       { board_id: 7, boards_lists_id: 1, status: TaskStatus.Completed },
     ] as any);
 
-    expect(component.isListCollapsed(1)).toBeFalse();
+    expect(component.isListCollapsed(1)).toBeTrue();
 
     subscription.unsubscribe();
     component.ngOnDestroy();
